@@ -430,14 +430,13 @@ export function DomainSetupGuide({
                       📝 <strong>Instructions:</strong> 
                       {domainData.domain.split('.').length > 2 ? (
                         <>
-                          <strong>Important:</strong> Add this TXT record in your DNS panel. Try one of these approaches:
+                          <strong>Important:</strong> Add this TXT record in your DNS panel:
                           <div className="mt-2 text-xs text-orange-300 space-y-1">
-                            <p><strong>Option 1:</strong> Name: "{domainData.dnsRecords?.txt?.name}" (in your {domainData.domain.split('.').slice(-2).join('.')} DNS panel)</p>
-                            <p><strong>Option 2:</strong> Name: "{domainData.domain}" (full subdomain name)</p>
-                            <p><strong>Option 3:</strong> Add it directly to subdomain if your DNS provider supports subdomain zones</p>
+                            <p><strong>For Namecheap users:</strong> Use "{domainData.domain}" (full subdomain) as the Host name</p>
+                            <p><strong>For other providers:</strong> Try "{domainData.dnsRecords?.txt?.name}" first, then "{domainData.domain}" if it doesn't work</p>
                           </div>
                           <div className="mt-2 text-orange-200 text-xs">
-                            💡 Different DNS providers handle subdomain TXT records differently. Try Option 1 first, then Option 2 if it doesn't work.
+                            💡 Namecheap requires the full subdomain name ({domainData.domain}) in the Host field for subdomain TXT records.
                           </div>
                         </>
                       ) : (
@@ -481,10 +480,11 @@ export function DomainSetupGuide({
                     <p><strong>If verification fails:</strong></p>
                     <ul className="text-xs space-y-1 ml-4">
                       <li>• Make sure your CNAME record is working first (it should be ✅)</li>
-                      <li>• Try adding the TXT record with name: "{domainData.domain}" (full subdomain)</li>
-                      <li>• Some DNS providers need the full subdomain name, not just "{domainData.dnsRecords?.txt?.name}"</li>
+                      <li><strong>• For Namecheap:</strong> Delete current TXT record and recreate with Host: "{domainData.domain}"</li>
+                      <li>• Wait 5-10 minutes after making DNS changes</li>
                       <li>• Check both links above to see where your TXT record actually appears</li>
                       <li>• Your other TXT records won't interfere - this is specific to your subdomain</li>
+                      <li>• If still failing, the record might only appear on your root domain (we check there too)</li>
                     </ul>
                   </div>
                 </div>

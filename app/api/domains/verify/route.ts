@@ -153,7 +153,7 @@ async function checkTXTRecord(domain: string, token: string): Promise<boolean> {
         console.log('Direct subdomain TXT lookup failed:', (subdomainError as Error).message)
       }
       
-      // Approach 2: Check root domain for subdomain-specific records
+      // Approach 2: Check root domain for subdomain-specific records (Namecheap fix)
       try {
         const rootTxtRecords = await dns.resolveTxt(rootDomain)
         console.log('Root domain TXT records found:', rootTxtRecords)
@@ -162,7 +162,7 @@ async function checkTXTRecord(domain: string, token: string): Promise<boolean> {
         const hasTokenInRoot = rootTxtValues.some(record => record.includes(token))
         
         if (hasTokenInRoot) {
-          console.log('✅ Found verification token in root domain TXT records')
+          console.log('✅ Found verification token in root domain TXT records (Namecheap fallback)')
           return true
         }
       } catch (rootError) {
