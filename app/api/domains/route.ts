@@ -58,9 +58,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to retrieve domains' }, { status: 500 })
     }
 
+    // Transform snake_case to camelCase for frontend compatibility
+    const transformDomain = (domain: any) => {
+      if (!domain) return domain
+      return {
+        ...domain,
+        userId: domain.user_id,
+        funnelId: domain.funnel_id,
+        verificationToken: domain.verification_token,
+        dnsRecords: domain.dns_records,
+        sslStatus: domain.ssl_status || 'pending',
+        createdAt: domain.created_at,
+        updatedAt: domain.updated_at,
+        lastVerifiedAt: domain.last_verified_at
+      }
+    }
+
     return NextResponse.json({ 
-      domains: domainId ? [data] : data || [],
-      domain: domainId ? data : undefined
+      domains: domainId ? [transformDomain(data)] : (data || []).map(transformDomain),
+      domain: domainId ? transformDomain(data) : undefined
     })
   } catch (error) {
     console.error('Error retrieving domains:', error)
@@ -172,8 +188,21 @@ export async function POST(request: NextRequest) {
       .eq('id', funnelId)
       .eq('user_id', userId)
 
+    // Transform for frontend compatibility
+    const transformedDomain = {
+      ...newDomain,
+      userId: newDomain.user_id,
+      funnelId: newDomain.funnel_id,
+      verificationToken: newDomain.verification_token,
+      dnsRecords: newDomain.dns_records,
+      sslStatus: newDomain.ssl_status || 'pending',
+      createdAt: newDomain.created_at,
+      updatedAt: newDomain.updated_at,
+      lastVerifiedAt: newDomain.last_verified_at
+    }
+
     return NextResponse.json({ 
-      domain: newDomain,
+      domain: transformedDomain,
       message: 'Domain added successfully! Please configure DNS records to verify.',
       dnsInstructions: {
         message: 'Add these DNS records to your domain provider:',
@@ -234,49 +263,53 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json({ error: 'Domain not found' }, { status: 404 })
       }
 
-      // In a real implementation, you would:
-      // 1. Check DNS records using a DNS lookup service
-      // 2. Verify the TXT record contains the verification token
-      // 3. Check if CNAME is properly configured
-      
-      // For demo purposes, we'll simulate verification
-      const isVerified = Math.random() > 0.3 // 70% success rate for demo
-
-      if (isVerified) {
-        // Update domain as verified
-        const { data: updatedDomain, error: updateError } = await supabaseAdmin
-          .from('custom_domains')
-          .update({ 
-            verified: true, 
-            ssl_status: 'active',
-            last_verified_at: new Date().toISOString()
+      // Use the dedicated verification service
+      try {
+        const verifyResponse = await fetch(`${request.nextUrl.origin}/api/domains/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            domainId,
+            userId
           })
-          .eq('id', domainId)
-          .eq('user_id', userId)
-          .select()
-          .single()
-
-        if (updateError) {
-          console.error('Error updating domain:', updateError)
-          return NextResponse.json({ error: 'Failed to update domain' }, { status: 500 })
-        }
-
-        // Update funnel domain verification
-        await supabaseAdmin
-          .from('saved_funnels')
-          .update({ domain_verified: true })
-          .eq('id', domain.funnel_id)
-          .eq('user_id', userId)
-
-        return NextResponse.json({ 
-          domain: updatedDomain,
-          message: 'Domain verified successfully!' 
         })
-      } else {
+
+        const verifyData = await verifyResponse.json()
+
+        if (verifyResponse.ok && verifyData.success) {
+          // Transform for frontend compatibility
+          const transformedDomain = {
+            ...domain,
+            verified: true,
+            ssl_status: 'active',
+            userId: domain.user_id,
+            funnelId: domain.funnel_id,
+            verificationToken: domain.verification_token,
+            dnsRecords: domain.dns_records,
+            sslStatus: 'active',
+            createdAt: domain.created_at,
+            updatedAt: domain.updated_at,
+            lastVerifiedAt: new Date().toISOString()
+          }
+
+          return NextResponse.json({ 
+            domain: transformedDomain,
+            message: verifyData.message,
+            verification: verifyData.verification
+          })
+        } else {
+          return NextResponse.json({ 
+            error: verifyData.message || 'Domain verification failed. Please check your DNS records.',
+            details: verifyData.verification?.details || 'Make sure both CNAME and TXT records are properly configured and have propagated.',
+            verification: verifyData.verification
+          }, { status: 400 })
+        }
+      } catch (verifyError) {
+        console.error('Error calling verification service:', verifyError)
         return NextResponse.json({ 
           error: 'Domain verification failed. Please check your DNS records.',
-          details: 'Make sure both CNAME and TXT records are properly configured and have propagated.'
-        }, { status: 400 })
+          details: 'Unable to verify DNS configuration. Please try again later.'
+        }, { status: 500 })
       }
     }
 

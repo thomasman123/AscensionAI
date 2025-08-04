@@ -240,9 +240,18 @@ export function DomainSetupGuide({
                   {steps[0].title}
                 </h3>
                 <p className="text-tier-400 mb-4">
-                  {steps[0].description}
+                  {domainData ? 'Change your custom domain for this funnel' : steps[0].description}
                 </p>
               </div>
+
+              {domainData && (
+                <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg mb-4">
+                  <p className="text-yellow-400 text-sm">
+                    <AlertCircle className="w-4 h-4 inline mr-1" />
+                    Changing your domain will remove the current domain ({domainData.domain}) and you'll need to reconfigure DNS records.
+                  </p>
+                </div>
+              )}
 
               <div className="space-y-4">
                 <div>
@@ -281,6 +290,50 @@ export function DomainSetupGuide({
                 <p className="text-tier-400 mb-4">
                   Add these DNS records to your domain provider's control panel
                 </p>
+                
+                {/* Domain Info with Change/Delete Options */}
+                <div className="flex items-center justify-between mb-4 p-3 bg-tier-800 rounded-lg border border-tier-700">
+                  <div className="flex items-center gap-3">
+                    <Globe className="w-5 h-5 text-accent-400" />
+                    <div>
+                      <p className="text-tier-100 font-medium">{domainData.domain}</p>
+                      <p className="text-tier-500 text-sm">Custom domain for this funnel</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setStep(1)}
+                      className="border-tier-600 text-tier-300 hover:border-tier-500"
+                    >
+                      Change Domain
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={async () => {
+                        if (!confirm('Are you sure you want to delete this domain? This action cannot be undone.')) return
+                        try {
+                          const response = await fetch(`/api/domains?userId=${userId}&domainId=${domainData.id}`, {
+                            method: 'DELETE'
+                          })
+                          if (response.ok) {
+                            onClose()
+                          } else {
+                            const data = await response.json()
+                            setError(data.error || 'Failed to delete domain')
+                          }
+                        } catch (error) {
+                          setError('Failed to delete domain')
+                        }
+                      }}
+                      className="border-red-600 text-red-400 hover:bg-red-500/10"
+                    >
+                      Delete Domain
+                    </Button>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -449,6 +502,44 @@ export function DomainSetupGuide({
                   <p>✅ SSL certificate active</p>
                   <p>✅ Domain verified and ready</p>
                 </div>
+                
+                {/* Domain Management Options */}
+                <div className="mt-6 p-4 bg-tier-800 rounded-lg border border-tier-700">
+                  <h4 className="text-tier-200 font-medium mb-3">Domain Management</h4>
+                  <div className="flex gap-2 justify-center">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setStep(1)}
+                      className="border-tier-600 text-tier-300 hover:border-tier-500"
+                    >
+                      Change Domain
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={async () => {
+                        if (!confirm('Are you sure you want to delete this domain? This will disconnect your custom domain from this funnel.')) return
+                        try {
+                          const response = await fetch(`/api/domains?userId=${userId}&domainId=${domainData?.id}`, {
+                            method: 'DELETE'
+                          })
+                          if (response.ok) {
+                            onClose()
+                          } else {
+                            const data = await response.json()
+                            setError(data.error || 'Failed to delete domain')
+                          }
+                        } catch (error) {
+                          setError('Failed to delete domain')
+                        }
+                      }}
+                      className="border-red-600 text-red-400 hover:bg-red-500/10"
+                    >
+                      Delete Domain
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -488,11 +579,11 @@ export function DomainSetupGuide({
                   {isLoading ? (
                     <>
                       <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                      Adding...
+                      {domainData ? 'Changing...' : 'Adding...'}
                     </>
                   ) : (
                     <>
-                      Next Step
+                      {domainData ? 'Change Domain' : 'Next Step'}
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </>
                   )}

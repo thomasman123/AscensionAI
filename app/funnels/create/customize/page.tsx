@@ -178,7 +178,7 @@ function CustomizeContent() {
         const funnelId = data.funnel.id
         
         // Always redirect to funnels page after saving
-        router.push('/funnels')
+          router.push('/funnels')
       } else {
         const errorData = await response.json()
         alert(errorData.error || 'Failed to save funnel')
@@ -248,17 +248,17 @@ function CustomizeContent() {
 
   return (
     <DashboardNav>
-      <div className="h-full overflow-auto bg-tier-950">
-        <div className="p-8">
+    <div className="h-full overflow-auto bg-tier-950">
+      <div className="p-8">
           <div className="max-w-4xl mx-auto">
-            {/* Header */}
+          {/* Header */}
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-tier-50 mb-2">
-                Customize Your Funnel
-              </h1>
-              <p className="text-lg text-tier-300">
-                Perfect your copy, colors, and domain to match your brand
-              </p>
+            <h1 className="text-3xl font-bold text-tier-50 mb-2">
+              Customize Your Funnel
+            </h1>
+            <p className="text-lg text-tier-300">
+              Perfect your copy, colors, and domain to match your brand
+            </p>
               
               {/* Step Indicator */}
               <div className="flex items-center justify-center mt-6 mb-8">
@@ -266,7 +266,7 @@ function CustomizeContent() {
                   Step 8 of 8
                 </div>
               </div>
-            </div>
+          </div>
 
             {/* AI Generation Status */}
             {isGenerating && (
@@ -287,43 +287,43 @@ function CustomizeContent() {
             <div className="flex justify-center mb-8">
               <div className="flex bg-tier-800 rounded-lg p-1">
                 <button
-                  onClick={() => setStep(1)}
+              onClick={() => setStep(1)}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                     step === 1 
                       ? 'bg-accent-500 text-white' 
                       : 'text-tier-300 hover:text-tier-50'
                   }`}
-                >
+            >
                   <Type className="w-4 h-4 inline mr-2" />
-                  Copy & Content
+              Copy & Content
                 </button>
                 <button
-                  onClick={() => setStep(2)}
+              onClick={() => setStep(2)}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                     step === 2 
                       ? 'bg-accent-500 text-white' 
                       : 'text-tier-300 hover:text-tier-50'
                   }`}
-                >
+            >
                   <Palette className="w-4 h-4 inline mr-2" />
-                  Colors & Branding
+              Colors & Branding
                 </button>
                 <button
-                  onClick={() => setStep(3)}
+              onClick={() => setStep(3)}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                     step === 3 
                       ? 'bg-accent-500 text-white' 
                       : 'text-tier-300 hover:text-tier-50'
                   }`}
-                >
+            >
                   <Globe className="w-4 h-4 inline mr-2" />
-                  Domain & Settings
+              Domain & Settings
                 </button>
               </div>
-            </div>
+          </div>
 
             {/* Content based on step */}
-            {step === 1 && (
+          {step === 1 && (
               <Card className="bg-tier-900 border-tier-800">
                 <CardHeader>
                   <CardTitle className="text-tier-50">Headline & Messaging</CardTitle>
@@ -343,7 +343,7 @@ function CustomizeContent() {
                       className="bg-tier-800 border-tier-700 text-tier-100"
                     />
                   </div>
-
+                  
                   <div>
                     <label className="block text-sm font-medium text-tier-300 mb-2">
                       Subheadline
@@ -389,7 +389,7 @@ function CustomizeContent() {
                         className="bg-tier-800 border-tier-700 text-tier-100"
                       />
                     </div>
-
+                    
                     <div>
                       <label className="block text-sm font-medium text-tier-300 mb-2">
                         Guarantee Text
@@ -422,9 +422,9 @@ function CustomizeContent() {
                   </div>
                 </CardContent>
               </Card>
-            )}
+          )}
 
-            {step === 2 && (
+          {step === 2 && (
               <Card className="bg-tier-900 border-tier-800">
                 <CardHeader>
                   <CardTitle className="text-tier-50">Colors & Branding</CardTitle>
@@ -558,8 +558,8 @@ function CustomizeContent() {
                   <CardTitle className="text-tier-50">Domain & Settings</CardTitle>
                 </CardHeader>
                 <CardContent>
-                                     <DomainManager
-                     funnelId="temp-funnel-id"
+              <DomainManager 
+                funnelId="temp-funnel-id"
                      userId={user?.id || '00000000-0000-0000-0000-000000000000'}
                      onDomainAdded={(domainObj) => {
                        setCustomization(prev => ({ ...prev, domain: domainObj.domain }))
@@ -570,28 +570,28 @@ function CustomizeContent() {
                    />
                 </CardContent>
               </Card>
-            )}
+          )}
 
-            {/* Navigation */}
+          {/* Navigation */}
             <div className="flex justify-between items-center mt-8">
+            <Button 
+              variant="outline" 
+                onClick={() => router.push(`/funnels/create/template?type=${funnelType}&data=${searchParams.get('data')}`)}
+              className="border-tier-600 text-tier-300 hover:border-tier-500"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Media
+            </Button>
+            
+            <div className="flex gap-3">
               <Button
                 variant="outline"
-                onClick={() => router.push(`/funnels/create/template?type=${funnelType}&data=${searchParams.get('data')}`)}
+                onClick={handlePreview}
                 className="border-tier-600 text-tier-300 hover:border-tier-500"
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Media
+                <Eye className="w-4 h-4 mr-2" />
+                Preview
               </Button>
-
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  onClick={handlePreview}
-                  className="border-tier-600 text-tier-300 hover:border-tier-500"
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  Preview
-                </Button>
 
                 <Button
                   onClick={() => handleSave('draft')}
@@ -604,21 +604,21 @@ function CustomizeContent() {
                     <Save className="w-4 h-4 mr-2" />
                   )}
                   Save Draft
-                </Button>
+                  </Button>
 
-                <Button
-                  onClick={() => handleSave('published')}
-                  disabled={isSaving}
-                  className="bg-accent-500 hover:bg-accent-600 text-white"
-                >
-                  {isSaving ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <ArrowRight className="w-4 h-4 mr-2" />
-                  )}
-                  Launch Funnel
-                </Button>
-              </div>
+                  <Button
+                    onClick={() => handleSave('published')}
+                    disabled={isSaving}
+                    className="bg-accent-500 hover:bg-accent-600 text-white"
+                  >
+                    {isSaving ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <ArrowRight className="w-4 h-4 mr-2" />
+                    )}
+                    Launch Funnel
+                  </Button>
+                </div>
             </div>
           </div>
         </div>
@@ -634,7 +634,7 @@ export default function CustomizePage() {
         <div className="w-8 h-8 border-2 border-accent-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     }>
-      <CustomizeContent />
-    </Suspense>
+        <CustomizeContent />
+      </Suspense>
   )
 } 
