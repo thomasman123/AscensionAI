@@ -46,9 +46,15 @@ async function checkCNAMERecord(domain: string): Promise<boolean> {
       console.log('CNAME records found:', records)
       
       // Check if any CNAME record points to our Vercel domain
-      const targetDomain = 'ascension-ai-sm36.vercel.app'
+      const targetDomains = [
+        'ascension-ai-sm36.vercel.app',
+        'ascension-ai-sm36-oimmnv92k-thomas-8419s-projects.vercel.app',
+        process.env.VERCEL_URL?.replace('https://', '') || '',
+        process.env.NEXT_PUBLIC_VERCEL_DOMAIN || ''
+      ].filter(Boolean)
+      
       const isValid = records.some(record => 
-        record.includes(targetDomain) || 
+        targetDomains.some(target => record.includes(target)) ||
         record.includes('vercel.app')
       )
       
@@ -94,9 +100,13 @@ async function checkTXTRecord(domain: string, token: string): Promise<boolean> {
       
       // Flatten the TXT records array and check for our verification token
       const allTxtValues = txtRecords.flat()
+      console.log('All TXT values:', allTxtValues)
+      
       const hasVerificationRecord = allTxtValues.some(record => {
-        // Check for records that start with our verification prefix
-        return record.includes('_ascension-verify') || record.includes(token)
+        // Check for records that contain our exact verification token
+        const recordContainsToken = record.includes(token)
+        console.log(`Checking TXT record "${record}" for token "${token}":`, recordContainsToken)
+        return recordContainsToken
       })
       
       console.log('TXT verification result:', hasVerificationRecord)
