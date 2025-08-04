@@ -102,6 +102,11 @@ export async function POST(request: NextRequest) {
       secondary_color: customization.colors?.secondary || '#1e40af',
       accent_color: customization.colors?.accent || '#059669',
       logo_url: customization.logoUrl,
+      
+      // Tracking fields
+      facebook_pixel_id: customization.facebookPixelId || null,
+      google_analytics_id: customization.googleAnalyticsId || null,
+      theme_mode: customization.themeMode || 'light',
     }
 
     const { data: funnel, error } = await supabaseAdmin

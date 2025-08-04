@@ -27,41 +27,91 @@ interface Template {
 const templates: Template[] = [
   {
     id: 'trigger-template-1',
-    name: 'Trigger Funnel Template #1',
-    description: 'High-converting two-page funnel with VSL landing page and booking page for immediate action',
+    name: 'Two-Page Trigger Funnel',
+    description: 'High-converting two-page funnel: Main sales page → Calendar booking page with seamless navigation',
     preview: '/templates/trigger-template-1.jpg',
     category: 'trigger',
     features: [
-      'VSL-optimized landing page',
-      'Integrated case studies section', 
-      'Booking page with calendar embed',
+      'Two-page funnel structure',
+      'VSL-optimized main page',
+      'Dedicated booking page', 
+      'Smooth page transitions',
       'Mobile-responsive design',
-      'Fast loading & conversion optimized'
+      'Conversion optimized CTAs'
     ],
     recommended: true,
     pages: [
       {
-        name: 'Landing Page',
-        description: 'VSL-focused page with social proof and clear CTA',
+        name: 'Page 1: Main Sales Page',
+        description: 'Primary landing page with VSL, social proof and Get Started CTA',
         elements: [
-          'Centered logo',
-          'Bold headline & subheading',
-          'VSL embed (video or Canva)',
-          'Primary CTA button',
-          'Case studies showcase',
-          'Standard footer'
+          'Header with logo',
+          'Bold headline & subheadline',
+          'VSL embed (YouTube or custom video)',
+          'Hero text and value proposition',
+          'Primary "Get Started" CTA button',
+          'What You\'ll Get section',
+          'Features/benefits cards',
+          'Guarantee section',
+          'Final "Get Started" CTA',
+          'Footer'
         ]
       },
       {
-        name: 'Booking Page', 
-        description: 'Streamlined booking with calendar integration',
+        name: 'Page 2: Calendar Booking',
+        description: 'Dedicated booking page with calendar integration and back navigation',
         elements: [
-          'Consistent branding',
-          'Compelling headline',
-          'Brief offer description',
+          'Header with logo (consistent branding)',
+          'Back button to Page 1',
+          'Booking headline and subtitle',
+          'Calendar embed (Calendly, Acuity, etc.)',
+          'Next steps information',
+          'Footer'
+        ]
+      }
+    ]
+  },
+  {
+    id: 'gateway-template-1', 
+    name: 'Two-Page Gateway Funnel',
+    description: 'Educational two-page funnel: Content/training page → Calendar booking page for consultations',
+    preview: '/templates/gateway-template-1.jpg',
+    category: 'gateway',
+    features: [
+      'Two-page funnel structure',
+      'Educational content focus',
+      'Authority building elements',
+      'Dedicated consultation booking',
+      'Trust-building design',
+      'Expert positioning'
+    ],
+    pages: [
+      {
+        name: 'Page 1: Educational Content',
+        description: 'Authority-building page with training content and consultation CTA',
+        elements: [
+          'Header with logo',
+          'Educational headline',
+          'Training/content sections',
+          'Expert credibility indicators',
+          'Value-driven content',
+          '"Book Consultation" CTA',
+          'Social proof elements',
+          'Final consultation CTA',
+          'Footer'
+        ]
+      },
+      {
+        name: 'Page 2: Consultation Booking',
+        description: 'Professional booking page for consultation scheduling',
+        elements: [
+          'Header with logo',
+          'Back button to Page 1',
+          'Consultation booking headline',
           'Calendar embed',
-          'Case studies (repeated)',
-          'Standard footer'
+          'What to expect section',
+          'Preparation instructions',
+          'Footer'
         ]
       }
     ]

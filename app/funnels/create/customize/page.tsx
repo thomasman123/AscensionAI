@@ -21,7 +21,10 @@ import {
   Globe,
   Loader2,
   Upload,
-  Image
+  Image,
+  Sun,
+  Moon,
+  Sparkles
 } from 'lucide-react'
 
 function CustomizeContent() {
@@ -53,8 +56,51 @@ function CustomizeContent() {
       accent: '#F59E0B'
     },
     logoUrl: '',
-    domain: ''
+    domain: '',
+    facebookPixelId: '',
+    googleAnalyticsId: '',
+    themeMode: 'light' as 'light' | 'dark'
   })
+
+  // Predefined color schemes
+  const colorSchemes = [
+    {
+      name: "Ocean Blue",
+      primary: "#3B82F6",
+      secondary: "#1E40AF", 
+      accent: "#0EA5E9"
+    },
+    {
+      name: "Emerald Green",
+      primary: "#059669",
+      secondary: "#047857",
+      accent: "#10B981"
+    },
+    {
+      name: "Royal Purple",
+      primary: "#7C3AED",
+      secondary: "#5B21B6",
+      accent: "#8B5CF6"
+    },
+    {
+      name: "Sunset Orange",
+      primary: "#EA580C",
+      secondary: "#C2410C",
+      accent: "#F97316"
+    },
+    {
+      name: "Rose Pink",
+      primary: "#E11D48",
+      secondary: "#BE185D",
+      accent: "#F43F5E"
+    },
+    {
+      name: "Slate Dark",
+      primary: "#475569",
+      secondary: "#334155",
+      accent: "#64748B"
+    }
+  ]
 
   // Load user settings for logo
   useEffect(() => {
@@ -288,7 +334,7 @@ function CustomizeContent() {
               <div className="flex bg-tier-800 rounded-lg p-1">
                 <button
               onClick={() => setStep(1)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     step === 1 
                       ? 'bg-accent-500 text-white' 
                       : 'text-tier-300 hover:text-tier-50'
@@ -299,7 +345,7 @@ function CustomizeContent() {
                 </button>
                 <button
               onClick={() => setStep(2)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     step === 2 
                       ? 'bg-accent-500 text-white' 
                       : 'text-tier-300 hover:text-tier-50'
@@ -310,7 +356,7 @@ function CustomizeContent() {
                 </button>
                 <button
               onClick={() => setStep(3)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     step === 3 
                       ? 'bg-accent-500 text-white' 
                       : 'text-tier-300 hover:text-tier-50'
@@ -318,6 +364,17 @@ function CustomizeContent() {
             >
                   <Globe className="w-4 h-4 inline mr-2" />
               Domain & Settings
+                </button>
+                <button
+              onClick={() => setStep(4)}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    step === 4 
+                      ? 'bg-accent-500 text-white' 
+                      : 'text-tier-300 hover:text-tier-50'
+                  }`}
+            >
+                  <Eye className="w-4 h-4 inline mr-2" />
+              Tracking & Analytics
                 </button>
               </div>
           </div>
@@ -568,6 +625,97 @@ function CustomizeContent() {
                        setCustomization(prev => ({ ...prev, domain: '' }))
                      }}
                    />
+                </CardContent>
+              </Card>
+          )}
+
+            {step === 4 && (
+              <Card className="bg-tier-900 border-tier-800">
+                <CardHeader>
+                  <CardTitle className="text-tier-50">Tracking & Analytics</CardTitle>
+                  <p className="text-tier-300 text-sm">
+                    Add your tracking codes to monitor conversions and optimize your funnel performance
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  
+                  {/* Facebook Pixel */}
+                  <div>
+                    <label className="block text-sm font-medium text-tier-300 mb-2">
+                      Facebook Pixel ID
+                    </label>
+                    <Input
+                      placeholder="123456789012345"
+                      value={customization.facebookPixelId}
+                      onChange={(e) => setCustomization(prev => ({ ...prev, facebookPixelId: e.target.value }))}
+                      className="bg-tier-800 border-tier-700 text-tier-100"
+                    />
+                    <p className="text-xs text-tier-500 mt-1">
+                      Find this in Meta Events Manager → Data Sources → Pixels
+                    </p>
+                  </div>
+
+                  {/* Google Analytics */}
+                  <div>
+                    <label className="block text-sm font-medium text-tier-300 mb-2">
+                      Google Analytics 4 ID
+                    </label>
+                    <Input
+                      placeholder="G-XXXXXXXXXX"
+                      value={customization.googleAnalyticsId}
+                      onChange={(e) => setCustomization(prev => ({ ...prev, googleAnalyticsId: e.target.value }))}
+                      className="bg-tier-800 border-tier-700 text-tier-100"
+                    />
+                    <p className="text-xs text-tier-500 mt-1">
+                      Find this in Google Analytics → Admin → Data Streams → Measurement ID
+                    </p>
+                  </div>
+
+                  {/* Theme Mode Selector */}
+                  <div>
+                    <label className="block text-sm font-medium text-tier-300 mb-2">
+                      Theme Mode
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setCustomization(prev => ({ ...prev, themeMode: 'light' }))}
+                        className={`p-2 rounded-md transition-colors ${
+                          customization.themeMode === 'light'
+                            ? 'bg-accent-500 text-white'
+                            : 'text-tier-300 hover:text-tier-50'
+                        }`}
+                      >
+                        <Sun className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => setCustomization(prev => ({ ...prev, themeMode: 'dark' }))}
+                        className={`p-2 rounded-md transition-colors ${
+                          customization.themeMode === 'dark'
+                            ? 'bg-accent-500 text-white'
+                            : 'text-tier-300 hover:text-tier-50'
+                        }`}
+                      >
+                        <Moon className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Help Text */}
+                  <div className="bg-tier-800 rounded-lg p-4 border border-tier-700">
+                    <h4 className="text-sm font-semibold text-tier-50 mb-2">Why add tracking?</h4>
+                    <ul className="text-xs text-tier-400 space-y-1">
+                      <li>• Track conversions for Meta ads optimization</li>
+                      <li>• Monitor funnel performance and user behavior</li>
+                      <li>• Build custom audiences for retargeting</li>
+                      <li>• Measure ROI and campaign effectiveness</li>
+                    </ul>
+                    <div className="mt-3 pt-3 border-t border-tier-700">
+                      <p className="text-xs text-tier-500">
+                        <strong>Optional:</strong> You can launch your funnel without tracking and add it later.
+                      </p>
+                    </div>
+                  </div>
+
                 </CardContent>
               </Card>
           )}
