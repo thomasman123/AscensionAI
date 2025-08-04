@@ -345,10 +345,10 @@ export async function PUT(request: NextRequest) {
           verification: verifyData.verification
         })
       } else {
-        console.log('PUT /api/domains - Error calling verification service:', verifyData.message || 'Domain verification failed. Please check your DNS records.', verifyData.verification?.details || 'Make sure both CNAME and TXT records are properly configured and have propagated.')
+        console.log('PUT /api/domains - Error calling verification service:', verifyData.message || 'Domain verification failed. Please check your DNS records.', verifyData.verification?.details || 'Make sure either the CNAME or TXT record is properly configured and has propagated.')
         return NextResponse.json({ 
           error: verifyData.message || 'Domain verification failed. Please check your DNS records.',
-          details: verifyData.verification?.details || 'Make sure both CNAME and TXT records are properly configured and have propagated.',
+          details: verifyData.verification?.details || 'Make sure either the CNAME or TXT record is properly configured and has propagated.',
           verification: verifyData.verification
         }, { status: 400 })
       }

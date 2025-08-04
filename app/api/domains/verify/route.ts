@@ -54,8 +54,11 @@ async function verifyDNSRecords(domain: string, verificationToken: string) {
     // Check TXT record for verification token
     const txtValid = await checkTXTRecord(domain, verificationToken)
     
+    // Success if EITHER CNAME OR TXT is valid (not both required)
+    const success = cnameValid || txtValid
+    
     return {
-      success: cnameValid && txtValid,
+      success: success,
       cname: cnameValid,
       txt: txtValid,
       details: {
