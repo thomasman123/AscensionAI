@@ -74,7 +74,27 @@ function ActivationPointsContent() {
   }
 
   const handleNext = () => {
-    const offerData = dataParam ? JSON.parse(decodeURIComponent(dataParam)) : {}
+    let offerData = {}
+    
+    // Safely parse the data parameter with proper error handling
+    if (dataParam) {
+      try {
+        offerData = JSON.parse(decodeURIComponent(dataParam))
+      } catch (decodeError) {
+        console.error('Error decoding funnel data:', decodeError)
+        // Try to parse without URI decoding as fallback
+        try {
+          offerData = JSON.parse(dataParam)
+        } catch (parseError) {
+          console.error('Error parsing funnel data:', parseError)
+          // If all parsing fails, redirect to start
+          alert('There was an issue with your funnel data. Please try starting over.')
+          router.push('/funnels/create')
+          return
+        }
+      }
+    }
+    
     const combinedData = {
       ...offerData,
       ...activationData

@@ -136,11 +136,27 @@ function CustomizeContent() {
       return
     }
 
-    // Get data from URL parameters
+    // Get data from URL parameters with robust error handling
     const data = searchParams.get('data')
     if (data) {
       try {
-        const parsedData = JSON.parse(decodeURIComponent(data))
+        let parsedData
+        try {
+          parsedData = JSON.parse(decodeURIComponent(data))
+        } catch (decodeError) {
+          console.error('Error decoding funnel data:', decodeError)
+          // Try to parse without URI decoding as fallback
+          try {
+            parsedData = JSON.parse(data)
+          } catch (parseError) {
+            console.error('Error parsing funnel data:', parseError)
+            // If all parsing fails, redirect to start
+            alert('There was an issue with your funnel data. Please try starting over.')
+            router.push('/funnels/create')
+            return
+          }
+        }
+        
         setFunnelData(parsedData)
         
         // If we have offer data and haven't generated yet, generate copy automatically
@@ -148,7 +164,7 @@ function CustomizeContent() {
           generateCopy(parsedData.offerData)
         }
       } catch (error) {
-        console.error('Error parsing funnel data:', error)
+        console.error('Error processing funnel data:', error)
         router.push('/funnels/create')
       }
     } else {

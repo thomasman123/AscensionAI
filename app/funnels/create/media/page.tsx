@@ -44,10 +44,26 @@ function MediaContent() {
   }
 
   const handleNext = () => {
-    // Add media data to the existing funnel data
+    // Add media data to the existing funnel data with robust error handling
     if (dataParam) {
       try {
-        const existingData = JSON.parse(decodeURIComponent(dataParam))
+        let existingData
+        try {
+          existingData = JSON.parse(decodeURIComponent(dataParam))
+        } catch (decodeError) {
+          console.error('Error decoding funnel data:', decodeError)
+          // Try to parse without URI decoding as fallback
+          try {
+            existingData = JSON.parse(dataParam)
+          } catch (parseError) {
+            console.error('Error parsing funnel data:', parseError)
+            // If all parsing fails, redirect to start
+            alert('There was an issue with your funnel data. Please try starting over.')
+            router.push('/funnels/create')
+            return
+          }
+        }
+        
         const updatedData = {
           ...existingData,
           media: mediaData
