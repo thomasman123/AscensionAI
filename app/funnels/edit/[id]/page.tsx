@@ -1,45 +1,29 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
-
-import { useState, useEffect, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { DashboardNav } from '@/components/dashboard-nav'
-import { DomainManager } from '@/components/domain-manager'
 import { useAuth } from '@/lib/auth-context'
-import { 
-  ArrowRight, 
-  ArrowLeft, 
-  Save, 
-  Eye, 
-  Palette,
-  Type,
-  Globe,
-  Loader2,
-  Upload,
-  Image
-} from 'lucide-react'
+import { ArrowLeft, Save, Eye, Loader2, Upload, Image, Palette, Type, Globe } from 'lucide-react'
 
-function CustomizeContent() {
+interface FunnelEditPageProps {
+  params: {
+    id: string
+  }
+}
+
+export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   const { user } = useAuth()
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const funnelType = searchParams.get('type') as 'trigger' | 'gateway'
-  
-  const [step, setStep] = useState(1)
-  const [isGenerating, setIsGenerating] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
-  const [generatedCopy, setGeneratedCopy] = useState<any>(null)
-  const [hasGenerated, setHasGenerated] = useState(false)
-  const [userSettings, setUserSettings] = useState<any>(null)
-  
-  // Get data from previous steps
-  const [funnelData, setFunnelData] = useState<any>(null)
-  
+  const [funnel, setFunnel] = useState<any>(null)
+  const [step, setStep] = useState(1)
+
   const [customization, setCustomization] = useState({
     headline: '',
     subheadline: '',
@@ -56,136 +40,80 @@ function CustomizeContent() {
     domain: ''
   })
 
-  // Load user settings for logo
   useEffect(() => {
-    const loadUserSettings = async () => {
-      if (user) {
-        try {
-          const response = await fetch(`/api/user/settings?userId=${user.id}`)
-          if (response.ok) {
-            const data = await response.json()
-            setUserSettings(data.settings)
-            
-            // Set logo from user settings
-            if (data.settings.logoUrl) {
-              setCustomization(prev => ({
-                ...prev,
-                logoUrl: data.settings.logoUrl,
-                colors: data.settings.defaultColors || prev.colors
-              }))
-            }
-          }
-        } catch (error) {
-          console.error('Error loading user settings:', error)
-        }
-      }
-    }
-    
-    loadUserSettings()
-  }, [user])
-
-  useEffect(() => {
-    if (!funnelType) {
-      router.push('/funnels/create')
+    if (!user) {
+      router.push('/login')
       return
     }
+    loadFunnel()
+  }, [user, params.id])
 
-    // Get data from URL parameters
-    const data = searchParams.get('data')
-    if (data) {
-      try {
-        const parsedData = JSON.parse(decodeURIComponent(data))
-        setFunnelData(parsedData)
-        
-        // If we have offer data and haven't generated yet, generate copy automatically
-        if (parsedData.offerData && !hasGenerated) {
-          generateCopy(parsedData.offerData)
-        }
-      } catch (error) {
-        console.error('Error parsing funnel data:', error)
-        router.push('/funnels/create')
-      }
-    } else {
-      router.push('/funnels/create')
-    }
-  }, [funnelType, searchParams, router, hasGenerated])
-
-  const generateCopy = async (offerData: any) => {
-    if (isGenerating || hasGenerated) return
-    
-    setIsGenerating(true)
-    setHasGenerated(true)
-    
+  const loadFunnel = async () => {
     try {
-      const response = await fetch('/api/ai/generate-copy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          offerData,
-          templateType: funnelType
-        })
-      })
-
+      const response = await fetch(`/api/funnels/save?userId=${user?.id}&funnelId=${params.id}`)
       if (response.ok) {
         const data = await response.json()
-        setGeneratedCopy(data.copy)
-        setCustomization(prev => ({
-          ...prev,
-          headline: data.copy.headline || '',
-          subheadline: data.copy.subheadline || '',
-          heroText: data.copy.heroText || '',
-          ctaText: data.copy.ctaText || 'Get Started Now',
-          offerDescription: data.copy.offerDescription || '',
-          guaranteeText: data.copy.guaranteeText || ''
-        }))
+        setFunnel(data.funnel)
+        
+        // Set customization from funnel data
+        setCustomization({
+          headline: data.funnel.data?.customization?.headline || '',
+          subheadline: data.funnel.data?.customization?.subheadline || '',
+          heroText: data.funnel.data?.customization?.heroText || '',
+          ctaText: data.funnel.data?.customization?.ctaText || 'Get Started Now',
+          offerDescription: data.funnel.data?.customization?.offerDescription || '',
+          guaranteeText: data.funnel.data?.customization?.guaranteeText || '',
+          colors: data.funnel.data?.customization?.colors || {
+            primary: '#3B82F6',
+            secondary: '#1E40AF',
+            accent: '#F59E0B'
+          },
+          logoUrl: data.funnel.data?.customization?.logoUrl || '',
+          domain: data.funnel.custom_domain || ''
+        })
       } else {
-        console.error('Failed to generate copy:', response.status)
-        // Continue without generated copy - user can input manually
+        console.error('Failed to load funnel')
+        router.push('/funnels')
       }
     } catch (error) {
-      console.error('Error generating copy:', error)
-      // Continue without generated copy - user can input manually
+      console.error('Error loading funnel:', error)
+      router.push('/funnels')
     }
-    
-    setIsGenerating(false)
+    setIsLoading(false)
   }
 
-  const handleSave = async (status: 'draft' | 'published') => {
+  const handleSave = async () => {
     setIsSaving(true)
     try {
       const saveData = {
-        userId: user?.id || '00000000-0000-0000-0000-000000000000',
-        name: funnelData?.offerData?.who 
-          ? `${funnelData.offerData.who} - ${funnelData.offerData.outcome}` 
-          : 'My Funnel',
-        type: funnelType,
-        status,
-        offerData: funnelData?.offerData,
-        caseStudies: funnelData?.caseStudies,
-        media: funnelData?.media,
-        templateId: funnelData?.templateId,
+        userId: user?.id,
+        funnelId: params.id,
+        name: funnel.name,
+        type: funnel.type,
+        status: funnel.status,
+        offerData: funnel.data?.offerData,
+        caseStudies: funnel.data?.caseStudies,
+        media: funnel.data?.media,
+        templateId: funnel.data?.templateId,
         customization
       }
 
       const response = await fetch('/api/funnels/save', {
-        method: 'POST',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(saveData)
       })
 
       if (response.ok) {
-        const data = await response.json()
-        const funnelId = data.funnel.id
-        
-        // Always redirect to funnels page after saving
+        // Redirect back to funnels page
         router.push('/funnels')
       } else {
         const errorData = await response.json()
-        alert(errorData.error || 'Failed to save funnel')
+        alert(errorData.error || 'Failed to save changes')
       }
     } catch (error) {
       console.error('Error saving funnel:', error)
-      alert('Failed to save funnel')
+      alert('Failed to save changes')
     }
     setIsSaving(false)
   }
@@ -193,7 +121,7 @@ function CustomizeContent() {
   const handlePreview = () => {
     // Store current customization in localStorage for preview
     localStorage.setItem('previewData', JSON.stringify({
-      ...funnelData,
+      ...funnel.data,
       customization
     }))
     window.open('/preview', '_blank')
@@ -211,38 +139,33 @@ function CustomizeContent() {
         ...prev,
         logoUrl
       }))
-      
-      // Also save to user settings
-      saveUserSettings({ logoUrl })
     }
     reader.readAsDataURL(file)
   }
 
-  const saveUserSettings = async (updates: any) => {
-    if (!user) return
-    
-    try {
-      await fetch('/api/user/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          logoUrl: updates.logoUrl || userSettings?.logoUrl,
-          companyName: userSettings?.companyName,
-          websiteUrl: userSettings?.websiteUrl,
-          defaultColors: customization.colors
-        })
-      })
-    } catch (error) {
-      console.error('Error saving user settings:', error)
-    }
+  if (isLoading) {
+    return (
+      <DashboardNav>
+        <div className="h-full flex items-center justify-center bg-tier-950">
+          <div className="w-8 h-8 border-2 border-accent-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </DashboardNav>
+    )
   }
 
-  if (!funnelData) {
+  if (!funnel) {
     return (
-      <div className="h-full flex items-center justify-center bg-tier-950">
-        <div className="w-8 h-8 border-2 border-accent-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
+      <DashboardNav>
+        <div className="h-full flex items-center justify-center bg-tier-950">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-tier-50 mb-2">Funnel not found</h2>
+            <p className="text-tier-400 mb-4">The funnel you're looking for doesn't exist or you don't have access to it.</p>
+            <Button onClick={() => router.push('/funnels')} className="bg-accent-500 hover:bg-accent-600">
+              Back to Funnels
+            </Button>
+          </div>
+        </div>
+      </DashboardNav>
     )
   }
 
@@ -254,34 +177,12 @@ function CustomizeContent() {
             {/* Header */}
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-tier-50 mb-2">
-                Customize Your Funnel
+                Edit Funnel: {funnel.name}
               </h1>
               <p className="text-lg text-tier-300">
-                Perfect your copy, colors, and domain to match your brand
+                Update your funnel's content, design, and settings
               </p>
-              
-              {/* Step Indicator */}
-              <div className="flex items-center justify-center mt-6 mb-8">
-                <div className="text-sm text-tier-400">
-                  Step 8 of 8
-                </div>
-              </div>
             </div>
-
-            {/* AI Generation Status */}
-            {isGenerating && (
-              <Card className="bg-tier-900 border-tier-800 mb-8">
-                <CardContent className="py-8 text-center">
-                  <Loader2 className="w-8 h-8 animate-spin text-accent-500 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-tier-50 mb-2">
-                    AI is generating your copy...
-                  </h3>
-                  <p className="text-tier-400">
-                    Creating compelling copy based on your offer details. This will take a moment.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
 
             {/* Tabs */}
             <div className="flex justify-center mb-8">
@@ -307,17 +208,6 @@ function CustomizeContent() {
                 >
                   <Palette className="w-4 h-4 inline mr-2" />
                   Colors & Branding
-                </button>
-                <button
-                  onClick={() => setStep(3)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    step === 3 
-                      ? 'bg-accent-500 text-white' 
-                      : 'text-tier-300 hover:text-tier-50'
-                  }`}
-                >
-                  <Globe className="w-4 h-4 inline mr-2" />
-                  Domain & Settings
                 </button>
               </div>
             </div>
@@ -465,7 +355,7 @@ function CustomizeContent() {
                           Upload Logo
                         </label>
                         <p className="text-tier-500 text-xs mt-1">
-                          PNG, JPG up to 2MB. This will be saved to your profile.
+                          PNG, JPG up to 2MB
                         </p>
                       </div>
                     </div>
@@ -552,35 +442,15 @@ function CustomizeContent() {
               </Card>
             )}
 
-            {step === 3 && (
-              <Card className="bg-tier-900 border-tier-800">
-                <CardHeader>
-                  <CardTitle className="text-tier-50">Domain & Settings</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <DomainManager
-                    funnelId="temp-funnel-id"
-                    userId={user?.id || '00000000-0000-0000-0000-000000000000'}
-                    onDomainAdded={(domain) => {
-                      setCustomization(prev => ({ ...prev, domain }))
-                    }}
-                    onDomainRemoved={() => {
-                      setCustomization(prev => ({ ...prev, domain: '' }))
-                    }}
-                  />
-                </CardContent>
-              </Card>
-            )}
-
             {/* Navigation */}
             <div className="flex justify-between items-center mt-8">
               <Button
                 variant="outline"
-                onClick={() => router.push(`/funnels/create/template?type=${funnelType}&data=${searchParams.get('data')}`)}
+                onClick={() => router.push('/funnels')}
                 className="border-tier-600 text-tier-300 hover:border-tier-500"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Media
+                Back to Funnels
               </Button>
 
               <div className="flex gap-3">
@@ -594,29 +464,16 @@ function CustomizeContent() {
                 </Button>
 
                 <Button
-                  onClick={() => handleSave('draft')}
-                  disabled={isSaving}
-                  className="bg-tier-700 hover:bg-tier-600 text-white"
-                >
-                  {isSaving ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <Save className="w-4 h-4 mr-2" />
-                  )}
-                  Save Draft
-                </Button>
-
-                <Button
-                  onClick={() => handleSave('published')}
+                  onClick={handleSave}
                   disabled={isSaving}
                   className="bg-accent-500 hover:bg-accent-600 text-white"
                 >
                   {isSaving ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
-                    <ArrowRight className="w-4 h-4 mr-2" />
+                    <Save className="w-4 h-4 mr-2" />
                   )}
-                  Launch Funnel
+                  Save Changes
                 </Button>
               </div>
             </div>
@@ -624,17 +481,5 @@ function CustomizeContent() {
         </div>
       </div>
     </DashboardNav>
-  )
-}
-
-export default function CustomizePage() {
-  return (
-    <Suspense fallback={
-      <div className="h-full flex items-center justify-center bg-tier-950">
-        <div className="w-8 h-8 border-2 border-accent-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    }>
-      <CustomizeContent />
-    </Suspense>
   )
 } 
