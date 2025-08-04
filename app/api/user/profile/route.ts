@@ -131,10 +131,10 @@ export async function GET(request: NextRequest) {
 // POST - Save user profile
 export async function POST(request: NextRequest) {
   try {
-    const { userId = '00000000-0000-0000-0000-000000000000', name, data } = await request.json()
+    const { userId, name, data } = await request.json()
 
-    if (!name || !data) {
-      return NextResponse.json({ error: 'Name and data are required' }, { status: 400 })
+    if (!userId || !name || !data) {
+      return NextResponse.json({ error: 'User ID, name and data are required' }, { status: 400 })
     }
 
     // Transform the data to match database columns
@@ -211,10 +211,10 @@ export async function POST(request: NextRequest) {
 // PUT - Update user profile
 export async function PUT(request: NextRequest) {
   try {
-    const { userId = '00000000-0000-0000-0000-000000000000', profileId, name, data } = await request.json()
+    const { userId, profileId, name, data } = await request.json()
 
-    if (!profileId || !name || !data) {
-      return NextResponse.json({ error: 'Profile ID, name and data are required' }, { status: 400 })
+    if (!userId || !profileId || !name || !data) {
+      return NextResponse.json({ error: 'User ID, profile ID, name and data are required' }, { status: 400 })
     }
 
     // Transform the data to match database columns

@@ -51,7 +51,7 @@ export interface SavedFunnel {
 export async function POST(request: NextRequest) {
   try {
     const { 
-      userId = '00000000-0000-0000-0000-000000000000',
+      userId,
       name,
       type,
       status = 'draft',
@@ -63,9 +63,9 @@ export async function POST(request: NextRequest) {
       customization
     } = await request.json()
 
-    if (!name || !type || !templateId || !customization) {
+    if (!userId || !name || !type || !templateId || !customization) {
       return NextResponse.json({ 
-        error: 'Name, type, template ID, and customization are required' 
+        error: 'User ID, name, type, template ID, and customization are required' 
       }, { status: 400 })
     }
 
@@ -357,7 +357,7 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const { 
-      userId = '00000000-0000-0000-0000-000000000000',
+      userId,
       funnelId,
       name,
       status,
@@ -367,8 +367,8 @@ export async function PUT(request: NextRequest) {
       ...updateData
     } = await request.json()
 
-    if (!funnelId) {
-      return NextResponse.json({ error: 'Funnel ID is required' }, { status: 400 })
+    if (!userId || !funnelId) {
+      return NextResponse.json({ error: 'User ID and Funnel ID are required' }, { status: 400 })
     }
 
     const updates: any = {}

@@ -78,7 +78,11 @@ export async function GET(request: NextRequest) {
 // POST - Create user settings
 export async function POST(request: NextRequest) {
   try {
-    const { userId = '00000000-0000-0000-0000-000000000000', logoUrl, companyName, websiteUrl, defaultColors } = await request.json()
+    const { userId, logoUrl, companyName, websiteUrl, defaultColors } = await request.json()
+
+    if (!userId) {
+      return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
+    }
 
     const dbData = {
       user_id: userId,
@@ -113,7 +117,11 @@ export async function POST(request: NextRequest) {
 // PUT - Update user settings
 export async function PUT(request: NextRequest) {
   try {
-    const { userId = '00000000-0000-0000-0000-000000000000', logoUrl, companyName, websiteUrl, defaultColors } = await request.json()
+    const { userId, logoUrl, companyName, websiteUrl, defaultColors } = await request.json()
+
+    if (!userId) {
+      return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
+    }
 
     const updateData = {
       logo_url: logoUrl,
