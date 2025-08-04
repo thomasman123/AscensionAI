@@ -1,0 +1,439 @@
+/* PROMETHEAN DESIGN SYSTEM - ANIMATIONS */
+
+/* ================================
+   MOTION VARIABLES
+   ================================ */
+
+:root {
+  /* Timing */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --duration-slower: 700ms;
+
+  /* Easing curves */
+  --easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-smooth: cubic-bezier(0.37, 0, 0.63, 1);
+  --easing-elastic: cubic-bezier(0.68, -0.6, 0.32, 1.6);
+}
+
+/* ================================
+   CORE ANIMATIONS
+   ================================ */
+
+/* Fade In */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in var(--duration-normal) var(--easing-standard);
+}
+
+/* Scale In */
+@keyframes scale-in {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in var(--duration-fast) var(--easing-standard);
+}
+
+/* Slide In Directions */
+@keyframes slide-in-from-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-from-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in-left {
+  animation: slide-in-from-left var(--duration-normal) var(--easing-standard);
+}
+
+.animate-slide-in-right {
+  animation: slide-in-from-right var(--duration-normal) var(--easing-standard);
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out forwards;
+}
+
+/* ================================
+   PREMIUM EFFECTS
+   ================================ */
+
+/* Float Animation */
+@keyframes float {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-10px) rotate(180deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) rotate(360deg);
+    opacity: 0.7;
+  }
+}
+
+.animate-float {
+  animation: float 20s ease-in-out infinite;
+}
+
+/* Glow Animation */
+@keyframes glow {
+  0%, 100% { 
+    opacity: 0.5; 
+  }
+  50% { 
+    opacity: 1; 
+  }
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Morph Animation */
+@keyframes morph {
+  0%, 100% { 
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; 
+  }
+  50% { 
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; 
+  }
+}
+
+.animate-morph {
+  animation: morph 8s ease-in-out infinite;
+}
+
+/* Wave Animation */
+@keyframes wave {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-wave {
+  animation: wave 5s linear infinite;
+}
+
+/* Slow Spin */
+@keyframes spin {
+  from { 
+    transform: rotate(0deg); 
+  }
+  to { 
+    transform: rotate(360deg); 
+  }
+}
+
+.animate-spin-slow {
+  animation: spin 8s linear infinite;
+}
+
+/* ================================
+   INTERACTIVE ANIMATIONS
+   ================================ */
+
+/* Bounce Subtle */
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 2s ease-in-out infinite;
+}
+
+/* Magnetic Hover Effect */
+.magnetic {
+  transition: transform 0.3s var(--easing-smooth);
+}
+
+.magnetic:hover {
+  transform: translate(var(--x, 0), var(--y, 0)) scale(1.05);
+}
+
+/* Liquid Button Effect */
+.liquid {
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  transform: translate(var(--x, -50%), var(--y, -50%));
+  transition: transform 0.6s var(--easing-smooth);
+  pointer-events: none;
+}
+
+/* ================================
+   NOTIFICATION ANIMATIONS
+   ================================ */
+
+/* Overdue Glow */
+@keyframes overdue-glow {
+  from {
+    box-shadow: 
+      0 0 8px rgba(251, 146, 60, 0.4),
+      0 0 16px rgba(251, 146, 60, 0.3),
+      0 0 24px rgba(251, 146, 60, 0.1);
+  }
+  to {
+    box-shadow: 
+      0 0 16px rgba(251, 146, 60, 0.8),
+      0 0 32px rgba(251, 146, 60, 0.6),
+      0 0 48px rgba(251, 146, 60, 0.3);
+  }
+}
+
+.animate-overdue-glow {
+  animation: overdue-glow 3s ease-in-out infinite alternate;
+}
+
+/* Badge Glow */
+@keyframes badge-glow {
+  from {
+    box-shadow: 
+      0 0 4px rgba(234, 88, 12, 0.6),
+      0 0 8px rgba(234, 88, 12, 0.4);
+  }
+  to {
+    box-shadow: 
+      0 0 8px rgba(234, 88, 12, 0.9),
+      0 0 16px rgba(234, 88, 12, 0.7);
+  }
+}
+
+.animate-badge-glow {
+  animation: badge-glow 2s ease-in-out infinite alternate;
+}
+
+/* ================================
+   UI SPECIFIC ANIMATIONS
+   ================================ */
+
+/* Arrow Bounce */
+@keyframes arrow-bounce {
+  0%, 100% {
+    transform: translateX(0);
+    filter: drop-shadow(0 0 3px rgba(156, 163, 175, 0.4));
+  }
+  50% {
+    transform: translateX(-8px);
+    filter: drop-shadow(0 0 8px rgba(156, 163, 175, 0.9)) 
+            drop-shadow(0 0 16px rgba(156, 163, 175, 0.6)) 
+            drop-shadow(0 0 24px rgba(156, 163, 175, 0.3));
+  }
+}
+
+.animate-arrow-bounce {
+  animation: arrow-bounce 3s ease-in-out infinite;
+}
+
+/* Text Bounce */
+@keyframes text-bounce {
+  0%, 100% {
+    transform: translateX(0);
+    filter: drop-shadow(0 0 3px rgba(156, 163, 175, 0.4));
+  }
+  50% {
+    transform: translateX(-6px);
+    filter: drop-shadow(0 0 6px rgba(156, 163, 175, 0.9)) 
+            drop-shadow(0 0 12px rgba(156, 163, 175, 0.7)) 
+            drop-shadow(0 0 20px rgba(156, 163, 175, 0.4));
+  }
+}
+
+.animate-text-bounce {
+  animation: text-bounce 3s ease-in-out infinite;
+}
+
+/* Save Changes Bubble */
+@keyframes slide-up-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) translateX(-50%) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) translateX(-50%) scale(1);
+  }
+}
+
+.animate-slide-up-fade-in {
+  animation: slide-up-fade-in 0.4s ease-out forwards;
+}
+
+/* Bubble Quiver */
+@keyframes bubble-quiver {
+  0%, 100% {
+    transform: translateX(-50%) scale(1);
+    border-radius: 9999px;
+  }
+  25% {
+    transform: translateX(-50%) scale(1.02) skew(0.5deg);
+    border-radius: 48% 52% 50% 50% / 50% 48% 52% 50%;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.01) skew(-0.5deg);
+    border-radius: 52% 48% 50% 50% / 50% 52% 48% 50%;
+  }
+  75% {
+    transform: translateX(-50%) scale(1.02) skew(0.3deg);
+    border-radius: 50% 50% 48% 52% / 52% 50% 50% 48%;
+  }
+}
+
+.animate-bubble-quiver {
+  animation: bubble-quiver 0.6s ease-in-out infinite;
+}
+
+/* ================================
+   UTILITY CLASSES
+   ================================ */
+
+/* Smooth transitions */
+.transition-smooth {
+  transition-property: all;
+  transition-timing-function: var(--easing-standard);
+  transition-duration: var(--duration-normal);
+}
+
+/* Animation delays */
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* ================================
+   ELEVATION EFFECTS
+   ================================ */
+
+/* Elevation shadows for dark theme */
+.elevation-1 {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.elevation-2 {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.elevation-3 {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+}
+
+.elevation-4 {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6);
+}
+
+/* Glassmorphism effect */
+.glass {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Widget styling improvements */
+.widget-glow {
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(156, 163, 175, 0.1);
+}
+
+.widget-glow:hover {
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.5),
+    0 0 10px rgba(156, 163, 175, 0.2),
+    0 0 0 1px rgba(156, 163, 175, 0.15);
+}
+
+/* ================================
+   USAGE GUIDELINES
+   ================================ */
+
+/*
+ANIMATION PRINCIPLES:
+1. Use animations purposefully - enhance UX, don't distract
+2. Keep animations fast (150-300ms) for UI interactions
+3. Use slower animations (500ms+) for page transitions
+4. Apply easing curves for natural motion
+5. Consider reduced motion preferences
+
+PERFORMANCE TIPS:
+1. Prefer transform and opacity changes
+2. Use will-change sparingly
+3. Remove animations for users who prefer reduced motion
+4. Test on lower-end devices
+
+ACCESSIBILITY:
+- Respect prefers-reduced-motion
+- Ensure animations don't cause seizures
+- Provide alternative navigation when needed
+- Don't rely solely on animation for important information
+*/
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+} 

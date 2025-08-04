@@ -1,0 +1,273 @@
+/* PROMETHEAN DESIGN SYSTEM - COLOR VARIABLES */
+
+:root {
+  /* ================================
+     TIER SYSTEM - Premium Dark Theme
+     ================================ */
+  
+  /* Surface hierarchy from darkest to lightest - Updated to be darker */
+  --tier-950: 0 0% 0%;      /* Pure black - Main app background */
+  --tier-900: 0 0% 2%;      /* Primary background - Cards, panels */
+  --tier-800: 0 0% 4%;      /* Secondary background - Elevated cards */
+  --tier-700: 0 0% 6%;      /* Tertiary background - Tables, inset areas */
+  --tier-600: 0 0% 10%;     /* Border color - Primary borders */
+  --tier-500: 0 0% 28%;     /* Muted text - Secondary text */
+  --tier-400: 0 0% 44%;     /* Medium contrast text */
+  --tier-300: 0 0% 60%;     /* Higher contrast text */
+  --tier-200: 0 0% 80%;     /* High contrast text */
+  --tier-100: 0 0% 92%;     /* Highest contrast text */
+  --tier-50: 0 0% 98%;      /* Maximum contrast - Primary text */
+
+  /* ================================
+     ACCENT COLORS - Reduced Purple Usage
+     ================================ */
+  
+  /* Primary neutral accent - Blue-gray */
+  --accent-50: 215 25% 97%;
+  --accent-100: 215 25% 92%;
+  --accent-200: 215 25% 85%;
+  --accent-300: 215 25% 70%;
+  --accent-400: 215 25% 55%;
+  --accent-500: 215 25% 45%;
+  --accent-600: 215 25% 35%;
+  --accent-700: 215 25% 25%;
+  --accent-800: 215 25% 15%;
+  --accent-900: 215 25% 8%;
+  --accent-950: 215 25% 4%;
+
+  /* ================================
+     PURPLE BRAND PALETTE - Reduced Usage
+     ================================ */
+  
+  --purple-50: 270 100% 98%;   /* Lightest purple - Backgrounds */
+  --purple-100: 269 100% 95%;  /* Very light purple */
+  --purple-200: 269 100% 92%;  /* Light purple */
+  --purple-300: 269 97% 85%;   /* Medium light purple */
+  --purple-400: 270 95% 75%;   /* Medium purple */
+  --purple-500: 270 91% 65%;   /* Base purple */
+  --purple-600: 271 81% 56%;   /* Primary brand color */
+  --purple-700: 272 72% 47%;   /* Dark purple - Hover states */
+  --purple-800: 273 67% 39%;   /* Darker purple */
+  --purple-900: 274 66% 32%;   /* Very dark purple */
+  --purple-950: 276 69% 21%;   /* Darkest purple */
+
+  /* ================================
+     BRAND COLORS - Updated
+     ================================ */
+  
+  --brand-primary: var(--accent-500);        /* Main brand color - now accent instead of purple */
+  --brand-primary-dark: var(--accent-600);   /* Hover/active states */
+  --brand-primary-light: var(--accent-400);  /* Light variant */
+  --brand-secondary: var(--purple-600);      /* Secondary brand (limited purple usage) */
+
+  /* ================================
+     STATUS COLORS
+     ================================ */
+  
+  --status-success: 142 70% 45%;   /* Green for success states */
+  --status-warning: 38 92% 50%;    /* Orange for warning states */
+  --status-error: 0 84% 60%;       /* Red for error states */
+  --status-info: var(--accent-500); /* Accent color for info states */
+
+  /* ================================
+     SHADCN/UI COMPATIBILITY
+     ================================ */
+  
+  /* Base colors */
+  --background: var(--tier-950);
+  --foreground: var(--tier-50);
+  
+  /* Card colors */
+  --card: var(--tier-900);
+  --card-foreground: var(--tier-50);
+  
+  /* Popover colors */
+  --popover: var(--tier-900);
+  --popover-foreground: var(--tier-50);
+  
+  /* Primary colors - using accent instead of purple */
+  --primary: var(--accent-500);
+  --primary-foreground: var(--tier-50);
+  
+  /* Secondary colors */
+  --secondary: var(--tier-800);
+  --secondary-foreground: var(--tier-50);
+  
+  /* Muted colors */
+  --muted: var(--tier-800);
+  --muted-foreground: var(--tier-500);
+  
+  /* Accent colors */
+  --accent: var(--tier-800);
+  --accent-foreground: var(--tier-50);
+  
+  /* Destructive colors */
+  --destructive: var(--status-error);
+  --destructive-foreground: var(--tier-50);
+  
+  /* Border and input colors */
+  --border: var(--tier-600);
+  --input: var(--tier-800);
+  --ring: var(--accent-500);
+  
+  /* Chart colors - mix of accent and purple */
+  --chart-1: var(--accent-500);
+  --chart-2: var(--accent-600);
+  --chart-3: var(--purple-600);
+  --chart-4: var(--accent-400);
+  --chart-5: var(--purple-500);
+}
+
+/* ================================
+   UTILITY CLASSES
+   ================================ */
+
+/* Tier background colors */
+.bg-tier-950 { background-color: hsl(var(--tier-950)); }
+.bg-tier-900 { background-color: hsl(var(--tier-900)); }
+.bg-tier-800 { background-color: hsl(var(--tier-800)); }
+.bg-tier-700 { background-color: hsl(var(--tier-700)); }
+.bg-tier-600 { background-color: hsl(var(--tier-600)); }
+.bg-tier-500 { background-color: hsl(var(--tier-500)); }
+
+/* Tier text colors */
+.text-tier-950 { color: hsl(var(--tier-950)); }
+.text-tier-900 { color: hsl(var(--tier-900)); }
+.text-tier-800 { color: hsl(var(--tier-800)); }
+.text-tier-700 { color: hsl(var(--tier-700)); }
+.text-tier-600 { color: hsl(var(--tier-600)); }
+.text-tier-500 { color: hsl(var(--tier-500)); }
+.text-tier-400 { color: hsl(var(--tier-400)); }
+.text-tier-300 { color: hsl(var(--tier-300)); }
+.text-tier-200 { color: hsl(var(--tier-200)); }
+.text-tier-100 { color: hsl(var(--tier-100)); }
+.text-tier-50 { color: hsl(var(--tier-50)); }
+
+/* Tier border colors */
+.border-tier-600 { border-color: hsl(var(--tier-600)); }
+.border-tier-700 { border-color: hsl(var(--tier-700)); }
+.border-tier-800 { border-color: hsl(var(--tier-800)); }
+
+/* Accent background colors */
+.bg-accent-50 { background-color: hsl(var(--accent-50)); }
+.bg-accent-100 { background-color: hsl(var(--accent-100)); }
+.bg-accent-200 { background-color: hsl(var(--accent-200)); }
+.bg-accent-300 { background-color: hsl(var(--accent-300)); }
+.bg-accent-400 { background-color: hsl(var(--accent-400)); }
+.bg-accent-500 { background-color: hsl(var(--accent-500)); }
+.bg-accent-600 { background-color: hsl(var(--accent-600)); }
+.bg-accent-700 { background-color: hsl(var(--accent-700)); }
+.bg-accent-800 { background-color: hsl(var(--accent-800)); }
+.bg-accent-900 { background-color: hsl(var(--accent-900)); }
+.bg-accent-950 { background-color: hsl(var(--accent-950)); }
+
+/* Accent text colors */
+.text-accent-50 { color: hsl(var(--accent-50)); }
+.text-accent-100 { color: hsl(var(--accent-100)); }
+.text-accent-200 { color: hsl(var(--accent-200)); }
+.text-accent-300 { color: hsl(var(--accent-300)); }
+.text-accent-400 { color: hsl(var(--accent-400)); }
+.text-accent-500 { color: hsl(var(--accent-500)); }
+.text-accent-600 { color: hsl(var(--accent-600)); }
+.text-accent-700 { color: hsl(var(--accent-700)); }
+.text-accent-800 { color: hsl(var(--accent-800)); }
+.text-accent-900 { color: hsl(var(--accent-900)); }
+.text-accent-950 { color: hsl(var(--accent-950)); }
+
+/* Accent border colors */
+.border-accent-400 { border-color: hsl(var(--accent-400)); }
+.border-accent-500 { border-color: hsl(var(--accent-500)); }
+.border-accent-600 { border-color: hsl(var(--accent-600)); }
+
+/* Accent hover colors */
+.hover\:bg-accent-400:hover { background-color: hsl(var(--accent-400)); }
+.hover\:bg-accent-500:hover { background-color: hsl(var(--accent-500)); }
+.hover\:bg-accent-600:hover { background-color: hsl(var(--accent-600)); }
+.hover\:bg-accent-700:hover { background-color: hsl(var(--accent-700)); }
+
+/* Purple background colors */
+.bg-purple-50 { background-color: hsl(var(--purple-50)); }
+.bg-purple-100 { background-color: hsl(var(--purple-100)); }
+.bg-purple-200 { background-color: hsl(var(--purple-200)); }
+.bg-purple-300 { background-color: hsl(var(--purple-300)); }
+.bg-purple-400 { background-color: hsl(var(--purple-400)); }
+.bg-purple-500 { background-color: hsl(var(--purple-500)); }
+.bg-purple-600 { background-color: hsl(var(--purple-600)); }
+.bg-purple-700 { background-color: hsl(var(--purple-700)); }
+.bg-purple-800 { background-color: hsl(var(--purple-800)); }
+.bg-purple-900 { background-color: hsl(var(--purple-900)); }
+.bg-purple-950 { background-color: hsl(var(--purple-950)); }
+
+/* Purple text colors */
+.text-purple-50 { color: hsl(var(--purple-50)); }
+.text-purple-100 { color: hsl(var(--purple-100)); }
+.text-purple-200 { color: hsl(var(--purple-200)); }
+.text-purple-300 { color: hsl(var(--purple-300)); }
+.text-purple-400 { color: hsl(var(--purple-400)); }
+.text-purple-500 { color: hsl(var(--purple-500)); }
+.text-purple-600 { color: hsl(var(--purple-600)); }
+.text-purple-700 { color: hsl(var(--purple-700)); }
+.text-purple-800 { color: hsl(var(--purple-800)); }
+.text-purple-900 { color: hsl(var(--purple-900)); }
+.text-purple-950 { color: hsl(var(--purple-950)); }
+
+/* Purple border colors */
+.border-purple-50 { border-color: hsl(var(--purple-50)); }
+.border-purple-100 { border-color: hsl(var(--purple-100)); }
+.border-purple-200 { border-color: hsl(var(--purple-200)); }
+.border-purple-300 { border-color: hsl(var(--purple-300)); }
+.border-purple-400 { border-color: hsl(var(--purple-400)); }
+.border-purple-500 { border-color: hsl(var(--purple-500)); }
+.border-purple-600 { border-color: hsl(var(--purple-600)); }
+.border-purple-700 { border-color: hsl(var(--purple-700)); }
+.border-purple-800 { border-color: hsl(var(--purple-800)); }
+.border-purple-900 { border-color: hsl(var(--purple-900)); }
+.border-purple-950 { border-color: hsl(var(--purple-950)); }
+
+/* Purple hover background colors */
+.hover\:bg-purple-50:hover { background-color: hsl(var(--purple-50)); }
+.hover\:bg-purple-100:hover { background-color: hsl(var(--purple-100)); }
+.hover\:bg-purple-200:hover { background-color: hsl(var(--purple-200)); }
+.hover\:bg-purple-300:hover { background-color: hsl(var(--purple-300)); }
+.hover\:bg-purple-400:hover { background-color: hsl(var(--purple-400)); }
+.hover\:bg-purple-500:hover { background-color: hsl(var(--purple-500)); }
+.hover\:bg-purple-600:hover { background-color: hsl(var(--purple-600)); }
+.hover\:bg-purple-700:hover { background-color: hsl(var(--purple-700)); }
+.hover\:bg-purple-800:hover { background-color: hsl(var(--purple-800)); }
+.hover\:bg-purple-900:hover { background-color: hsl(var(--purple-900)); }
+.hover\:bg-purple-950:hover { background-color: hsl(var(--purple-950)); }
+
+/* ================================
+   COLOR USAGE GUIDELINES
+   ================================ */
+
+/*
+TIER SYSTEM USAGE:
+- tier-950: Pure black - Main app background (darkest)
+- tier-900: Primary background for main content areas
+- tier-800: Card backgrounds, elevated surfaces
+- tier-700: Tables, inset areas, input backgrounds
+- tier-600: Primary border color
+- tier-500: Muted text, secondary information
+- tier-400-100: Progressive text contrast levels
+- tier-50: Primary text color (highest contrast)
+
+ACCENT PALETTE USAGE (PRIMARY):
+- accent-500: Primary brand color (buttons, links, highlights)
+- accent-600: Hover states for primary elements
+- accent-400: Light variant of brand color
+- accent-700-950: Dark accents and backgrounds
+- accent-50-300: Light accents and text
+
+PURPLE PALETTE USAGE (SECONDARY):
+- purple-600: Secondary brand color (limited use for special highlights)
+- purple-700: Hover states for purple elements
+- purple-500: Light variant of purple
+- Use sparingly for special emphasis only
+
+STATUS COLORS:
+- status-success: Positive states, confirmations
+- status-warning: Cautions, important notices
+- status-error: Errors, destructive actions
+- status-info: Informational messages (uses accent color)
+*/ 
