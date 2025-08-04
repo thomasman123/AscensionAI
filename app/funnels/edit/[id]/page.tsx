@@ -186,21 +186,29 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         customization
       }
 
+      console.log('Saving funnel with data:', saveData)
+
       const response = await fetch('/api/funnels/save', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(saveData)
       })
 
+      console.log('Save response status:', response.status)
+      
       if (response.ok) {
+        const responseData = await response.json()
+        console.log('Save successful:', responseData)
+        alert('Funnel saved successfully!')
         router.push('/funnels')
       } else {
         const errorData = await response.json()
+        console.error('Save failed:', errorData)
         alert(errorData.error || 'Failed to save changes')
       }
     } catch (error) {
       console.error('Error saving funnel:', error)
-      alert('Failed to save changes')
+      alert('Failed to save changes: ' + (error instanceof Error ? error.message : String(error)))
     }
     setIsSaving(false)
   }
@@ -265,7 +273,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             }
           }}
           autoFocus
-          className="w-full bg-white border-2 border-accent-500 rounded px-3 py-2"
+          className="w-full bg-white border-2 border-accent-500 rounded px-3 py-2 text-gray-900"
           placeholder={field.placeholder}
         />
       ) : (
@@ -282,39 +290,67 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             }
           }}
           autoFocus
-          className="w-full bg-white border-2 border-accent-500 rounded px-3 py-2"
+          className="w-full bg-white border-2 border-accent-500 rounded px-3 py-2 text-gray-900"
           placeholder={field.placeholder}
         />
       )
     }
 
+    const displayText = field.value || field.placeholder
+    const isPlaceholder = !field.value
+
+    // Handle multiline text for textarea fields
+    const renderText = () => {
+      if (field.type === 'textarea' && displayText.includes('\n')) {
+        return displayText.split('\n').map((line, index) => (
+          <div key={index} className="mb-2 last:mb-0">
+            {line}
+          </div>
+        ))
+      }
+      return displayText
+    }
+
     return (
       <div
         onClick={() => setActiveEdit(field.id)}
-        className="relative group cursor-pointer hover:bg-accent-500/10 rounded p-2 transition-colors"
+        className="relative group cursor-pointer hover:bg-blue-50 rounded p-2 transition-colors min-h-[2rem] flex items-start"
+        style={{
+          color: isPlaceholder ? '#9CA3AF' : 'inherit',
+          fontStyle: isPlaceholder ? 'italic' : 'normal'
+        }}
       >
-        <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Edit3 className="w-4 h-4 text-accent-500" />
+        <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+          <Edit3 className="w-4 h-4 text-blue-500 bg-white rounded p-0.5 shadow" />
         </div>
-        {field.value || (
-          <span className="text-gray-400 italic">{field.placeholder}</span>
-        )}
+        <div className="flex-1 pt-1">
+          {renderText()}
+        </div>
       </div>
     )
   }
 
   const renderFunnelPreview = () => {
     const containerClass = currentView === 'mobile' 
-      ? 'w-[375px] mx-auto border-8 border-gray-800 rounded-[2.5rem] bg-gray-800 shadow-xl'
-      : 'w-full max-w-6xl mx-auto'
+      ? 'w-[375px] mx-auto border-8 border-gray-800 rounded-[2.5rem] bg-gray-800 shadow-xl overflow-hidden'
+      : 'w-full max-w-6xl mx-auto border border-gray-200 rounded-lg shadow-sm overflow-hidden'
 
     return (
       <div className={containerClass}>
+        {currentView === 'mobile' && (
+          <div className="h-6 bg-gray-800 flex items-center justify-center">
+            <div className="w-16 h-1 bg-gray-600 rounded-full"></div>
+          </div>
+        )}
         <div 
-          className="bg-white min-h-screen overflow-auto"
+          className="min-h-screen overflow-auto"
           style={{
-            color: customization.colors.text,
-            fontFamily: customization.font === 'inter' ? 'Inter, sans-serif' : 'system-ui'
+            backgroundColor: customization.colors.background || '#FFFFFF',
+            color: customization.colors.text || '#1F2937',
+            fontFamily: customization.font === 'inter' ? 'Inter, sans-serif' : 
+                       customization.font === 'serif' ? 'Times New Roman, serif' :
+                       customization.font === 'mono' ? 'Courier New, monospace' : 'system-ui',
+            height: currentView === 'mobile' ? '812px' : 'auto'
           }}
         >
           {/* Pixel Codes */}
@@ -331,7 +367,10 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           {/* Header */}
           <header 
             className="py-4 px-6 border-b"
-            style={{ backgroundColor: customization.colors.background }}
+            style={{ 
+              backgroundColor: customization.colors.background || '#FFFFFF',
+              borderColor: (customization.colors.text || '#1F2937') + '20'
+            }}
           >
             <div className="flex items-center justify-between">
               {customization.logoUrl ? (
@@ -343,15 +382,31 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                 />
               ) : (
                 <div 
-                  className="h-8 w-24 bg-gray-200 rounded flex items-center justify-center cursor-pointer text-sm text-gray-500"
+                  className="h-8 w-24 rounded flex items-center justify-center cursor-pointer text-sm border-2 border-dashed transition-colors hover:bg-blue-50"
+                  style={{ 
+                    borderColor: (customization.colors.text || '#1F2937') + '30',
+                    color: (customization.colors.text || '#1F2937') + '60'
+                  }}
                   onClick={() => setActiveEdit('logo')}
                 >
                   + Logo
                 </div>
               )}
               <nav className="hidden md:flex space-x-6">
-                <a href="#" className="text-sm font-medium">About</a>
-                <a href="#" className="text-sm font-medium">Contact</a>
+                <a 
+                  href="#" 
+                  className="text-sm font-medium hover:opacity-80 transition-opacity"
+                  style={{ color: customization.colors.text || '#1F2937' }}
+                >
+                  About
+                </a>
+                <a 
+                  href="#" 
+                  className="text-sm font-medium hover:opacity-80 transition-opacity"
+                  style={{ color: customization.colors.text || '#1F2937' }}
+                >
+                  Contact
+                </a>
               </nav>
             </div>
           </header>
@@ -362,40 +417,52 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             style={{ backgroundColor: customization.colors.background }}
           >
             <div className="max-w-4xl mx-auto text-center">
-              <h1 
-                className="text-4xl md:text-6xl font-bold mb-6"
-                style={{ color: customization.colors.text }}
-              >
-                {renderEditableText(editableFields.find(f => f.id === 'headline')!)}
-              </h1>
-              <p 
-                className="text-xl md:text-2xl mb-8"
-                style={{ color: customization.colors.text + '80' }}
-              >
-                {renderEditableText(editableFields.find(f => f.id === 'subheadline')!)}
-              </p>
-              <div className="mb-12">
-                {renderEditableText(editableFields.find(f => f.id === 'heroText')!)}
-              </div>
-              <button 
-                className="px-8 py-4 rounded-lg text-white text-lg font-semibold hover:opacity-90 transition-opacity"
-                style={{ backgroundColor: customization.colors.primary }}
-              >
-                {renderEditableText(editableFields.find(f => f.id === 'ctaText')!)}
-              </button>
+                        <h1 
+            className="text-4xl md:text-6xl font-bold mb-6"
+            style={{ color: customization.colors.text || '#1F2937' }}
+          >
+            {renderEditableText(editableFields.find(f => f.id === 'headline')!)}
+          </h1>
+          <p 
+            className="text-xl md:text-2xl mb-8 opacity-80"
+            style={{ color: customization.colors.text || '#1F2937' }}
+          >
+            {renderEditableText(editableFields.find(f => f.id === 'subheadline')!)}
+          </p>
+          <div 
+            className="mb-12 text-lg leading-relaxed"
+            style={{ color: customization.colors.text || '#1F2937' }}
+          >
+            {renderEditableText(editableFields.find(f => f.id === 'heroText')!)}
+          </div>
+                        <button 
+            className="px-8 py-4 rounded-lg text-white text-lg font-semibold hover:opacity-90 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            style={{ 
+              backgroundColor: customization.colors.primary || '#3B82F6',
+              color: '#FFFFFF'
+            }}
+          >
+            {renderEditableText(editableFields.find(f => f.id === 'ctaText')!)}
+          </button>
             </div>
           </section>
 
           {/* Offer Section */}
-          <section className="py-16 px-6 bg-gray-50">
+          <section 
+            className="py-16 px-6"
+            style={{ backgroundColor: customization.colors.background === '#FFFFFF' ? '#F9FAFB' : customization.colors.background + '80' }}
+          >
             <div className="max-w-4xl mx-auto">
               <h2 
                 className="text-3xl font-bold mb-8 text-center"
-                style={{ color: customization.colors.text }}
+                style={{ color: customization.colors.text || '#1F2937' }}
               >
                 What You'll Get
               </h2>
-              <div className="prose max-w-none">
+              <div 
+                className="prose prose-lg max-w-none"
+                style={{ color: customization.colors.text || '#1F2937' }}
+              >
                 {renderEditableText(editableFields.find(f => f.id === 'offerDescription')!)}
               </div>
             </div>
@@ -404,16 +471,23 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           {/* Guarantee Section */}
           <section 
             className="py-16 px-6"
-            style={{ backgroundColor: customization.colors.accent + '10' }}
+            style={{ 
+              backgroundColor: customization.colors.accent ? 
+                `${customization.colors.accent}15` : 
+                '#FEF3C7'
+            }}
           >
             <div className="max-w-4xl mx-auto text-center">
               <h2 
                 className="text-2xl font-bold mb-6"
-                style={{ color: customization.colors.text }}
+                style={{ color: customization.colors.text || '#1F2937' }}
               >
                 Our Guarantee
               </h2>
-              <div className="text-lg">
+              <div 
+                className="text-lg"
+                style={{ color: customization.colors.text || '#1F2937' }}
+              >
                 {renderEditableText(editableFields.find(f => f.id === 'guaranteeText')!)}
               </div>
             </div>
@@ -422,10 +496,15 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           {/* Footer */}
           <footer 
             className="py-8 px-6 border-t"
-            style={{ backgroundColor: customization.colors.background }}
+            style={{ 
+              backgroundColor: customization.colors.background || '#FFFFFF',
+              borderColor: (customization.colors.text || '#1F2937') + '20'
+            }}
           >
-            <div className="max-w-4xl mx-auto text-center text-sm text-gray-500">
-              <p>&copy; 2024 {funnel?.name || 'Your Business'}. All rights reserved.</p>
+            <div className="max-w-4xl mx-auto text-center text-sm opacity-70">
+              <p style={{ color: customization.colors.text || '#1F2937' }}>
+                &copy; 2024 {funnel?.name || 'Your Business'}. All rights reserved.
+              </p>
             </div>
           </footer>
         </div>

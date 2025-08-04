@@ -101,12 +101,16 @@ export async function POST(request: NextRequest) {
       primary_color: customization.colors?.primary || '#3b82f6',
       secondary_color: customization.colors?.secondary || '#1e40af',
       accent_color: customization.colors?.accent || '#059669',
+      background_color: customization.colors?.background || '#FFFFFF',
+      text_color: customization.colors?.text || '#1F2937',
       logo_url: customization.logoUrl,
+      font_family: customization.font || 'inter',
+      theme_style: customization.theme || 'modern',
       
       // Tracking fields
-      facebook_pixel_id: customization.facebookPixelId || null,
-      google_analytics_id: customization.googleAnalyticsId || null,
-      theme_mode: customization.themeMode || 'light',
+      facebook_pixel_code: customization.pixelCodes?.facebook || null,
+      google_analytics_code: customization.pixelCodes?.google || null,
+      custom_tracking_code: customization.pixelCodes?.custom || null
     }
 
     const { data: funnel, error } = await supabaseAdmin
@@ -295,10 +299,19 @@ export async function GET(request: NextRequest) {
             colors: {
               primary: funnel.primary_color,
               secondary: funnel.secondary_color,
-              accent: funnel.accent_color
+              accent: funnel.accent_color,
+              background: funnel.background_color,
+              text: funnel.text_color
             },
             logoUrl: funnel.logo_url,
-            domain: funnel.domain
+            domain: funnel.domain,
+            font: funnel.font_family,
+            theme: funnel.theme_style,
+            pixelCodes: {
+              facebook: funnel.facebook_pixel_code || '',
+              google: funnel.google_analytics_code || '',
+              custom: funnel.custom_tracking_code || ''
+            }
           }
         }
       }
@@ -433,6 +446,7 @@ export async function PUT(request: NextRequest) {
     }
 
     if (customization) {
+      // Basic customization fields that definitely exist
       updates.headline = customization.headline
       updates.subheadline = customization.subheadline
       updates.hero_text = customization.heroText
@@ -443,8 +457,23 @@ export async function PUT(request: NextRequest) {
       updates.secondary_color = customization.colors?.secondary
       updates.accent_color = customization.colors?.accent
       updates.logo_url = customization.logoUrl
+      
+      // Only add new fields if they exist (check if migration was run)
+      try {
+        if (customization.colors?.background) updates.background_color = customization.colors.background
+        if (customization.colors?.text) updates.text_color = customization.colors.text
+        if (customization.font) updates.font_family = customization.font
+        if (customization.theme) updates.theme_style = customization.theme
+        if (customization.pixelCodes?.facebook) updates.facebook_pixel_code = customization.pixelCodes.facebook
+        if (customization.pixelCodes?.google) updates.google_analytics_code = customization.pixelCodes.google
+        if (customization.pixelCodes?.custom) updates.custom_tracking_code = customization.pixelCodes.custom
+      } catch (fieldError) {
+        console.log('Some new fields may not exist in database yet:', fieldError)
+      }
     }
 
+    console.log('Updating funnel with data:', updates)
+    
     const { data: funnel, error } = await supabaseAdmin
       .from('saved_funnels')
       .update(updates)
@@ -455,7 +484,12 @@ export async function PUT(request: NextRequest) {
 
     if (error || !funnel) {
       console.error('Supabase error:', error)
-      return NextResponse.json({ error: 'Failed to update funnel' }, { status: 500 })
+      console.error('Error details:', JSON.stringify(error, null, 2))
+      return NextResponse.json({ 
+        error: 'Failed to update funnel', 
+        details: error?.message || 'Unknown error',
+        code: error?.code
+      }, { status: 500 })
     }
 
     return NextResponse.json({ 
