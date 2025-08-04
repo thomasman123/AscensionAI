@@ -428,7 +428,14 @@ export function DomainSetupGuide({
                   {domainData.domain && domainData.domain.split('.').length > 2 && (
                     <div className="mt-3 p-3 bg-orange-500/10 border border-orange-500/20 rounded">
                       <p className="text-orange-400 text-sm">
-                        📝 <strong>Note:</strong> Add this TXT record at your root domain level, not the subdomain level.
+                        📝 <strong>Subdomain Setup:</strong> Add this TXT record to your subdomain ({domainData.domain}), not the root domain.
+                      </p>
+                    </div>
+                  )}
+                  {domainData.domain && domainData.domain.split('.').length === 2 && (
+                    <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded">
+                      <p className="text-blue-400 text-sm">
+                        📝 <strong>Root Domain:</strong> Add this TXT record to your root domain ({domainData.domain}).
                       </p>
                     </div>
                   )}

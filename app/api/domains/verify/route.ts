@@ -88,11 +88,10 @@ async function checkCNAMERecord(domain: string): Promise<boolean> {
       
       // Check if any CNAME record points to our Vercel domain
       const targetDomains = [
-        'ascension-ai-sm36.vercel.app',
-        'ascension-ai-sm36-oimmnv92k-thomas-8419s-projects.vercel.app',
-        process.env.VERCEL_URL?.replace('https://', '') || '',
-        process.env.NEXT_PUBLIC_VERCEL_DOMAIN || ''
-      ].filter(Boolean)
+        'ascension-ai-sm36.vercel.app',  // Primary stable domain
+        'ascension-ai-sm36-hp3v9pqg5-thomas-8419s-projects.vercel.app', // Current deployment (temporary)
+        'ascension-ai-sm36-oimmnv92k-thomas-8419s-projects.vercel.app'  // Previous deployment (temporary)
+      ]
       
       const isValid = records.some(record => 
         targetDomains.some(target => record.includes(target)) ||
@@ -125,18 +124,16 @@ async function checkTXTRecord(domain: string, token: string): Promise<boolean> {
   try {
     console.log('Checking TXT record for domain:', domain, 'looking for token:', token)
     
-    // Determine the domain to check TXT records on
-    // For subdomains, we need to check TXT records at the root domain
-    const domainParts = domain.split('.')
-    const rootDomain = domainParts.length > 2 
-      ? domainParts.slice(-2).join('.') // Get root domain for subdomains
-      : domain
+    // Check TXT records on the actual domain being used
+    // For man.heliosscale.com → check man.heliosscale.com
+    // For heliosscale.com → check heliosscale.com
+    const domainToCheck = domain
     
-    console.log('Checking TXT records on root domain:', rootDomain)
+    console.log('Checking TXT records on domain:', domainToCheck)
     
     // Use Node.js DNS module to check TXT records
     try {
-      const txtRecords = await dns.resolveTxt(rootDomain)
+      const txtRecords = await dns.resolveTxt(domainToCheck)
       console.log('TXT records found:', txtRecords)
       
       // Flatten the TXT records array and check for our verification token
@@ -167,7 +164,8 @@ async function checkTXTRecord(domain: string, token: string): Promise<boolean> {
         hasExactToken,
         hasVerifyPrefix,
         totalRecords: allTxtValues.length,
-        expectedToken: token
+        expectedToken: token,
+        checkedDomain: domainToCheck
       })
       
       return hasExactToken
@@ -179,7 +177,7 @@ async function checkTXTRecord(domain: string, token: string): Promise<boolean> {
       
       // Try looking for the _ascension-verify subdomain specifically
       try {
-        const verifySubdomain = `_ascension-verify.${rootDomain}`
+        const verifySubdomain = `_ascension-verify.${domainToCheck}`
         console.log('Checking _ascension-verify subdomain:', verifySubdomain)
         const verifyRecords = await dns.resolveTxt(verifySubdomain)
         console.log('_ascension-verify subdomain records:', verifyRecords)
@@ -235,6 +233,11 @@ export async function POST(request: NextRequest) {
     const verification = await verifyDNSRecords(domain.domain, domain.verification_token)
     
     console.log('POST /api/domains/verify - Verification result:', verification)
+    console.log('POST /api/domains/verify - Domain details:', {
+      domain: domain.domain,
+      token: domain.verification_token,
+      domainId: domain.id
+    })
 
     if (verification.success) {
       // Add domain to Vercel project automatically

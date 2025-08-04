@@ -139,10 +139,8 @@ export async function POST(request: NextRequest) {
     const verificationToken = `ascension-verify-${Math.random().toString(36).substring(2)}${Date.now().toString(36)}`
 
     // Create DNS records instructions
-    // For production, this should point to your actual deployment URL
-    const productionDomain = process.env.NEXT_PUBLIC_VERCEL_DOMAIN || 
-                            process.env.VERCEL_URL || 
-                            'ascension-ai-sm36.vercel.app'
+    // Always use the stable production domain, not deployment URLs
+    const productionDomain = 'ascension-ai-sm36.vercel.app'
     
     // Determine if this is a subdomain or root domain
     const domainParts = domain.split('.')
