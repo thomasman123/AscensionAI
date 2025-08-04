@@ -61,7 +61,78 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     // Use a consistent UUID for the default user
     const userId = searchParams.get('userId') || '00000000-0000-0000-0000-000000000000'
+    const profileId = searchParams.get('profileId')
     
+    // If profileId is provided, return single profile
+    if (profileId) {
+      const { data: profile, error } = await supabaseAdmin
+        .from('user_offer_profiles')
+        .select('*')
+        .eq('id', profileId)
+        .eq('user_id', userId)
+        .single()
+
+      if (error) {
+        console.error('Supabase error:', error)
+        return NextResponse.json({ error: 'Failed to retrieve profile' }, { status: 500 })
+      }
+
+      if (!profile) {
+        return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+      }
+
+      // Transform database row to match the interface
+      const transformedProfile = {
+        id: profile.id,
+        name: profile.name,
+        createdAt: profile.created_at,
+        updatedAt: profile.updated_at,
+        data: {
+          niche: profile.niche,
+          income: profile.income,
+          age: profile.age,
+          traits: profile.traits,
+          primaryGoal1: profile.primary_goal_1,
+          primaryGoal2: profile.primary_goal_2,
+          primaryGoal3: profile.primary_goal_3,
+          secondaryGoal1: profile.secondary_goal_1,
+          secondaryGoal2: profile.secondary_goal_2,
+          secondaryGoal3: profile.secondary_goal_3,
+          complaint1: profile.complaint_1,
+          complaint2: profile.complaint_2,
+          complaint3: profile.complaint_3,
+          fear: profile.fear,
+          falseSolution: profile.false_solution,
+          mistakenBelief: profile.mistaken_belief,
+          objection1: profile.objection_1,
+          objection2: profile.objection_2,
+          objection3: profile.objection_3,
+          expensiveAlternative1: profile.expensive_alternative_1,
+          expensiveAlternative2: profile.expensive_alternative_2,
+          expensiveAlternative3: profile.expensive_alternative_3,
+          avatarStory: profile.avatar_story,
+          who: profile.who,
+          outcome: profile.outcome,
+          method: profile.method,
+          timeframe: profile.timeframe,
+          guarantee: profile.guarantee,
+          activationPoint1: profile.activation_point_1,
+          activationPoint2: profile.activation_point_2,
+          activationPoint3: profile.activation_point_3,
+          activationPoint4: profile.activation_point_4,
+          activationPoint5: profile.activation_point_5,
+          mechanismPoint1: profile.mechanism_point_1,
+          mechanismPoint2: profile.mechanism_point_2,
+          mechanismPoint3: profile.mechanism_point_3,
+          mechanismPoint4: profile.mechanism_point_4,
+          mechanismPoint5: profile.mechanism_point_5,
+        }
+      }
+
+      return NextResponse.json({ profile: transformedProfile })
+    }
+    
+    // Otherwise, return all profiles for the user
     const { data: profiles, error } = await supabaseAdmin
       .from('user_offer_profiles')
       .select('*')

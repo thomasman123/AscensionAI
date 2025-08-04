@@ -16,7 +16,8 @@ import {
   User, 
   Target, 
   Search,
-  FileText
+  FileText,
+  Edit
 } from 'lucide-react'
 
 interface UserOfferProfile {
@@ -66,6 +67,12 @@ function OfferProfilesContent() {
     // Navigate to create funnel with this profile
     const dataParam = encodeURIComponent(JSON.stringify(profile.data))
     router.push(`/funnels/create/template?type=trigger&data=${dataParam}&fromProfile=true`)
+  }
+
+  const handleEditProfile = (profile: UserOfferProfile, event: React.MouseEvent) => {
+    event.stopPropagation()
+    // Navigate to edit this profile
+    router.push(`/offer-profiles/edit/${profile.id}`)
   }
 
   const handleCreateNew = () => {
@@ -168,14 +175,24 @@ function OfferProfilesContent() {
                           {formatDate(profile.createdAt)}
                         </div>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => handleDeleteProfile(profile.id, e)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-tier-500 hover:text-red-400 hover:bg-red-500/10"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => handleEditProfile(profile, e)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-tier-500 hover:text-accent-400 hover:bg-accent-500/10"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => handleDeleteProfile(profile.id, e)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-tier-500 hover:text-red-400 hover:bg-red-500/10"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent>
