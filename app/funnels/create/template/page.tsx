@@ -7,7 +7,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DashboardNav } from '@/components/dashboard-nav'
-import { ArrowRight, ArrowLeft, Check, Zap, Calendar, Eye, Star } from 'lucide-react'
+import { useAuth } from '@/lib/auth-context'
+import { ArrowRight, ArrowLeft, Check, Zap, Calendar, Eye, Star, Loader2 } from 'lucide-react'
 
 interface Template {
   id: string
@@ -119,6 +120,7 @@ const templates: Template[] = [
 ]
 
 function TemplateSelectionContent() {
+  const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const funnelType = searchParams.get('type') as 'trigger' | 'gateway'
@@ -142,7 +144,7 @@ function TemplateSelectionContent() {
   }
 
   const handleGenerateWithAI = async () => {
-    if (!selectedTemplate) return
+    if (!selectedTemplate || !user) return
 
     setIsGenerating(true)
     
@@ -167,25 +169,69 @@ function TemplateSelectionContent() {
           }
         }
       }
-      
-      const combinedData = {
-        ...funnelData,
-        templateId: selectedTemplate,
-        timestamp: new Date().toISOString(),
-        userId: 'current-user-id',
+
+      // Create default customization
+      const defaultCustomization = {
+        headline: '',
+        subheadline: '',
+        heroText: '',
+        ctaText: 'Get Started Now',
+        offerDescription: '',
+        guaranteeText: '',
+        colors: {
+          primary: '#3B82F6',
+          secondary: '#1E40AF',
+          accent: '#F59E0B',
+          background: '#FFFFFF',
+          text: '#1F2937'
+        },
+        logoUrl: '',
+        domain: '',
+        font: 'inter',
+        theme: 'clean',
+        pixelCodes: {
+          facebook: '',
+          google: '',
+          custom: ''
+        }
       }
 
       // Simulate AI processing time
       await new Promise(resolve => setTimeout(resolve, 3000))
 
-      // Navigate to customization with generated content - use safer encoding
-      const encodedData = encodeURIComponent(JSON.stringify(combinedData))
-      router.push(`/funnels/create/customize?type=${funnelType}&data=${encodedData}`)
+      // Save funnel directly
+      const saveData = {
+        userId: user.id,
+        name: (funnelData as any)?.offerData?.who 
+          ? `${(funnelData as any).offerData.who} - ${(funnelData as any).offerData.outcome}` 
+          : 'My Funnel',
+        type: funnelType,
+        status: 'published',
+        offerData: (funnelData as any)?.offerData,
+        caseStudies: (funnelData as any)?.caseStudies,
+        media: (funnelData as any)?.media,
+        templateId: selectedTemplate,
+        customization: defaultCustomization
+      }
+
+      const response = await fetch('/api/funnels/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(saveData)
+      })
+
+      if (response.ok) {
+        router.push('/funnels')
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || 'Failed to save funnel')
+      }
     } catch (error) {
-      console.error('Error generating funnel:', error)
-      alert('There was an error generating your funnel. Please try again.')
-      setIsGenerating(false)
+      console.error('Error creating funnel:', error)
+      alert('There was an error creating your funnel. Please try again.')
     }
+    
+    setIsGenerating(false)
   }
 
   const handlePrevious = () => {
@@ -371,11 +417,21 @@ function TemplateSelectionContent() {
             <Button 
               className="bg-accent-500 hover:bg-accent-600 text-white disabled:opacity-50"
               onClick={handleGenerateWithAI}
-              disabled={!selectedTemplate}
+              disabled={!selectedTemplate || isGenerating}
             >
-              Generate with AI
-              <Zap className="w-4 h-4 ml-2" />
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Creating Funnel...
+                </>
+              ) : (
+                <>
+                  Create Funnel
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </>
+              )}
             </Button>
+
           </div>
 
           {/* Template Preview Info */}
@@ -383,15 +439,12 @@ function TemplateSelectionContent() {
             <Card className="bg-tier-900/50 border-tier-800 mt-8">
               <CardContent className="p-6">
                 <h3 className="font-semibold text-tier-50 mb-3">🚀 What happens next?</h3>
-                <div className="grid gap-4 md:grid-cols-3 text-sm">
+                <div className="grid gap-4 md:grid-cols-2 text-sm">
                   <div className="text-tier-300">
                     <strong className="text-tier-200">1. AI Generation:</strong> Our AI will analyze all your offer data and generate personalized copy, headlines, and content.
                   </div>
                   <div className="text-tier-300">
-                    <strong className="text-tier-200">2. Customization:</strong> Review and fine-tune the generated content to match your brand perfectly.
-                  </div>
-                  <div className="text-tier-300">
-                    <strong className="text-tier-200">3. Launch:</strong> Deploy your high-converting funnel on your custom domain instantly.
+                    <strong className="text-tier-200">2. Launch:</strong> Your high-converting funnel will be deployed and ready to use instantly.
                   </div>
                 </div>
               </CardContent>

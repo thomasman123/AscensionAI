@@ -81,7 +81,7 @@ function OfferProfilesContent() {
   }
 
   const handleCreateNew = () => {
-    router.push(`/funnels/create/offer?type=${funnelType}`)
+    router.push(`/funnels/create/offer-profiles/details?type=${funnelType}`)
   }
 
   const handleDeleteProfile = async (profileId: string, event: React.MouseEvent) => {

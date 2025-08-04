@@ -66,9 +66,9 @@ export async function POST(request: NextRequest) {
       customization
     } = await request.json()
 
-    if (!userId || !name || !type || !templateId || !customization) {
+    if (!userId || !name || !type || !templateId) {
       return NextResponse.json({ 
-        error: 'User ID, name, type, template ID, and customization are required' 
+        error: 'User ID, name, type, and template ID are required' 
       }, { status: 400 })
     }
 
@@ -92,25 +92,25 @@ export async function POST(request: NextRequest) {
       calendar_title: media?.calendarTitle || 'Book Your Call',
       
       // Customization fields
-      headline: customization.headline,
-      subheadline: customization.subheadline,
-      hero_text: customization.heroText,
-      cta_text: customization.ctaText,
-      offer_description: customization.offerDescription,
-      guarantee_text: customization.guaranteeText,
-      primary_color: customization.colors?.primary || '#3b82f6',
-      secondary_color: customization.colors?.secondary || '#1e40af',
-      accent_color: customization.colors?.accent || '#059669',
-      background_color: customization.colors?.background || '#FFFFFF',
-      text_color: customization.colors?.text || '#1F2937',
-      logo_url: customization.logoUrl,
-      font_family: customization.font || 'inter',
-      theme_style: customization.theme || 'clean',
+      headline: customization?.headline || '',
+      subheadline: customization?.subheadline || '',
+      hero_text: customization?.heroText || '',
+      cta_text: customization?.ctaText || 'Get Started Now',
+      offer_description: customization?.offerDescription || '',
+      guarantee_text: customization?.guaranteeText || '',
+      primary_color: customization?.colors?.primary || '#3B82F6',
+      secondary_color: customization?.colors?.secondary || '#1E40AF',
+      accent_color: customization?.colors?.accent || '#F59E0B',
+      background_color: customization?.colors?.background || '#FFFFFF',
+      text_color: customization?.colors?.text || '#1F2937',
+      logo_url: customization?.logoUrl || null,
+      font_family: customization?.font || 'inter',
+      theme_style: customization?.theme || 'clean',
       
       // Tracking fields
-      facebook_pixel_code: customization.pixelCodes?.facebook || null,
-      google_analytics_code: customization.pixelCodes?.google || null,
-      custom_tracking_code: customization.pixelCodes?.custom || null
+      facebook_pixel_code: customization?.pixelCodes?.facebook || null,
+      google_analytics_code: customization?.pixelCodes?.google || null,
+      custom_tracking_code: customization?.pixelCodes?.custom || null
     }
 
     const { data: funnel, error } = await supabaseAdmin
