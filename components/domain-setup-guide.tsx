@@ -378,8 +378,8 @@ export function DomainSetupGuide({
                   {domainData.domain && domainData.domain.split('.').length > 2 && (
                     <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded">
                       <p className="text-blue-400 text-sm">
-                        💡 <strong>Subdomain Setup:</strong> For {domainData.domain}, add the CNAME record with name "{domainData.dnsRecords?.cname?.name}" 
-                        (just the subdomain part, not the full domain name).
+                        💡 <strong>Subdomain Setup:</strong> Add these records in your DNS panel for the root domain ({domainData.domain.split('.').slice(-2).join('.')}). 
+                        The name "{domainData.dnsRecords?.cname?.name}" will point your subdomain {domainData.domain} to our servers.
                       </p>
                     </div>
                   )}
@@ -424,26 +424,22 @@ export function DomainSetupGuide({
                     </div>
                     <div></div>
                   </div>
-                  {/* Subdomain-specific TXT record note */}
-                  {domainData.domain && domainData.domain.split('.').length > 2 && (
-                    <div className="mt-3 p-3 bg-orange-500/10 border border-orange-500/20 rounded">
-                      <p className="text-orange-400 text-sm mb-2">
-                        📝 <strong>Subdomain Setup:</strong> For {domainData.domain}
-                      </p>
-                      <div className="text-orange-300 text-xs space-y-1">
-                        <p><strong>Add TXT record to root domain:</strong> {domainData.domain.split('.').slice(-2).join('.')}</p>
-                        <p><strong>Name:</strong> {domainData.dnsRecords?.txt?.name || `_ascension-verify-${domainData.domain.split('.')[0]}`}</p>
-                        <p><strong>Value:</strong> {domainData.dnsRecords?.txt?.value || domainData.verificationToken}</p>
-                      </div>
-                    </div>
-                  )}
-                  {domainData.domain && domainData.domain.split('.').length === 2 && (
-                    <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded">
-                      <p className="text-blue-400 text-sm">
-                        📝 <strong>Root Domain:</strong> Add this TXT record to your root domain ({domainData.domain}).
-                      </p>
-                    </div>
-                  )}
+                  {/* Simplified instructions for both subdomains and root domains */}
+                  <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded">
+                    <p className="text-blue-400 text-sm">
+                      📝 <strong>Instructions:</strong> 
+                      {domainData.domain.split('.').length > 2 ? (
+                        <>
+                          Add this TXT record in your DNS panel for the root domain ({domainData.domain.split('.').slice(-2).join('.')}).
+                          <span className="block mt-1">
+                            💡 The name "{domainData.dnsRecords?.txt?.name}" will create a TXT record specifically for your subdomain {domainData.domain}.
+                          </span>
+                        </>
+                      ) : (
+                        <>Add this TXT record to your domain ({domainData.domain}) in your DNS provider.</>
+                      )}
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -454,12 +450,12 @@ export function DomainSetupGuide({
                 </p>
                 <div className="mt-3">
                   <a 
-                    href={`https://dnschecker.org/all-dns-records-of-domain.php?query=${domainData.domain.split('.').slice(-2).join('.')}&rtype=TXT&dns=google`}
+                    href={`https://dnschecker.org/all-dns-records-of-domain.php?query=${domainData.domain}&rtype=TXT&dns=google`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-400 hover:text-blue-300 text-sm underline"
                   >
-                    🔍 Check DNS propagation status
+                    🔍 Check DNS propagation status for {domainData.domain}
                   </a>
                 </div>
               </div>

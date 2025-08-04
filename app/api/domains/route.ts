@@ -154,8 +154,8 @@ export async function POST(request: NextRequest) {
       // For subdomains like "yes.heliosscale.com", CNAME name should be "yes"
       cnameRecordName = domainParts[0]
       cnameDescription = `Points your subdomain (${domain}) to our servers`
-      // TXT record should be "_ascension-verify-yes" so it's queryable at the subdomain
-      txtRecordName = `_ascension-verify-${domainParts[0]}`
+      // TXT record name should be the subdomain part (e.g., "yes" for "yes.heliosscale.com")
+      txtRecordName = domainParts[0]
     } else {
       // For root domains like "heliosscale.com", CNAME name should be "@"
       cnameRecordName = '@'
