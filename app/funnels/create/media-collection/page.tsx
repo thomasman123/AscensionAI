@@ -59,6 +59,8 @@ function MediaCollectionContent() {
     // Parse the funnel data
     try {
       const parsedData = JSON.parse(decodeURIComponent(dataParam))
+      console.log('Media-collection - received data:', parsedData)
+      console.log('Media-collection - offerData:', parsedData.offerData)
       setFunnelData(parsedData)
     } catch (error) {
       console.error('Error parsing funnel data:', error)
@@ -85,6 +87,14 @@ function MediaCollectionContent() {
     setIsGenerating(true)
     
     try {
+      // Validate that we have the necessary offer data
+      if (!funnelData.offerData) {
+        console.error('Missing offer data in funnelData:', funnelData)
+        alert('Missing offer data. Please go back and complete all funnel steps.')
+        setIsGenerating(false)
+        return
+      }
+
       // Generate AI-powered copy using the offer data
       let generatedCopy
       try {
@@ -104,27 +114,28 @@ function MediaCollectionContent() {
           generatedCopy = data.copy
           console.log('AI copy generated successfully:', generatedCopy)
         } else {
-          console.error('AI generation failed, using fallback copy')
+          const errorData = await response.json()
+          console.error('AI generation failed with status:', response.status, errorData)
           throw new Error('AI generation failed')
         }
       } catch (aiError) {
         console.error('Error generating AI copy:', aiError)
-        // Fallback copy using offer data
+        // Fallback copy using offer data with safe property access
         generatedCopy = {
-          headline: funnelData.offerData.who 
-            ? `Transform Your ${funnelData.offerData.niche} Business with Our Proven ${funnelData.offerData.method}`
+          headline: funnelData.offerData?.who 
+            ? `Transform Your ${funnelData.offerData.niche || 'Business'} with Our Proven ${funnelData.offerData.method || 'System'}`
             : "Transform Your Business Today",
-          subheadline: funnelData.offerData.outcome
-            ? `Join successful ${funnelData.offerData.who} who achieved ${funnelData.offerData.outcome} in just ${funnelData.offerData.timeframe}`
+          subheadline: funnelData.offerData?.outcome
+            ? `Join successful ${funnelData.offerData.who || 'people'} who achieved ${funnelData.offerData.outcome} in just ${funnelData.offerData.timeframe || '30 days'}`
             : "Get the results you've been looking for",
-          heroText: funnelData.offerData.complaint1
-            ? `Stop struggling with ${funnelData.offerData.complaint1}. Our proven system helps ${funnelData.offerData.who} achieve ${funnelData.offerData.outcome} using our unique ${funnelData.offerData.method} approach.`
+          heroText: funnelData.offerData?.complaint1
+            ? `Stop struggling with ${funnelData.offerData.complaint1}. Our proven system helps ${funnelData.offerData.who || 'people'} achieve ${funnelData.offerData.outcome || 'their goals'} using our unique ${funnelData.offerData.method || 'approach'}.`
             : "Finally, a solution that actually works.",
           ctaText: "Get Started Now",
-          offerDescription: funnelData.offerData.method
-            ? `Complete ${funnelData.offerData.method} system designed to help ${funnelData.offerData.who} achieve ${funnelData.offerData.outcome} in ${funnelData.offerData.timeframe}.`
+          offerDescription: funnelData.offerData?.method
+            ? `Complete ${funnelData.offerData.method} system designed to help ${funnelData.offerData.who || 'people'} achieve ${funnelData.offerData.outcome || 'their goals'} in ${funnelData.offerData.timeframe || '30 days'}.`
             : "Everything you need to succeed",
-          guaranteeText: funnelData.offerData.guarantee || "30-day money-back guarantee"
+          guaranteeText: funnelData.offerData?.guarantee || "30-day money-back guarantee"
         }
       }
 

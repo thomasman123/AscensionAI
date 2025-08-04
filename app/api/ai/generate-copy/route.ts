@@ -79,17 +79,26 @@ export interface GeneratedCopy {
 }
 
 function generateFallbackCopy(offerData: OfferData): GeneratedCopy {
+  // Safely extract values with fallbacks
+  const niche = offerData.niche || 'Business'
+  const who = offerData.who || 'entrepreneurs'
+  const outcome = offerData.outcome || 'success'
+  const method = offerData.method || 'proven system'
+  const timeframe = offerData.timeframe || '30 days'
+  const complaint1 = offerData.complaint1 || 'common business challenges'
+  const guarantee = offerData.guarantee || '30-day money-back guarantee'
+
   return {
-    headline: `Transform Your ${offerData.niche} Business with Our Proven ${offerData.method}`,
-    subheadline: `Join successful ${offerData.who} who achieved ${offerData.outcome} in just ${offerData.timeframe}`,
-    heroText: `Stop struggling with ${offerData.complaint1}. Our proven system helps ${offerData.who} achieve ${offerData.outcome} using our unique ${offerData.method} approach.`,
+    headline: `Transform Your ${niche} Business with Our Proven ${method}`,
+    subheadline: `Join successful ${who} who achieved ${outcome} in just ${timeframe}`,
+    heroText: `Stop struggling with ${complaint1}. Our proven system helps ${who} achieve ${outcome} using our unique ${method} approach.`,
     ctaText: "Get Started Now",
-    offerDescription: `Complete ${offerData.method} system designed to help ${offerData.who} achieve ${offerData.outcome} in ${offerData.timeframe}.`,
-    guaranteeText: offerData.guarantee || "30-day money-back guarantee",
-    pageTitle: `${offerData.outcome} - Proven ${offerData.method} for ${offerData.niche}`,
-    metaDescription: `Discover how ${offerData.who} are achieving ${offerData.outcome} with our proven ${offerData.method}. ${offerData.guarantee}`,
-    emailSubject: `Ready to achieve ${offerData.outcome}?`,
-    emailPreview: `Your journey to ${offerData.outcome} starts here...`
+    offerDescription: `Complete ${method} system designed to help ${who} achieve ${outcome} in ${timeframe}.`,
+    guaranteeText: guarantee,
+    pageTitle: `${outcome} - Proven ${method} for ${niche}`,
+    metaDescription: `Discover how ${who} are achieving ${outcome} with our proven ${method}. ${guarantee}`,
+    emailSubject: `Ready to achieve ${outcome}?`,
+    emailPreview: `Your journey to ${outcome} starts here...`
   }
 }
 
@@ -99,6 +108,15 @@ export async function POST(request: NextRequest) {
 
     if (!offerData) {
       return NextResponse.json({ error: 'Offer data is required' }, { status: 400 })
+    }
+
+    // Validate that offerData has required fields for copy generation
+    const requiredFields = ['who', 'outcome', 'method', 'niche']
+    const missingFields = requiredFields.filter(field => !offerData[field] || offerData[field].trim() === '')
+    
+    if (missingFields.length > 0) {
+      console.warn('Missing required offer data fields:', missingFields)
+      // Still try to generate copy, but log the warning
     }
 
     // Build writing style prompt
@@ -147,6 +165,7 @@ export async function POST(request: NextRequest) {
         const generatedCopy = JSON.parse(response) as GeneratedCopy
         return NextResponse.json({ copy: generatedCopy })
       } catch (parseError) {
+        console.error('JSON parsing failed for OpenAI response:', parseError)
         // Fallback if JSON parsing fails
         const fallbackCopy = generateFallbackCopy(offerData)
         return NextResponse.json({ copy: fallbackCopy })
@@ -158,6 +177,6 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     console.error('Error in generate-copy API:', error)
-    return NextResponse.json({ error: 'Failed to generate copy' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to generate copy', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
   }
 } 

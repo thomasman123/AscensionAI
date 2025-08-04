@@ -104,17 +104,17 @@ function CaseStudiesContent() {
   }
 
   const handleNext = () => {
-    let offerData = {}
+    let existingData = {}
     
     // Safely parse the data parameter with proper error handling
     if (dataParam) {
       try {
-        offerData = JSON.parse(decodeURIComponent(dataParam))
+        existingData = JSON.parse(decodeURIComponent(dataParam))
       } catch (decodeError) {
         console.error('Error decoding funnel data:', decodeError)
         // Try to parse without URI decoding as fallback
         try {
-          offerData = JSON.parse(dataParam)
+          existingData = JSON.parse(dataParam)
         } catch (parseError) {
           console.error('Error parsing funnel data:', parseError)
           // If all parsing fails, redirect to start
@@ -125,11 +125,16 @@ function CaseStudiesContent() {
       }
     }
     
+    // Extract offerData if it exists, otherwise use the whole data as offerData for backward compatibility
+    const offerData = (existingData as any).offerData || existingData
+    
+    // Ensure the data structure preserves offerData properly
     const combinedData = {
-      ...offerData,
-      caseStudies
+      offerData: offerData, // Explicitly preserve offerData
+      caseStudies: caseStudies
     }
     
+    console.log('Case studies - passing data to media:', combinedData)
     router.push(`/funnels/create/media?type=${funnelType}&data=${encodeURIComponent(JSON.stringify(combinedData))}`)
   }
 

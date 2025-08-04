@@ -103,14 +103,16 @@ function MechanismContent() {
     }
     
     const combinedData = {
-      ...offerData,
-      ...mechanismData
+      offerData: {
+        ...offerData,
+        ...mechanismData
+      }
     }
 
     // Save offer profile now that we have complete data
     try {
-      const profileName = (offerData as any).who && (offerData as any).outcome 
-        ? `${(offerData as any).who} - ${(offerData as any).outcome}`
+      const profileName = (combinedData.offerData as any).who && (combinedData.offerData as any).outcome 
+        ? `${(combinedData.offerData as any).who} - ${(combinedData.offerData as any).outcome}`
         : `Profile - ${new Date().toLocaleDateString()}`
 
       await fetch('/api/user/profile', {
@@ -119,7 +121,7 @@ function MechanismContent() {
         body: JSON.stringify({
           userId: user?.id || '00000000-0000-0000-0000-000000000000',
           name: profileName,
-          data: combinedData
+          data: combinedData.offerData // Save the combined offer data
         })
       })
       
@@ -129,6 +131,7 @@ function MechanismContent() {
       // Don't block the funnel creation if profile save fails
     }
     
+    console.log('Mechanism - passing data to case studies:', combinedData)
     router.push(`/funnels/create/case-studies?type=${funnelType}&data=${encodeURIComponent(JSON.stringify(combinedData))}`)
   }
 
