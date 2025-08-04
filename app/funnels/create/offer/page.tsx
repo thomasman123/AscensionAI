@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -106,7 +106,7 @@ const sections = [
   }
 ]
 
-export default function OfferInputPage() {
+function OfferInputContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const funnelType = searchParams.get('type') as 'trigger' | 'gateway'
@@ -206,108 +206,126 @@ export default function OfferInputPage() {
   const progress = ((currentSection + completeness) / sections.length) * 100
 
   return (
-    <DashboardNav>
-      <div className="h-full overflow-auto bg-tier-950">
-        <div className="min-h-full flex items-center justify-center p-8">
-          <div className="max-w-4xl w-full">
-            {/* Progress */}
-            <div className="text-center mb-8">
-              <div className="text-sm text-tier-400 mb-2">
-                Step {currentSection + 1} of {sections.length} - {currentSectionData.title}
+    <div className="h-full overflow-auto bg-tier-950">
+      <div className="min-h-full flex items-center justify-center p-8">
+        <div className="max-w-4xl w-full">
+          {/* Progress */}
+          <div className="text-center mb-8">
+            <div className="text-sm text-tier-400 mb-2">
+              Step {currentSection + 1} of {sections.length} - {currentSectionData.title}
+            </div>
+            <div className="w-full bg-tier-800 rounded-full h-2">
+              <div 
+                className="bg-accent-500 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min(progress, 100)}%` }}
+              ></div>
+            </div>
+            <div className="text-xs text-tier-500 mt-2">
+              {Math.round(completeness * 100)}% complete in this section
+            </div>
+          </div>
+
+          {/* Section Card */}
+          <Card className="bg-tier-900 border-tier-800 mb-8">
+            <CardContent className="p-8">
+              {/* Section Header */}
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-accent-500/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <currentSectionData.icon className="w-8 h-8 text-accent-400" />
+                </div>
+                <h1 className="text-2xl font-bold text-tier-50 mb-2">
+                  {currentSectionData.title}
+                </h1>
+                <p className="text-tier-300">
+                  {currentSectionData.subtitle}
+                </p>
               </div>
-              <div className="w-full bg-tier-800 rounded-full h-2">
-                <div 
-                  className="bg-accent-500 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${Math.min(progress, 100)}%` }}
-                ></div>
+
+              {/* Fields */}
+              <div className="space-y-6">
+                {currentSectionData.fields.map((field, index) => (
+                  <div key={field.id} className="space-y-2">
+                    <label className="text-sm font-medium text-tier-200">
+                      {field.label}
+                    </label>
+                    {field.id === 'avatarStory' ? (
+                      <Textarea
+                        placeholder={field.placeholder}
+                        value={offerData[field.id as keyof OfferData] as string}
+                        onChange={(e) => handleInputChange(field.id, e.target.value)}
+                        className="min-h-[120px] bg-tier-800 border-tier-700 text-tier-50 placeholder:text-tier-500 resize-none"
+                        autoFocus={index === 0}
+                      />
+                    ) : (
+                      <Input
+                        placeholder={field.placeholder}
+                        value={offerData[field.id as keyof OfferData] as string}
+                        onChange={(e) => handleInputChange(field.id, e.target.value)}
+                        className="bg-tier-800 border-tier-700 text-tier-50 placeholder:text-tier-500"
+                        autoFocus={index === 0}
+                      />
+                    )}
+                  </div>
+                ))}
+                
+                <div className="text-xs text-tier-500 mt-4">
+                  Complete at least 80% of the fields to continue to the next section.
+                </div>
               </div>
-              <div className="text-xs text-tier-500 mt-2">
-                {Math.round(completeness * 100)}% complete in this section
+            </CardContent>
+          </Card>
+
+          {/* Navigation */}
+          <div className="flex items-center justify-between">
+            <Button 
+              variant="outline" 
+              onClick={handlePrevious}
+              className="border-tier-600 text-tier-300 hover:border-tier-500"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Previous
+            </Button>
+            
+            <div className="text-center">
+              <div className="text-sm text-tier-400 mb-1">
+                {funnelType === 'trigger' ? 'Trigger' : 'Gateway'} Funnel
+              </div>
+              <div className="text-xs text-tier-500">
+                Section {currentSection + 1} of {sections.length}
               </div>
             </div>
-
-            {/* Section Card */}
-            <Card className="bg-tier-900 border-tier-800 mb-8">
-              <CardContent className="p-8">
-                {/* Section Header */}
-                <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-accent-500/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                    <currentSectionData.icon className="w-8 h-8 text-accent-400" />
-                  </div>
-                  <h1 className="text-2xl font-bold text-tier-50 mb-2">
-                    {currentSectionData.title}
-                  </h1>
-                  <p className="text-tier-300">
-                    {currentSectionData.subtitle}
-                  </p>
-                </div>
-
-                {/* Fields */}
-                <div className="space-y-6">
-                  {currentSectionData.fields.map((field, index) => (
-                    <div key={field.id} className="space-y-2">
-                      <label className="text-sm font-medium text-tier-200">
-                        {field.label}
-                      </label>
-                      {field.id === 'avatarStory' ? (
-                        <Textarea
-                          placeholder={field.placeholder}
-                          value={offerData[field.id as keyof OfferData] as string}
-                          onChange={(e) => handleInputChange(field.id, e.target.value)}
-                          className="min-h-[120px] bg-tier-800 border-tier-700 text-tier-50 placeholder:text-tier-500 resize-none"
-                          autoFocus={index === 0}
-                        />
-                      ) : (
-                        <Input
-                          placeholder={field.placeholder}
-                          value={offerData[field.id as keyof OfferData] as string}
-                          onChange={(e) => handleInputChange(field.id, e.target.value)}
-                          className="bg-tier-800 border-tier-700 text-tier-50 placeholder:text-tier-500"
-                          autoFocus={index === 0}
-                        />
-                      )}
-                    </div>
-                  ))}
-                  
-                  <div className="text-xs text-tier-500 mt-4">
-                    Complete at least 80% of the fields to continue to the next section.
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Navigation */}
-            <div className="flex items-center justify-between">
-              <Button 
-                variant="outline" 
-                onClick={handlePrevious}
-                className="border-tier-600 text-tier-300 hover:border-tier-500"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Previous
-              </Button>
-              
-              <div className="text-center">
-                <div className="text-sm text-tier-400 mb-1">
-                  {funnelType === 'trigger' ? 'Trigger' : 'Gateway'} Funnel
-                </div>
-                <div className="text-xs text-tier-500">
-                  Section {currentSection + 1} of {sections.length}
-                </div>
-              </div>
-              
-              <Button 
-                className="bg-accent-500 hover:bg-accent-600 text-white disabled:opacity-50"
-                onClick={handleNext}
-                disabled={!canContinue}
-              >
-                {isLastSection ? 'Continue to Activation Points' : 'Next Section'}
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </div>
+            
+            <Button 
+              className="bg-accent-500 hover:bg-accent-600 text-white disabled:opacity-50"
+              onClick={handleNext}
+              disabled={!canContinue}
+            >
+              {isLastSection ? 'Continue to Activation Points' : 'Next Section'}
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="h-full overflow-auto bg-tier-950">
+      <div className="min-h-full flex items-center justify-center p-8">
+        <div className="w-8 h-8 border-2 border-accent-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    </div>
+  )
+}
+
+export default function OfferInputPage() {
+  return (
+    <DashboardNav>
+      <Suspense fallback={<LoadingFallback />}>
+        <OfferInputContent />
+      </Suspense>
     </DashboardNav>
   )
 } 

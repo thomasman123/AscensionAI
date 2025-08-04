@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -51,7 +51,7 @@ const mechanismPoints = [
   }
 ]
 
-export default function MechanismPage() {
+function MechanismContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const funnelType = searchParams.get('type') as 'trigger' | 'gateway'
@@ -101,135 +101,153 @@ export default function MechanismPage() {
   }
 
   return (
-    <DashboardNav>
-      <div className="h-full overflow-auto bg-tier-950">
-        <div className="min-h-full flex items-center justify-center p-8">
-          <div className="max-w-4xl w-full">
-            {/* Progress */}
-            <div className="text-center mb-8">
-              <div className="text-sm text-tier-400 mb-2">
-                Step 5 of 6 - Mechanism
-              </div>
-              <div className="w-full bg-tier-800 rounded-full h-2">
-                <div 
-                  className="bg-accent-500 h-2 rounded-full transition-all duration-300"
-                  style={{ width: '83%' }}
-                ></div>
-              </div>
-              <div className="text-xs text-tier-500 mt-2">
-                {Math.round((filledPoints / 5) * 100)}% complete
-              </div>
+    <div className="h-full overflow-auto bg-tier-950">
+      <div className="min-h-full flex items-center justify-center p-8">
+        <div className="max-w-4xl w-full">
+          {/* Progress */}
+          <div className="text-center mb-8">
+            <div className="text-sm text-tier-400 mb-2">
+              Step 5 of 6 - Mechanism
             </div>
+            <div className="w-full bg-tier-800 rounded-full h-2">
+              <div 
+                className="bg-accent-500 h-2 rounded-full transition-all duration-300"
+                style={{ width: '83%' }}
+              ></div>
+            </div>
+            <div className="text-xs text-tier-500 mt-2">
+              {Math.round((filledPoints / 5) * 100)}% complete
+            </div>
+          </div>
 
-            {/* Question Card */}
-            <Card className="bg-tier-900 border-tier-800 mb-8">
-              <CardContent className="p-8">
-                {/* Question Header */}
-                <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-accent-500/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                    <Settings className="w-8 h-8 text-accent-400" />
-                  </div>
-                  <h1 className="text-2xl font-bold text-tier-50 mb-2">
-                    Define Your Mechanisms
-                  </h1>
-                  <p className="text-tier-300">
-                    For each activation point, describe HOW you will deliver on it
-                  </p>
+          {/* Question Card */}
+          <Card className="bg-tier-900 border-tier-800 mb-8">
+            <CardContent className="p-8">
+              {/* Question Header */}
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-accent-500/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Settings className="w-8 h-8 text-accent-400" />
                 </div>
+                <h1 className="text-2xl font-bold text-tier-50 mb-2">
+                  Define Your Mechanisms
+                </h1>
+                <p className="text-tier-300">
+                  For each activation point, describe HOW you will deliver on it
+                </p>
+              </div>
 
-                {/* Mechanism Points */}
-                <div className="space-y-8">
-                  {mechanismPoints.map((point, index) => (
-                    <div key={point.id} className="space-y-3">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-8 h-8 bg-accent-500/10 rounded-full flex items-center justify-center mt-1">
-                          <span className="text-accent-400 font-semibold text-sm">{index + 1}</span>
+              {/* Mechanism Points */}
+              <div className="space-y-8">
+                {mechanismPoints.map((point, index) => (
+                  <div key={point.id} className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 bg-accent-500/10 rounded-full flex items-center justify-center mt-1">
+                        <span className="text-accent-400 font-semibold text-sm">{index + 1}</span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-xs text-accent-400 font-medium mb-1">
+                          {point.activationPoint}
                         </div>
-                        <div className="flex-1">
-                          <div className="text-xs text-accent-400 font-medium mb-1">
-                            {point.activationPoint}
-                          </div>
-                          <label className="text-sm font-medium text-tier-200 block mb-1">
-                            {point.title}
-                          </label>
-                          <div className="text-xs text-tier-500 mb-3">
-                            Example: {point.example}
-                          </div>
+                        <label className="text-sm font-medium text-tier-200 block mb-1">
+                          {point.title}
+                        </label>
+                        <div className="text-xs text-tier-500 mb-3">
+                          Example: {point.example}
                         </div>
                       </div>
-                      <Textarea
-                        placeholder={`Describe how you will deliver on activation point ${index + 1}...`}
-                        value={mechanismData[point.id as keyof MechanismData]}
-                        onChange={(e) => handlePointChange(point.id, e.target.value)}
-                        className="min-h-[100px] bg-tier-800 border-tier-700 text-tier-50 placeholder:text-tier-500 resize-none ml-11"
-                        autoFocus={index === 0}
-                      />
                     </div>
-                  ))}
-                  
-                  <div className="text-xs text-tier-500 mt-6">
-                    Complete at least 4 out of 5 mechanism points to continue.
+                    <Textarea
+                      placeholder={`Describe how you will deliver on activation point ${index + 1}...`}
+                      value={mechanismData[point.id as keyof MechanismData]}
+                      onChange={(e) => handlePointChange(point.id, e.target.value)}
+                      className="min-h-[100px] bg-tier-800 border-tier-700 text-tier-50 placeholder:text-tier-500 resize-none ml-11"
+                      autoFocus={index === 0}
+                    />
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Navigation */}
-            <div className="flex items-center justify-between">
-              <Button 
-                variant="outline" 
-                onClick={handlePrevious}
-                className="border-tier-600 text-tier-300 hover:border-tier-500"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Previous
-              </Button>
-              
-              <div className="text-center">
-                <div className="text-sm text-tier-400 mb-1">
-                  {funnelType === 'trigger' ? 'Trigger' : 'Gateway'} Funnel
-                </div>
-                <div className="text-xs text-tier-500">
-                  {filledPoints}/5 mechanism points completed
+                ))}
+                
+                <div className="text-xs text-tier-500 mt-6">
+                  Complete at least 4 out of 5 mechanism points to continue.
                 </div>
               </div>
-              
-              <Button 
-                className="bg-accent-500 hover:bg-accent-600 text-white disabled:opacity-50"
-                onClick={handleNext}
-                disabled={!canContinue}
-              >
-                Continue to Case Studies
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </div>
+            </CardContent>
+          </Card>
 
-            {/* Info Card */}
-            <Card className="bg-tier-900/50 border-tier-800 mt-8">
-              <CardContent className="p-6">
-                <h3 className="font-semibold text-tier-50 mb-3">💡 Mechanism Guide</h3>
-                <div className="grid gap-3 text-sm">
-                  <div className="text-tier-300">
-                    <strong className="text-tier-200">Mechanism 1:</strong> How will you create and deliver your world-class offer?
-                  </div>
-                  <div className="text-tier-300">
-                    <strong className="text-tier-200">Mechanism 2:</strong> How will you set up and manage paid advertising funnels?
-                  </div>
-                  <div className="text-tier-300">
-                    <strong className="text-tier-200">Mechanism 3:</strong> How will you implement and optimize sales systems?
-                  </div>
-                  <div className="text-tier-300">
-                    <strong className="text-tier-200">Mechanism 4:</strong> How will you recruit and build sales teams?
-                  </div>
-                  <div className="text-tier-300">
-                    <strong className="text-tier-200">Mechanism 5:</strong> How will you provide sales training and leadership?
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Navigation */}
+          <div className="flex items-center justify-between">
+            <Button 
+              variant="outline" 
+              onClick={handlePrevious}
+              className="border-tier-600 text-tier-300 hover:border-tier-500"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Previous
+            </Button>
+            
+            <div className="text-center">
+              <div className="text-sm text-tier-400 mb-1">
+                {funnelType === 'trigger' ? 'Trigger' : 'Gateway'} Funnel
+              </div>
+              <div className="text-xs text-tier-500">
+                {filledPoints}/5 mechanism points completed
+              </div>
+            </div>
+            
+            <Button 
+              className="bg-accent-500 hover:bg-accent-600 text-white disabled:opacity-50"
+              onClick={handleNext}
+              disabled={!canContinue}
+            >
+              Continue to Case Studies
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
           </div>
+
+          {/* Info Card */}
+          <Card className="bg-tier-900/50 border-tier-800 mt-8">
+            <CardContent className="p-6">
+              <h3 className="font-semibold text-tier-50 mb-3">💡 Mechanism Guide</h3>
+              <div className="grid gap-3 text-sm">
+                <div className="text-tier-300">
+                  <strong className="text-tier-200">Mechanism 1:</strong> How will you create and deliver your world-class offer?
+                </div>
+                <div className="text-tier-300">
+                  <strong className="text-tier-200">Mechanism 2:</strong> How will you set up and manage paid advertising funnels?
+                </div>
+                <div className="text-tier-300">
+                  <strong className="text-tier-200">Mechanism 3:</strong> How will you implement and optimize sales systems?
+                </div>
+                <div className="text-tier-300">
+                  <strong className="text-tier-200">Mechanism 4:</strong> How will you recruit and build sales teams?
+                </div>
+                <div className="text-tier-300">
+                  <strong className="text-tier-200">Mechanism 5:</strong> How will you provide sales training and leadership?
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
+    </div>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="h-full overflow-auto bg-tier-950">
+      <div className="min-h-full flex items-center justify-center p-8">
+        <div className="w-8 h-8 border-2 border-accent-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    </div>
+  )
+}
+
+export default function MechanismPage() {
+  return (
+    <DashboardNav>
+      <Suspense fallback={<LoadingFallback />}>
+        <MechanismContent />
+      </Suspense>
     </DashboardNav>
   )
 } 
