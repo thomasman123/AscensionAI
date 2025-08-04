@@ -65,34 +65,64 @@ const sections = [
     description: 'Define your ideal customer',
     fields: [
       { id: 'niche', label: 'Niche', placeholder: 'e.g., Digital Marketing Agency Owners', type: 'input' },
-      { id: 'income', label: 'Income Level', placeholder: 'e.g., $50k-$200k annually', type: 'input' },
-      { id: 'age', label: 'Age Range', placeholder: 'e.g., 30-45 years old', type: 'input' },
-      { id: 'traits', label: 'Key Traits', placeholder: 'e.g., Ambitious, Tech-savvy, Time-poor', type: 'textarea' }
-    ]
-  },
-  {
-    id: 'goals',
-    title: 'Goals & Pain Points',
-    description: 'Understand what drives your avatar',
-    fields: [
+      { id: 'income', label: 'Income', placeholder: 'e.g., $50k-$200k annually', type: 'input' },
+      { id: 'age', label: 'Age', placeholder: 'e.g., 30-45 years old', type: 'input' },
+      { id: 'traits', label: 'Traits', placeholder: 'e.g., Ambitious, Tech-savvy, Time-poor', type: 'textarea' },
       { id: 'primaryGoal1', label: 'Primary Goal 1', placeholder: 'Main goal they want to achieve', type: 'input' },
       { id: 'primaryGoal2', label: 'Primary Goal 2', placeholder: 'Secondary important goal', type: 'input' },
       { id: 'primaryGoal3', label: 'Primary Goal 3', placeholder: 'Third important goal', type: 'input' },
-      { id: 'complaint1', label: 'Main Complaint', placeholder: 'What frustrates them most', type: 'input' },
-      { id: 'complaint2', label: 'Secondary Complaint', placeholder: 'Another major frustration', type: 'input' },
-      { id: 'fear', label: 'Biggest Fear', placeholder: 'What keeps them up at night', type: 'textarea' }
+      { id: 'secondaryGoal1', label: 'Secondary Goal 1', placeholder: 'Additional goal they have', type: 'input' },
+      { id: 'secondaryGoal2', label: 'Secondary Goal 2', placeholder: 'Another secondary goal', type: 'input' },
+      { id: 'secondaryGoal3', label: 'Secondary Goal 3', placeholder: 'Third secondary goal', type: 'input' },
+      { id: 'complaint1', label: 'Complaint 1', placeholder: 'What frustrates them most', type: 'input' },
+      { id: 'complaint2', label: 'Complaint 2', placeholder: 'Another major frustration', type: 'input' },
+      { id: 'complaint3', label: 'Complaint 3', placeholder: 'Third major complaint', type: 'input' },
+      { id: 'fear', label: 'Fear', placeholder: 'What keeps them up at night', type: 'textarea' },
+      { id: 'falseSolution', label: 'False Solution', placeholder: 'What they think will solve their problem but won\'t', type: 'textarea' },
+      { id: 'mistakenBelief', label: 'Mistaken Belief', placeholder: 'What they wrongly believe about their situation', type: 'textarea' },
+      { id: 'objection1', label: 'Objection 1', placeholder: 'First objection they have to buying', type: 'input' },
+      { id: 'objection2', label: 'Objection 2', placeholder: 'Second objection to buying', type: 'input' },
+      { id: 'objection3', label: 'Objection 3', placeholder: 'Third objection to buying', type: 'input' },
+      { id: 'expensiveAlternative1', label: 'Expensive Alternative 1', placeholder: 'Costly alternative they might consider', type: 'input' },
+      { id: 'expensiveAlternative2', label: 'Expensive Alternative 2', placeholder: 'Another expensive alternative', type: 'input' },
+      { id: 'expensiveAlternative3', label: 'Expensive Alternative 3', placeholder: 'Third expensive alternative', type: 'input' },
+      { id: 'avatarStory', label: 'Avatar Story', placeholder: 'Tell their complete story and situation', type: 'textarea' }
     ]
   },
   {
     id: 'transformation',
-    title: 'Transformation Offer',
+    title: 'Transformation & Core Offer',
     description: 'Define your core value proposition',
     fields: [
-      { id: 'who', label: 'Who You Help', placeholder: 'e.g., Agency owners', type: 'input' },
-      { id: 'outcome', label: 'Desired Outcome', placeholder: 'e.g., Scale to $50k/month', type: 'input' },
-      { id: 'method', label: 'Your Method', placeholder: 'e.g., Proven funnel system', type: 'input' },
-      { id: 'timeframe', label: 'Timeframe', placeholder: 'e.g., In 90 days', type: 'input' },
-      { id: 'guarantee', label: 'Guarantee', placeholder: 'e.g., 30-day money back', type: 'textarea' }
+      { id: 'who', label: 'WHO', placeholder: 'Who you help specifically', type: 'input' },
+      { id: 'outcome', label: 'OUTCOME', placeholder: 'The result you deliver', type: 'input' },
+      { id: 'method', label: 'METHOD', placeholder: 'Your unique method or approach', type: 'input' },
+      { id: 'timeframe', label: 'TIMEFRAME', placeholder: 'How quickly you deliver results', type: 'input' },
+      { id: 'guarantee', label: 'GUARANTEE', placeholder: 'Your guarantee or promise', type: 'textarea' }
+    ]
+  },
+  {
+    id: 'activation',
+    title: 'Activation Points',
+    description: 'Key activation points for your offer',
+    fields: [
+      { id: 'activationPoint1', label: '1', placeholder: 'First activation point', type: 'textarea' },
+      { id: 'activationPoint2', label: '2', placeholder: 'Second activation point', type: 'textarea' },
+      { id: 'activationPoint3', label: '3', placeholder: 'Third activation point', type: 'textarea' },
+      { id: 'activationPoint4', label: '4', placeholder: 'Fourth activation point', type: 'textarea' },
+      { id: 'activationPoint5', label: '5', placeholder: 'Fifth activation point', type: 'textarea' }
+    ]
+  },
+  {
+    id: 'mechanisms',
+    title: 'Mechanisms',
+    description: 'Mechanisms built off each activation point',
+    fields: [
+      { id: 'mechanismPoint1', label: 'COMPLETE ACTIVATION POINT #1 FIRST (DO NOT EDIT)', placeholder: 'Mechanism for activation point 1', type: 'textarea' },
+      { id: 'mechanismPoint2', label: 'COMPLETE ACTIVATION POINT #2 FIRST (DO NOT EDIT)', placeholder: 'Mechanism for activation point 2', type: 'textarea' },
+      { id: 'mechanismPoint3', label: 'COMPLETE ACTIVATION POINT #3 FIRST (DO NOT EDIT)', placeholder: 'Mechanism for activation point 3', type: 'textarea' },
+      { id: 'mechanismPoint4', label: 'COMPLETE ACTIVATION POINT #4 FIRST (DO NOT EDIT)', placeholder: 'Mechanism for activation point 4', type: 'textarea' },
+      { id: 'mechanismPoint5', label: 'COMPLETE ACTIVATION POINT #5 FIRST (DO NOT EDIT)', placeholder: 'Mechanism for activation point 5', type: 'textarea' }
     ]
   }
 ]
