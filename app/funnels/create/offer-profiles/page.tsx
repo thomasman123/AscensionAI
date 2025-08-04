@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { DashboardNav } from '@/components/dashboard-nav'
+import { useAuth } from '@/lib/auth-context'
 import { 
   ArrowRight, 
   ArrowLeft, 
@@ -31,6 +32,7 @@ interface UserOfferProfile {
 }
 
 function OfferProfilesContent() {
+  const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const funnelType = searchParams.get('type') as 'trigger' | 'gateway'
@@ -41,16 +43,27 @@ function OfferProfilesContent() {
   const [isCreatingNew, setIsCreatingNew] = useState(false)
 
   useEffect(() => {
+    if (!user) {
+      router.push('/login')
+      return
+    }
+  }, [user, router])
+
+  useEffect(() => {
     if (!funnelType) {
       router.push('/funnels/create')
       return
     }
-    loadProfiles()
-  }, [funnelType, router])
+    
+    if (user) {
+      loadProfiles()
+    }
+  }, [funnelType, router, user])
 
   const loadProfiles = async () => {
     try {
-      const response = await fetch('/api/user/profile?userId=00000000-0000-0000-0000-000000000000')
+      const userId = user?.id || '00000000-0000-0000-0000-000000000000'
+      const response = await fetch(`/api/user/profile?userId=${userId}`)
       if (response.ok) {
         const data = await response.json()
         setProfiles(data.profiles || [])
@@ -76,7 +89,8 @@ function OfferProfilesContent() {
     
     if (confirm('Are you sure you want to delete this offer profile?')) {
       try {
-        const response = await fetch(`/api/user/profile?userId=00000000-0000-0000-0000-000000000000&profileId=${profileId}`, {
+        const userId = user?.id || '00000000-0000-0000-0000-000000000000'
+        const response = await fetch(`/api/user/profile?userId=${userId}&profileId=${profileId}`, {
           method: 'DELETE'
         })
         
