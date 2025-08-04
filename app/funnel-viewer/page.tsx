@@ -1,11 +1,14 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { CheckCircle, Star, Clock, Users, ArrowRight, Play } from 'lucide-react'
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
 
 interface FunnelData {
   id: string
@@ -28,7 +31,7 @@ interface FunnelData {
   calendar_title?: string
 }
 
-export default function FunnelViewer() {
+function FunnelViewerContent() {
   const searchParams = useSearchParams()
   const domain = searchParams.get('domain')
   const path = searchParams.get('path') || '/'
@@ -291,5 +294,24 @@ export default function FunnelViewer() {
         <p>&copy; 2024 {funnelData.name}. All rights reserved.</p>
       </footer>
     </div>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-gray-600">Loading funnel...</p>
+      </div>
+    </div>
+  )
+}
+
+export default function FunnelViewer() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <FunnelViewerContent />
+    </Suspense>
   )
 } 
