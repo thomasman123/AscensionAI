@@ -87,23 +87,73 @@ function MediaCollectionContent() {
     setIsGenerating(true)
     
     try {
+      // Handle both data structures: nested offerData or flat structure
+      let offerData
+      if (funnelData.offerData) {
+        // Data from case studies (nested structure)
+        offerData = funnelData.offerData
+      } else {
+        // Data from template selection (flat structure) - extract only offer data fields
+        offerData = {
+          niche: funnelData.niche,
+          income: funnelData.income,
+          age: funnelData.age,
+          traits: funnelData.traits,
+          primaryGoal1: funnelData.primaryGoal1,
+          primaryGoal2: funnelData.primaryGoal2,
+          primaryGoal3: funnelData.primaryGoal3,
+          secondaryGoal1: funnelData.secondaryGoal1,
+          secondaryGoal2: funnelData.secondaryGoal2,
+          secondaryGoal3: funnelData.secondaryGoal3,
+          complaint1: funnelData.complaint1,
+          complaint2: funnelData.complaint2,
+          complaint3: funnelData.complaint3,
+          fear: funnelData.fear,
+          falseSolution: funnelData.falseSolution,
+          mistakenBelief: funnelData.mistakenBelief,
+          objection1: funnelData.objection1,
+          objection2: funnelData.objection2,
+          objection3: funnelData.objection3,
+          expensiveAlternative1: funnelData.expensiveAlternative1,
+          expensiveAlternative2: funnelData.expensiveAlternative2,
+          expensiveAlternative3: funnelData.expensiveAlternative3,
+          avatarStory: funnelData.avatarStory,
+          who: funnelData.who,
+          outcome: funnelData.outcome,
+          method: funnelData.method,
+          timeframe: funnelData.timeframe,
+          guarantee: funnelData.guarantee,
+          activationPoint1: funnelData.activationPoint1,
+          activationPoint2: funnelData.activationPoint2,
+          activationPoint3: funnelData.activationPoint3,
+          activationPoint4: funnelData.activationPoint4,
+          activationPoint5: funnelData.activationPoint5,
+          mechanismPoint1: funnelData.mechanismPoint1,
+          mechanismPoint2: funnelData.mechanismPoint2,
+          mechanismPoint3: funnelData.mechanismPoint3,
+          mechanismPoint4: funnelData.mechanismPoint4,
+          mechanismPoint5: funnelData.mechanismPoint5
+        }
+      }
+
       // Validate that we have the necessary offer data
-      if (!funnelData.offerData) {
-        console.error('Missing offer data in funnelData:', funnelData)
-        alert('Missing offer data. Please go back and complete all funnel steps.')
+      if (!offerData || !offerData.who || !offerData.outcome) {
+        console.error('Missing required offer data fields. OfferData:', offerData)
+        alert('Missing required offer data (who, outcome). Please go back and complete all funnel steps.')
         setIsGenerating(false)
         return
       }
 
+      console.log('Using offer data for AI generation:', offerData)
+
       // Generate AI-powered copy using the offer data
       let generatedCopy
       try {
-        console.log('Generating AI copy with offer data:', funnelData.offerData)
         const response = await fetch('/api/ai/generate-copy', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            offerData: funnelData.offerData,
+            offerData: offerData,
             templateType: funnelType,
             writingExamples: []
           })
@@ -122,20 +172,20 @@ function MediaCollectionContent() {
         console.error('Error generating AI copy:', aiError)
         // Fallback copy using offer data with safe property access
         generatedCopy = {
-          headline: funnelData.offerData?.who 
-            ? `Transform Your ${funnelData.offerData.niche || 'Business'} with Our Proven ${funnelData.offerData.method || 'System'}`
+          headline: offerData?.who 
+            ? `Transform Your ${offerData.niche || 'Business'} with Our Proven ${offerData.method || 'System'}`
             : "Transform Your Business Today",
-          subheadline: funnelData.offerData?.outcome
-            ? `Join successful ${funnelData.offerData.who || 'people'} who achieved ${funnelData.offerData.outcome} in just ${funnelData.offerData.timeframe || '30 days'}`
+          subheadline: offerData?.outcome
+            ? `Join successful ${offerData.who || 'people'} who achieved ${offerData.outcome} in just ${offerData.timeframe || '30 days'}`
             : "Get the results you've been looking for",
-          heroText: funnelData.offerData?.complaint1
-            ? `Stop struggling with ${funnelData.offerData.complaint1}. Our proven system helps ${funnelData.offerData.who || 'people'} achieve ${funnelData.offerData.outcome || 'their goals'} using our unique ${funnelData.offerData.method || 'approach'}.`
+          heroText: offerData?.complaint1
+            ? `Stop struggling with ${offerData.complaint1}. Our proven system helps ${offerData.who || 'people'} achieve ${offerData.outcome || 'their goals'} using our unique ${offerData.method || 'approach'}.`
             : "Finally, a solution that actually works.",
           ctaText: "Get Started Now",
-          offerDescription: funnelData.offerData?.method
-            ? `Complete ${funnelData.offerData.method} system designed to help ${funnelData.offerData.who || 'people'} achieve ${funnelData.offerData.outcome || 'their goals'} in ${funnelData.offerData.timeframe || '30 days'}.`
+          offerDescription: offerData?.method
+            ? `Complete ${offerData.method} system designed to help ${offerData.who || 'people'} achieve ${offerData.outcome || 'their goals'} in ${offerData.timeframe || '30 days'}.`
             : "Everything you need to succeed",
-          guaranteeText: funnelData.offerData?.guarantee || "30-day money-back guarantee"
+          guaranteeText: offerData?.guarantee || "30-day money-back guarantee"
         }
       }
 
@@ -168,13 +218,13 @@ function MediaCollectionContent() {
       // Save funnel with media data
       const saveData = {
         userId: user.id,
-        name: funnelData?.offerData?.who 
-          ? `${funnelData.offerData.who} - ${funnelData.offerData.outcome}` 
+        name: offerData?.who 
+          ? `${offerData.who} - ${offerData.outcome}` 
           : 'My Funnel',
         type: funnelType,
         status: 'published',
-        offerData: funnelData?.offerData,
-        caseStudies: funnelData?.caseStudies,
+        offerData: offerData,
+        caseStudies: funnelData?.caseStudies || [],
         media: mediaData,
         templateId: funnelData?.templateId,
         customization: customization
