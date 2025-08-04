@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
       text_color: customization?.colors?.text || '#1F2937',
       logo_url: customization?.logoUrl || null,
       font_family: customization?.font || 'inter',
-      theme_style: customization?.theme || 'clean',
+      theme_style: customization?.theme || 'modern',
       theme_mode: customization?.themeMode || 'light',
       
       // Tracking fields
