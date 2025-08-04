@@ -257,14 +257,14 @@ export function DomainSetupGuide({
                 <div>
                   <label className="block text-tier-300 mb-2">Domain Name</label>
                   <Input
-                    placeholder="e.g., mycooloffers.com"
+                    placeholder="e.g., mycooloffers.com or sub.mycooloffers.com"
                     value={newDomain}
                     onChange={(e) => setNewDomain(e.target.value)}
                     className="bg-tier-800 border-tier-700 text-tier-100"
                     onKeyPress={(e) => e.key === 'Enter' && addDomain()}
                   />
                   <p className="text-tier-500 text-sm mt-1">
-                    Enter your domain without "https://" or "www"
+                    Enter your domain or subdomain without "https://" or "www". Both root domains and subdomains are supported.
                   </p>
                 </div>
 
@@ -374,6 +374,15 @@ export function DomainSetupGuide({
                     </div>
                     <div></div>
                   </div>
+                  {/* Subdomain-specific instructions */}
+                  {domainData.domain && domainData.domain.split('.').length > 2 && (
+                    <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded">
+                      <p className="text-blue-400 text-sm">
+                        💡 <strong>Subdomain Setup:</strong> For {domainData.domain}, add the CNAME record with name "{domainData.dnsRecords?.cname?.name}" 
+                        (just the subdomain part, not the full domain name).
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* TXT Record */}
@@ -415,6 +424,14 @@ export function DomainSetupGuide({
                     </div>
                     <div></div>
                   </div>
+                  {/* Subdomain-specific TXT record note */}
+                  {domainData.domain && domainData.domain.split('.').length > 2 && (
+                    <div className="mt-3 p-3 bg-orange-500/10 border border-orange-500/20 rounded">
+                      <p className="text-orange-400 text-sm">
+                        📝 <strong>Note:</strong> Add this TXT record at your root domain level, not the subdomain level.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 

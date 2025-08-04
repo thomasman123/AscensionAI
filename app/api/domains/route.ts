@@ -144,9 +144,26 @@ export async function POST(request: NextRequest) {
                             process.env.VERCEL_URL || 
                             'ascension-ai-sm36.vercel.app'
     
+    // Determine if this is a subdomain or root domain
+    const domainParts = domain.split('.')
+    const isSubdomain = domainParts.length > 2
+    
+    let cnameRecordName: string
+    let cnameDescription: string
+    
+    if (isSubdomain) {
+      // For subdomains like "lol.heliosscale.com", CNAME name should be "lol"
+      cnameRecordName = domainParts[0]
+      cnameDescription = `Points your subdomain (${domain}) to our servers`
+    } else {
+      // For root domains like "heliosscale.com", CNAME name should be "@"
+      cnameRecordName = '@'
+      cnameDescription = `Points your domain (${domain}) to our servers`
+    }
+    
     const dnsRecords = {
       cname: {
-        name: '@', // Root domain or subdomain name
+        name: cnameRecordName,
         value: productionDomain,
         type: 'CNAME',
         ttl: 3600
@@ -209,9 +226,9 @@ export async function POST(request: NextRequest) {
         records: [
           {
             type: 'CNAME',
-            name: '@',
+            name: cnameRecordName,
             value: productionDomain,
-            description: 'Points your domain to our servers',
+            description: cnameDescription,
             ttl: 3600
           },
           {
@@ -223,10 +240,15 @@ export async function POST(request: NextRequest) {
           }
         ],
         notes: [
-          'If your provider does not support @ for the root domain, use your domain name instead',
+          isSubdomain 
+            ? `For the subdomain ${domain}, add a CNAME record with name "${cnameRecordName}" (not the full domain)`
+            : 'If your provider does not support @ for the root domain, use your domain name instead',
           'TTL can be set to Auto if your provider supports it',
-          'DNS changes may take up to 24 hours to propagate globally'
-        ]
+          'DNS changes may take up to 24 hours to propagate globally',
+          isSubdomain 
+            ? 'The TXT record should be added at your root domain level'
+            : ''
+        ].filter(note => note !== '') // Remove empty notes
       }
     })
   } catch (error) {

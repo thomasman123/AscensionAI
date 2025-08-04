@@ -185,7 +185,7 @@ export function DomainManager({
           {/* Add New Domain */}
           <div className="flex gap-2">
             <Input
-              placeholder="yourdomain.com"
+              placeholder="yourdomain.com or sub.yourdomain.com"
               value={newDomain}
               onChange={(e) => setNewDomain(e.target.value)}
               className="bg-tier-800 border-tier-700 text-tier-100"
@@ -311,10 +311,18 @@ export function DomainManager({
                             </Button>
                           </div>
                           <div className="text-sm text-tier-400 space-y-1">
-                            <div><strong>Name:</strong> {domain.domain}</div>
+                            <div><strong>Name:</strong> {domain.dnsRecords?.cname?.name || '@'}</div>
                             <div><strong>Value:</strong> {domain.dnsRecords.cname.value}</div>
                             <div><strong>TTL:</strong> {domain.dnsRecords?.cname?.ttl || '3600'} (or Auto)</div>
                           </div>
+                          {/* Subdomain-specific note */}
+                          {domain.domain.split('.').length > 2 && (
+                            <div className="mt-2 p-2 bg-blue-500/10 border border-blue-500/20 rounded text-xs">
+                              <p className="text-blue-400">
+                                💡 <strong>Subdomain:</strong> Use "{domain.dnsRecords?.cname?.name}" as the name (not the full domain)
+                              </p>
+                            </div>
+                          )}
                         </div>
 
                         {/* TXT Record */}
