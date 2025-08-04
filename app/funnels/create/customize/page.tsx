@@ -558,16 +558,16 @@ function CustomizeContent() {
                   <CardTitle className="text-tier-50">Domain & Settings</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <DomainManager
-                    funnelId="temp-funnel-id"
-                    userId={user?.id || '00000000-0000-0000-0000-000000000000'}
-                    onDomainAdded={(domain) => {
-                      setCustomization(prev => ({ ...prev, domain }))
-                    }}
-                    onDomainRemoved={() => {
-                      setCustomization(prev => ({ ...prev, domain: '' }))
-                    }}
-                  />
+                                     <DomainManager
+                     funnelId="temp-funnel-id"
+                     userId={user?.id || '00000000-0000-0000-0000-000000000000'}
+                     onDomainAdded={(domainObj) => {
+                       setCustomization(prev => ({ ...prev, domain: domainObj.domain }))
+                     }}
+                     onDomainRemoved={() => {
+                       setCustomization(prev => ({ ...prev, domain: '' }))
+                     }}
+                   />
                 </CardContent>
               </Card>
             )}
