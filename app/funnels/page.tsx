@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { DashboardNav } from '@/components/dashboard-nav'
+import { DomainSetupGuide } from '@/components/domain-setup-guide'
 import { useAuth } from '@/lib/auth-context'
-import { Shuffle, Plus, Eye, Edit, Trash2, MoreHorizontal } from 'lucide-react'
+import { Shuffle, Plus, Eye, Edit, Trash2, MoreHorizontal, Globe, Check, AlertCircle } from 'lucide-react'
 
 interface SavedFunnel {
   id: string
@@ -16,6 +18,8 @@ interface SavedFunnel {
   createdAt: string
   updatedAt: string
   domain: string
+  custom_domain?: string
+  domain_verified?: boolean
   data: any
 }
 
@@ -24,6 +28,16 @@ export default function FunnelsPage() {
   const router = useRouter()
   const [funnels, setFunnels] = useState<SavedFunnel[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [showDomainGuide, setShowDomainGuide] = useState<{
+    show: boolean
+    funnelId: string
+    funnelName: string
+    existingDomain?: string
+  }>({
+    show: false,
+    funnelId: '',
+    funnelName: ''
+  })
 
   useEffect(() => {
     if (!loading && !user) {
@@ -50,6 +64,21 @@ export default function FunnelsPage() {
     setIsLoading(false)
   }
 
+  const handleDomainConnected = (funnelId: string, domain: string) => {
+    setFunnels(funnels.map(funnel => 
+      funnel.id === funnelId 
+        ? { ...funnel, custom_domain: domain, domain_verified: false }
+        : funnel
+    ))
+    setShowDomainGuide({ show: false, funnelId: '', funnelName: '' })
+  }
+
+  const closeDomainGuide = () => {
+    setShowDomainGuide({ show: false, funnelId: '', funnelName: '' })
+    // Refresh funnel data to get updated domain status
+    loadFunnels()
+  }
+
   if (loading || isLoading) {
     return (
       <DashboardNav>
@@ -59,6 +88,18 @@ export default function FunnelsPage() {
             <p className="text-tier-300">Loading funnels...</p>
           </div>
         </div>
+
+        {/* Domain Setup Guide Modal */}
+        {showDomainGuide.show && (
+          <DomainSetupGuide
+            funnelId={showDomainGuide.funnelId}
+            funnelName={showDomainGuide.funnelName}
+            userId="00000000-0000-0000-0000-000000000000"
+            onClose={closeDomainGuide}
+            onDomainConnected={(domain) => handleDomainConnected(showDomainGuide.funnelId, domain)}
+            existingDomain={showDomainGuide.existingDomain}
+          />
+        )}
       </DashboardNav>
     )
   }
@@ -140,8 +181,43 @@ export default function FunnelsPage() {
                     <CardContent className="space-y-4">
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-tier-500">Domain:</span>
-                          <span className="text-tier-300 text-right truncate ml-2">{funnel.domain}</span>
+                          <span className="text-tier-500">Default URL:</span>
+                          <span className="text-tier-300 text-right truncate ml-2 text-xs">
+                            {funnel.domain}.ascensionai.vercel.app
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-tier-500">Custom Domain:</span>
+                          <div className="flex items-center gap-2">
+                            {funnel.custom_domain ? (
+                              <>
+                                <span className="text-tier-300 text-right truncate ml-2 text-xs">
+                                  {funnel.custom_domain}
+                                </span>
+                                <Badge 
+                                  variant={funnel.domain_verified ? "default" : "secondary"}
+                                  className={`text-xs ${funnel.domain_verified 
+                                    ? "bg-green-500/20 text-green-400" 
+                                    : "bg-yellow-500/20 text-yellow-400"
+                                  }`}
+                                >
+                                  {funnel.domain_verified ? (
+                                    <>
+                                      <Check className="w-3 h-3 mr-1" />
+                                      Connected
+                                    </>
+                                  ) : (
+                                    <>
+                                      <AlertCircle className="w-3 h-3 mr-1" />
+                                      Setup Required
+                                    </>
+                                  )}
+                                </Badge>
+                              </>
+                            ) : (
+                              <span className="text-tier-500 text-xs">Not connected</span>
+                            )}
+                          </div>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-tier-500">Created:</span>
@@ -154,6 +230,28 @@ export default function FunnelsPage() {
                           <span className="text-tier-300">{funnel.data?.templateId || 'N/A'}</span>
                         </div>
                       </div>
+                      
+                      {/* Domain Connection Button */}
+                      <div className="pt-2 border-t border-tier-800">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full border-tier-600 text-tier-300 hover:border-accent-500 hover:text-accent-400 mb-2"
+                          onClick={() => setShowDomainGuide({
+                            show: true,
+                            funnelId: funnel.id,
+                            funnelName: funnel.name,
+                            existingDomain: funnel.custom_domain
+                          })}
+                        >
+                          <Globe className="w-4 h-4 mr-2" />
+                          {funnel.custom_domain 
+                            ? (funnel.domain_verified ? 'Manage Domain' : 'Complete Setup')
+                            : 'Connect Domain'
+                          }
+                        </Button>
+                      </div>
+
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" className="flex-1 border-tier-600 text-tier-300 hover:border-tier-500">
                           <Eye className="w-4 h-4 mr-1" />

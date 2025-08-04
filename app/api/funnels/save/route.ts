@@ -290,7 +290,15 @@ export async function GET(request: NextRequest) {
       // Get all funnels for user
       const { data: funnels, error } = await supabaseAdmin
         .from('saved_funnels')
-        .select('*')
+        .select(`
+          *,
+          custom_domains (
+            id,
+            domain,
+            verified,
+            ssl_status
+          )
+        `)
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         
@@ -300,7 +308,7 @@ export async function GET(request: NextRequest) {
       }
       
       // Transform to interface format
-      const transformedFunnels = funnels?.map(funnel => ({
+      const transformedFunnels = funnels?.map((funnel: any) => ({
         id: funnel.id,
         name: funnel.name,
         type: funnel.type,
@@ -308,6 +316,8 @@ export async function GET(request: NextRequest) {
         createdAt: funnel.created_at,
         updatedAt: funnel.updated_at,
         domain: funnel.domain,
+        custom_domain: funnel.custom_domains?.[0]?.domain || null,
+        domain_verified: funnel.custom_domains?.[0]?.verified || false,
         data: {
           templateId: funnel.template_id,
           media: {

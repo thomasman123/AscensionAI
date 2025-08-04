@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Check if domain already exists
+    // Check if domain already exists globally
     const { data: existing } = await supabaseAdmin
       .from('custom_domains')
       .select('id')
@@ -89,6 +89,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ 
         error: 'Domain already exists' 
       }, { status: 409 })
+    }
+
+    // Remove any existing domain for this funnel (one domain per funnel)
+    const { data: existingForFunnel } = await supabaseAdmin
+      .from('custom_domains')
+      .select('id')
+      .eq('funnel_id', funnelId)
+      .eq('user_id', userId)
+    
+    if (existingForFunnel && existingForFunnel.length > 0) {
+      await supabaseAdmin
+        .from('custom_domains')
+        .delete()
+        .eq('funnel_id', funnelId)
+        .eq('user_id', userId)
     }
 
     // Generate verification token
