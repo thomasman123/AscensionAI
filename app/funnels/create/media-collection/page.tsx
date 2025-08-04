@@ -85,14 +85,57 @@ function MediaCollectionContent() {
     setIsGenerating(true)
     
     try {
-      // Create default customization
-      const defaultCustomization = {
-        headline: '',
-        subheadline: '',
-        heroText: '',
-        ctaText: 'Get Started Now',
-        offerDescription: '',
-        guaranteeText: '',
+      // Generate AI-powered copy using the offer data
+      let generatedCopy
+      try {
+        console.log('Generating AI copy with offer data:', funnelData.offerData)
+        const response = await fetch('/api/ai/generate-copy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            offerData: funnelData.offerData,
+            templateType: funnelType,
+            writingExamples: []
+          })
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          generatedCopy = data.copy
+          console.log('AI copy generated successfully:', generatedCopy)
+        } else {
+          console.error('AI generation failed, using fallback copy')
+          throw new Error('AI generation failed')
+        }
+      } catch (aiError) {
+        console.error('Error generating AI copy:', aiError)
+        // Fallback copy using offer data
+        generatedCopy = {
+          headline: funnelData.offerData.who 
+            ? `Transform Your ${funnelData.offerData.niche} Business with Our Proven ${funnelData.offerData.method}`
+            : "Transform Your Business Today",
+          subheadline: funnelData.offerData.outcome
+            ? `Join successful ${funnelData.offerData.who} who achieved ${funnelData.offerData.outcome} in just ${funnelData.offerData.timeframe}`
+            : "Get the results you've been looking for",
+          heroText: funnelData.offerData.complaint1
+            ? `Stop struggling with ${funnelData.offerData.complaint1}. Our proven system helps ${funnelData.offerData.who} achieve ${funnelData.offerData.outcome} using our unique ${funnelData.offerData.method} approach.`
+            : "Finally, a solution that actually works.",
+          ctaText: "Get Started Now",
+          offerDescription: funnelData.offerData.method
+            ? `Complete ${funnelData.offerData.method} system designed to help ${funnelData.offerData.who} achieve ${funnelData.offerData.outcome} in ${funnelData.offerData.timeframe}.`
+            : "Everything you need to succeed",
+          guaranteeText: funnelData.offerData.guarantee || "30-day money-back guarantee"
+        }
+      }
+
+      // Create customization with AI-generated content
+      const customization = {
+        headline: generatedCopy.headline,
+        subheadline: generatedCopy.subheadline,
+        heroText: generatedCopy.heroText,
+        ctaText: generatedCopy.ctaText,
+        offerDescription: generatedCopy.offerDescription,
+        guaranteeText: generatedCopy.guaranteeText,
         colors: {
           primary: '#3B82F6',
           secondary: '#1E40AF',
@@ -111,9 +154,6 @@ function MediaCollectionContent() {
         }
       }
 
-      // Simulate AI processing time
-      await new Promise(resolve => setTimeout(resolve, 4000))
-
       // Save funnel with media data
       const saveData = {
         userId: user.id,
@@ -126,7 +166,7 @@ function MediaCollectionContent() {
         caseStudies: funnelData?.caseStudies,
         media: mediaData,
         templateId: funnelData?.templateId,
-        customization: defaultCustomization
+        customization: customization
       }
 
       const response = await fetch('/api/funnels/save', {
