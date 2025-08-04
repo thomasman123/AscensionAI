@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
     url.pathname.includes('.') ||
     hostname?.includes('localhost') ||
     hostname?.includes('127.0.0.1') ||
-    hostname?.includes('ascension-ai-sm36.vercel.app') ||
+    hostname === 'ascension-ai-sm36.vercel.app' || // Only skip the exact main domain, not subdomains
     // Skip deployment URLs that contain project/user identifiers
     hostname?.includes('-thomas-8419s-projects.vercel.app') ||
     hostname?.match(/^ascension-ai-sm36-[a-z0-9]+-.*\.vercel\.app$/)
@@ -29,16 +29,19 @@ export async function middleware(request: NextRequest) {
       static: url.pathname.startsWith('/static/'),
       hasDot: url.pathname.includes('.'),
       localhost: hostname?.includes('localhost'),
-      vercelApp: hostname?.includes('ascension-ai-sm36.vercel.app'),
+      mainDomain: hostname === 'ascension-ai-sm36.vercel.app',
       deployment: hostname?.includes('-thomas-8419s-projects.vercel.app'),
       pattern: hostname?.match(/^ascension-ai-sm36-[a-z0-9]+-.*\.vercel\.app$/)
     })
     return NextResponse.next()
   }
 
-  // Handle custom domains
-  if (hostname && !hostname.includes('vercel.app')) {
-    console.log('✅ Custom domain detected:', hostname)
+  // Handle custom domains AND subdomains of our Vercel app (but not the main domain)
+  const isCustomDomain = hostname && !hostname.includes('vercel.app')
+  const isSubdomain = hostname && hostname.endsWith('.ascension-ai-sm36.vercel.app') && hostname !== 'ascension-ai-sm36.vercel.app'
+  
+  if (isCustomDomain || isSubdomain) {
+    console.log('✅ Funnel domain detected:', hostname, 'type:', isCustomDomain ? 'custom' : 'subdomain')
     
     // Rewrite to the funnel viewer with the custom domain as a parameter
     url.pathname = `/funnel-viewer`
