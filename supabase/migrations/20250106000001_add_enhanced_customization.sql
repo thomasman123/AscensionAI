@@ -3,7 +3,7 @@ ALTER TABLE public.saved_funnels
 ADD COLUMN background_color text DEFAULT '#FFFFFF',
 ADD COLUMN text_color text DEFAULT '#1F2937',
 ADD COLUMN font_family text DEFAULT 'inter' CHECK (font_family IN ('inter', 'system', 'serif', 'mono')),
-ADD COLUMN theme_style text DEFAULT 'modern' CHECK (theme_style IN ('modern', 'classic', 'minimal', 'bold')),
+ADD COLUMN theme_style text DEFAULT 'clean' CHECK (theme_style IN ('clean', 'modern', 'classic', 'minimal', 'bold')),
 ADD COLUMN facebook_pixel_code text,
 ADD COLUMN google_analytics_code text,
 ADD COLUMN custom_tracking_code text;

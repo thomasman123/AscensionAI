@@ -147,7 +147,26 @@ function TemplateSelectionContent() {
     setIsGenerating(true)
     
     try {
-      const funnelData = dataParam ? JSON.parse(decodeURIComponent(dataParam)) : {}
+      let funnelData = {}
+      
+      // Safely parse the data parameter with proper error handling
+      if (dataParam) {
+        try {
+          funnelData = JSON.parse(decodeURIComponent(dataParam))
+        } catch (decodeError) {
+          console.error('Error decoding funnel data:', decodeError)
+          // Try to parse without URI decoding as fallback
+          try {
+            funnelData = JSON.parse(dataParam)
+          } catch (parseError) {
+            console.error('Error parsing funnel data:', parseError)
+            // If all parsing fails, use empty object and show user-friendly error
+            alert('There was an issue with your funnel data. Please try starting over from the beginning.')
+            router.push('/funnels/create')
+            return
+          }
+        }
+      }
       
       const combinedData = {
         ...funnelData,
@@ -159,10 +178,12 @@ function TemplateSelectionContent() {
       // Simulate AI processing time
       await new Promise(resolve => setTimeout(resolve, 3000))
 
-      // Navigate to customization with generated content
-      router.push(`/funnels/create/customize?type=${funnelType}&data=${encodeURIComponent(JSON.stringify(combinedData))}`)
+      // Navigate to customization with generated content - use safer encoding
+      const encodedData = encodeURIComponent(JSON.stringify(combinedData))
+      router.push(`/funnels/create/customize?type=${funnelType}&data=${encodedData}`)
     } catch (error) {
       console.error('Error generating funnel:', error)
+      alert('There was an error generating your funnel. Please try again.')
       setIsGenerating(false)
     }
   }
