@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -119,7 +119,7 @@ const getSectionsForType = (profileType: string) => {
   return baseSections
 }
 
-export default function CreateOfferProfileDetailsPage() {
+function CreateOfferProfileDetailsContent() {
   const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -389,5 +389,19 @@ export default function CreateOfferProfileDetailsPage() {
         </div>
       </div>
     </DashboardNav>
+  )
+}
+
+export default function CreateOfferProfileDetailsPage() {
+  return (
+    <Suspense fallback={
+      <DashboardNav>
+        <div className="h-full overflow-auto bg-tier-950 flex items-center justify-center">
+          <div className="text-tier-300">Loading...</div>
+        </div>
+      </DashboardNav>
+    }>
+      <CreateOfferProfileDetailsContent />
+    </Suspense>
   )
 } 
