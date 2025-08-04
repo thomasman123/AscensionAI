@@ -8,12 +8,36 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { DashboardNav } from '@/components/dashboard-nav'
 import { useAuth } from '@/lib/auth-context'
-import { ArrowLeft, Save, Eye, Loader2, Upload, Image, Palette, Type, Globe } from 'lucide-react'
+import { 
+  ArrowLeft, 
+  Save, 
+  Loader2, 
+  Upload, 
+  Image, 
+  Palette, 
+  Type, 
+  Globe,
+  Monitor,
+  Smartphone,
+  Code,
+  Settings,
+  Eye,
+  Edit3,
+  Plus
+} from 'lucide-react'
 
 interface FunnelEditPageProps {
   params: {
     id: string
   }
+}
+
+interface EditableField {
+  id: string
+  type: 'text' | 'textarea' | 'image'
+  value: string
+  placeholder: string
+  label: string
 }
 
 export default function FunnelEditPage({ params }: FunnelEditPageProps) {
@@ -22,7 +46,9 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [funnel, setFunnel] = useState<any>(null)
-  const [step, setStep] = useState(1)
+  const [currentView, setCurrentView] = useState<'desktop' | 'mobile'>('desktop')
+  const [editorMode, setEditorMode] = useState<'preview' | 'settings'>('preview')
+  const [activeEdit, setActiveEdit] = useState<string | null>(null)
 
   const [customization, setCustomization] = useState({
     headline: '',
@@ -34,11 +60,65 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     colors: {
       primary: '#3B82F6',
       secondary: '#1E40AF',
-      accent: '#F59E0B'
+      accent: '#F59E0B',
+      background: '#FFFFFF',
+      text: '#1F2937'
     },
     logoUrl: '',
-    domain: ''
+    domain: '',
+    pixelCodes: {
+      facebook: '',
+      google: '',
+      custom: ''
+    },
+    font: 'inter',
+    theme: 'modern'
   })
+
+  const editableFields: EditableField[] = [
+    {
+      id: 'headline',
+      type: 'text',
+      value: customization.headline,
+      placeholder: 'Enter your main headline...',
+      label: 'Main Headline'
+    },
+    {
+      id: 'subheadline',
+      type: 'text',
+      value: customization.subheadline,
+      placeholder: 'Enter your subheadline...',
+      label: 'Subheadline'
+    },
+    {
+      id: 'heroText',
+      type: 'textarea',
+      value: customization.heroText,
+      placeholder: 'Enter your hero text...',
+      label: 'Hero Text'
+    },
+    {
+      id: 'ctaText',
+      type: 'text',
+      value: customization.ctaText,
+      placeholder: 'Get Started Now',
+      label: 'Call-to-Action Text'
+    },
+    {
+      id: 'offerDescription',
+      type: 'textarea',
+      value: customization.offerDescription,
+      placeholder: 'Describe your offer...',
+      label: 'Offer Description'
+    },
+    {
+      id: 'guaranteeText',
+      type: 'textarea',
+      value: customization.guaranteeText,
+      placeholder: 'Enter your guarantee...',
+      label: 'Guarantee Text'
+    }
+  ]
 
   useEffect(() => {
     if (!user) {
@@ -55,7 +135,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         const data = await response.json()
         setFunnel(data.funnel)
         
-        // Set customization from funnel data
         setCustomization({
           headline: data.funnel.data?.customization?.headline || '',
           subheadline: data.funnel.data?.customization?.subheadline || '',
@@ -66,10 +145,19 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           colors: data.funnel.data?.customization?.colors || {
             primary: '#3B82F6',
             secondary: '#1E40AF',
-            accent: '#F59E0B'
+            accent: '#F59E0B',
+            background: '#FFFFFF',
+            text: '#1F2937'
           },
           logoUrl: data.funnel.data?.customization?.logoUrl || '',
-          domain: data.funnel.custom_domain || ''
+          domain: data.funnel.custom_domain || '',
+          pixelCodes: data.funnel.data?.customization?.pixelCodes || {
+            facebook: '',
+            google: '',
+            custom: ''
+          },
+          font: data.funnel.data?.customization?.font || 'inter',
+          theme: data.funnel.data?.customization?.theme || 'modern'
         })
       } else {
         console.error('Failed to load funnel')
@@ -105,7 +193,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       })
 
       if (response.ok) {
-        // Redirect back to funnels page
         router.push('/funnels')
       } else {
         const errorData = await response.json()
@@ -118,20 +205,37 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     setIsSaving(false)
   }
 
-  const handlePreview = () => {
-    // Store current customization in localStorage for preview
-    localStorage.setItem('previewData', JSON.stringify({
-      ...funnel.data,
-      customization
+  const handleFieldUpdate = (fieldId: string, value: string) => {
+    setCustomization(prev => ({
+      ...prev,
+      [fieldId]: value
     }))
-    window.open('/preview', '_blank')
+  }
+
+  const handleColorChange = (colorKey: string, value: string) => {
+    setCustomization(prev => ({
+      ...prev,
+      colors: {
+        ...prev.colors,
+        [colorKey]: value
+      }
+    }))
+  }
+
+  const handlePixelCodeChange = (platform: string, value: string) => {
+    setCustomization(prev => ({
+      ...prev,
+      pixelCodes: {
+        ...prev.pixelCodes,
+        [platform]: value
+      }
+    }))
   }
 
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
 
-    // For now, we'll use a placeholder URL. In production, you'd upload to a service like Supabase Storage
     const reader = new FileReader()
     reader.onload = (e) => {
       const logoUrl = e.target?.result as string
@@ -143,26 +247,199 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     reader.readAsDataURL(file)
   }
 
-  if (isLoading) {
+  const renderEditableText = (field: EditableField) => {
+    const isActive = activeEdit === field.id
+    
+    if (isActive) {
+      return field.type === 'textarea' ? (
+        <Textarea
+          value={field.value}
+          onChange={(e) => handleFieldUpdate(field.id, e.target.value)}
+          onBlur={() => setActiveEdit(null)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && e.shiftKey === false && field.type === 'text') {
+              setActiveEdit(null)
+            }
+            if (e.key === 'Escape') {
+              setActiveEdit(null)
+            }
+          }}
+          autoFocus
+          className="w-full bg-white border-2 border-accent-500 rounded px-3 py-2"
+          placeholder={field.placeholder}
+        />
+      ) : (
+        <Input
+          value={field.value}
+          onChange={(e) => handleFieldUpdate(field.id, e.target.value)}
+          onBlur={() => setActiveEdit(null)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              setActiveEdit(null)
+            }
+            if (e.key === 'Escape') {
+              setActiveEdit(null)
+            }
+          }}
+          autoFocus
+          className="w-full bg-white border-2 border-accent-500 rounded px-3 py-2"
+          placeholder={field.placeholder}
+        />
+      )
+    }
+
     return (
-      <DashboardNav>
-        <div className="h-full flex items-center justify-center bg-tier-950">
-          <div className="w-8 h-8 border-2 border-accent-500 border-t-transparent rounded-full animate-spin"></div>
+      <div
+        onClick={() => setActiveEdit(field.id)}
+        className="relative group cursor-pointer hover:bg-accent-500/10 rounded p-2 transition-colors"
+      >
+        <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Edit3 className="w-4 h-4 text-accent-500" />
         </div>
-      </DashboardNav>
+        {field.value || (
+          <span className="text-gray-400 italic">{field.placeholder}</span>
+        )}
+      </div>
     )
   }
 
-  if (!funnel) {
+  const renderFunnelPreview = () => {
+    const containerClass = currentView === 'mobile' 
+      ? 'w-[375px] mx-auto border-8 border-gray-800 rounded-[2.5rem] bg-gray-800 shadow-xl'
+      : 'w-full max-w-6xl mx-auto'
+
+    return (
+      <div className={containerClass}>
+        <div 
+          className="bg-white min-h-screen overflow-auto"
+          style={{
+            color: customization.colors.text,
+            fontFamily: customization.font === 'inter' ? 'Inter, sans-serif' : 'system-ui'
+          }}
+        >
+          {/* Pixel Codes */}
+          {customization.pixelCodes.facebook && (
+            <div dangerouslySetInnerHTML={{ __html: customization.pixelCodes.facebook }} />
+          )}
+          {customization.pixelCodes.google && (
+            <div dangerouslySetInnerHTML={{ __html: customization.pixelCodes.google }} />
+          )}
+          {customization.pixelCodes.custom && (
+            <div dangerouslySetInnerHTML={{ __html: customization.pixelCodes.custom }} />
+          )}
+
+          {/* Header */}
+          <header 
+            className="py-4 px-6 border-b"
+            style={{ backgroundColor: customization.colors.background }}
+          >
+            <div className="flex items-center justify-between">
+              {customization.logoUrl ? (
+                <img 
+                  src={customization.logoUrl} 
+                  alt="Logo" 
+                  className="h-8 w-auto cursor-pointer"
+                  onClick={() => setActiveEdit('logo')}
+                />
+              ) : (
+                <div 
+                  className="h-8 w-24 bg-gray-200 rounded flex items-center justify-center cursor-pointer text-sm text-gray-500"
+                  onClick={() => setActiveEdit('logo')}
+                >
+                  + Logo
+                </div>
+              )}
+              <nav className="hidden md:flex space-x-6">
+                <a href="#" className="text-sm font-medium">About</a>
+                <a href="#" className="text-sm font-medium">Contact</a>
+              </nav>
+            </div>
+          </header>
+
+          {/* Hero Section */}
+          <section 
+            className="py-20 px-6"
+            style={{ backgroundColor: customization.colors.background }}
+          >
+            <div className="max-w-4xl mx-auto text-center">
+              <h1 
+                className="text-4xl md:text-6xl font-bold mb-6"
+                style={{ color: customization.colors.text }}
+              >
+                {renderEditableText(editableFields.find(f => f.id === 'headline')!)}
+              </h1>
+              <p 
+                className="text-xl md:text-2xl mb-8"
+                style={{ color: customization.colors.text + '80' }}
+              >
+                {renderEditableText(editableFields.find(f => f.id === 'subheadline')!)}
+              </p>
+              <div className="mb-12">
+                {renderEditableText(editableFields.find(f => f.id === 'heroText')!)}
+              </div>
+              <button 
+                className="px-8 py-4 rounded-lg text-white text-lg font-semibold hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: customization.colors.primary }}
+              >
+                {renderEditableText(editableFields.find(f => f.id === 'ctaText')!)}
+              </button>
+            </div>
+          </section>
+
+          {/* Offer Section */}
+          <section className="py-16 px-6 bg-gray-50">
+            <div className="max-w-4xl mx-auto">
+              <h2 
+                className="text-3xl font-bold mb-8 text-center"
+                style={{ color: customization.colors.text }}
+              >
+                What You'll Get
+              </h2>
+              <div className="prose max-w-none">
+                {renderEditableText(editableFields.find(f => f.id === 'offerDescription')!)}
+              </div>
+            </div>
+          </section>
+
+          {/* Guarantee Section */}
+          <section 
+            className="py-16 px-6"
+            style={{ backgroundColor: customization.colors.accent + '10' }}
+          >
+            <div className="max-w-4xl mx-auto text-center">
+              <h2 
+                className="text-2xl font-bold mb-6"
+                style={{ color: customization.colors.text }}
+              >
+                Our Guarantee
+              </h2>
+              <div className="text-lg">
+                {renderEditableText(editableFields.find(f => f.id === 'guaranteeText')!)}
+              </div>
+            </div>
+          </section>
+
+          {/* Footer */}
+          <footer 
+            className="py-8 px-6 border-t"
+            style={{ backgroundColor: customization.colors.background }}
+          >
+            <div className="max-w-4xl mx-auto text-center text-sm text-gray-500">
+              <p>&copy; 2024 {funnel?.name || 'Your Business'}. All rights reserved.</p>
+            </div>
+          </footer>
+        </div>
+      </div>
+    )
+  }
+
+  if (isLoading) {
     return (
       <DashboardNav>
-        <div className="h-full flex items-center justify-center bg-tier-950">
+        <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <h2 className="text-xl font-semibold text-tier-50 mb-2">Funnel not found</h2>
-            <p className="text-tier-400 mb-4">The funnel you're looking for doesn't exist or you don't have access to it.</p>
-            <Button onClick={() => router.push('/funnels')} className="bg-accent-500 hover:bg-accent-600">
-              Back to Funnels
-            </Button>
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-accent-500" />
+            <p className="text-tier-300">Loading funnel...</p>
           </div>
         </div>
       </DashboardNav>
@@ -171,297 +448,75 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
 
   return (
     <DashboardNav>
-      <div className="h-full overflow-auto bg-tier-950">
-        <div className="p-8">
-          <div className="max-w-4xl mx-auto">
-            {/* Header */}
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-tier-50 mb-2">
-                Edit Funnel: {funnel.name}
-              </h1>
-              <p className="text-lg text-tier-300">
-                Update your funnel's content, design, and settings
-              </p>
-            </div>
-
-            {/* Tabs */}
-            <div className="flex justify-center mb-8">
-              <div className="flex bg-tier-800 rounded-lg p-1">
-                <button
-                  onClick={() => setStep(1)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    step === 1 
-                      ? 'bg-accent-500 text-white' 
-                      : 'text-tier-300 hover:text-tier-50'
-                  }`}
-                >
-                  <Type className="w-4 h-4 inline mr-2" />
-                  Copy & Content
-                </button>
-                <button
-                  onClick={() => setStep(2)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    step === 2 
-                      ? 'bg-accent-500 text-white' 
-                      : 'text-tier-300 hover:text-tier-50'
-                  }`}
-                >
-                  <Palette className="w-4 h-4 inline mr-2" />
-                  Colors & Branding
-                </button>
-              </div>
-            </div>
-
-            {/* Content based on step */}
-            {step === 1 && (
-              <Card className="bg-tier-900 border-tier-800">
-                <CardHeader>
-                  <CardTitle className="text-tier-50">Headline & Messaging</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-tier-300 mb-2">
-                      Main Headline
-                    </label>
-                    <Input
-                      placeholder="Enter your main headline..."
-                      value={customization.headline}
-                      onChange={(e) => setCustomization(prev => ({ 
-                        ...prev, 
-                        headline: e.target.value 
-                      }))}
-                      className="bg-tier-800 border-tier-700 text-tier-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-tier-300 mb-2">
-                      Subheadline
-                    </label>
-                    <Input
-                      placeholder="Enter your subheadline..."
-                      value={customization.subheadline}
-                      onChange={(e) => setCustomization(prev => ({ 
-                        ...prev, 
-                        subheadline: e.target.value 
-                      }))}
-                      className="bg-tier-800 border-tier-700 text-tier-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-tier-300 mb-2">
-                      Hero Text
-                    </label>
-                    <Textarea
-                      placeholder="Enter your main description..."
-                      value={customization.heroText}
-                      onChange={(e) => setCustomization(prev => ({ 
-                        ...prev, 
-                        heroText: e.target.value 
-                      }))}
-                      className="bg-tier-800 border-tier-700 text-tier-100 min-h-[100px]"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-tier-300 mb-2">
-                        CTA Button Text
-                      </label>
-                      <Input
-                        placeholder="Get Started Now"
-                        value={customization.ctaText}
-                        onChange={(e) => setCustomization(prev => ({ 
-                          ...prev, 
-                          ctaText: e.target.value 
-                        }))}
-                        className="bg-tier-800 border-tier-700 text-tier-100"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-tier-300 mb-2">
-                        Guarantee Text
-                      </label>
-                      <Input
-                        placeholder="30-day money-back guarantee"
-                        value={customization.guaranteeText}
-                        onChange={(e) => setCustomization(prev => ({ 
-                          ...prev, 
-                          guaranteeText: e.target.value 
-                        }))}
-                        className="bg-tier-800 border-tier-700 text-tier-100"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-tier-300 mb-2">
-                      Offer Description
-                    </label>
-                    <Textarea
-                      placeholder="Describe your complete offer..."
-                      value={customization.offerDescription}
-                      onChange={(e) => setCustomization(prev => ({ 
-                        ...prev, 
-                        offerDescription: e.target.value 
-                      }))}
-                      className="bg-tier-800 border-tier-700 text-tier-100"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {step === 2 && (
-              <Card className="bg-tier-900 border-tier-800">
-                <CardHeader>
-                  <CardTitle className="text-tier-50">Colors & Branding</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Logo Upload */}
-                  <div>
-                    <label className="block text-sm font-medium text-tier-300 mb-2">
-                      Logo
-                    </label>
-                    <div className="flex items-center gap-4">
-                      {customization.logoUrl ? (
-                        <div className="w-20 h-20 bg-tier-800 rounded-lg flex items-center justify-center border border-tier-700">
-                          <img 
-                            src={customization.logoUrl} 
-                            alt="Logo" 
-                            className="max-w-full max-h-full object-contain"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-20 h-20 bg-tier-800 rounded-lg flex items-center justify-center border border-tier-700">
-                          <Image className="w-6 h-6 text-tier-500" />
-                        </div>
-                      )}
-                      <div>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleLogoUpload}
-                          className="hidden"
-                          id="logo-upload"
-                        />
-                        <label
-                          htmlFor="logo-upload"
-                          className="inline-flex items-center px-4 py-2 bg-tier-800 hover:bg-tier-700 border border-tier-600 rounded-md text-tier-300 cursor-pointer transition-colors"
-                        >
-                          <Upload className="w-4 h-4 mr-2" />
-                          Upload Logo
-                        </label>
-                        <p className="text-tier-500 text-xs mt-1">
-                          PNG, JPG up to 2MB
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Color Selection */}
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-tier-300 mb-2">
-                        Primary Color
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={customization.colors.primary}
-                          onChange={(e) => setCustomization(prev => ({ 
-                            ...prev, 
-                            colors: { ...prev.colors, primary: e.target.value }
-                          }))}
-                          className="w-12 h-8 rounded border border-tier-600"
-                        />
-                        <Input
-                          value={customization.colors.primary}
-                          onChange={(e) => setCustomization(prev => ({ 
-                            ...prev, 
-                            colors: { ...prev.colors, primary: e.target.value }
-                          }))}
-                          className="bg-tier-800 border-tier-700 text-tier-100 text-sm"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-tier-300 mb-2">
-                        Secondary Color
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={customization.colors.secondary}
-                          onChange={(e) => setCustomization(prev => ({ 
-                            ...prev, 
-                            colors: { ...prev.colors, secondary: e.target.value }
-                          }))}
-                          className="w-12 h-8 rounded border border-tier-600"
-                        />
-                        <Input
-                          value={customization.colors.secondary}
-                          onChange={(e) => setCustomization(prev => ({ 
-                            ...prev, 
-                            colors: { ...prev.colors, secondary: e.target.value }
-                          }))}
-                          className="bg-tier-800 border-tier-700 text-tier-100 text-sm"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-tier-300 mb-2">
-                        Accent Color
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={customization.colors.accent}
-                          onChange={(e) => setCustomization(prev => ({ 
-                            ...prev, 
-                            colors: { ...prev.colors, accent: e.target.value }
-                          }))}
-                          className="w-12 h-8 rounded border border-tier-600"
-                        />
-                        <Input
-                          value={customization.colors.accent}
-                          onChange={(e) => setCustomization(prev => ({ 
-                            ...prev, 
-                            colors: { ...prev.colors, accent: e.target.value }
-                          }))}
-                          className="bg-tier-800 border-tier-700 text-tier-100 text-sm"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Navigation */}
-            <div className="flex justify-between items-center mt-8">
-              <Button
-                variant="outline"
-                onClick={() => router.push('/funnels')}
-                className="border-tier-600 text-tier-300 hover:border-tier-500"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Funnels
-              </Button>
-
-              <div className="flex gap-3">
+      <div className="h-full flex flex-col bg-tier-950">
+        {/* Top Bar */}
+        <div className="border-b border-tier-800 bg-tier-900">
+          <div className="px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
                 <Button
                   variant="outline"
-                  onClick={handlePreview}
+                  onClick={() => router.push('/funnels')}
                   className="border-tier-600 text-tier-300 hover:border-tier-500"
                 >
-                  <Eye className="w-4 h-4 mr-2" />
-                  Preview
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
                 </Button>
+                <h1 className="text-xl font-bold text-tier-50">
+                  Edit: {funnel?.name}
+                </h1>
+              </div>
+
+              <div className="flex items-center gap-3">
+                {/* View Toggle */}
+                <div className="flex bg-tier-800 rounded-lg p-1">
+                  <button
+                    onClick={() => setCurrentView('desktop')}
+                    className={`p-2 rounded-md transition-colors ${
+                      currentView === 'desktop'
+                        ? 'bg-accent-500 text-white'
+                        : 'text-tier-300 hover:text-tier-50'
+                    }`}
+                  >
+                    <Monitor className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setCurrentView('mobile')}
+                    className={`p-2 rounded-md transition-colors ${
+                      currentView === 'mobile'
+                        ? 'bg-accent-500 text-white'
+                        : 'text-tier-300 hover:text-tier-50'
+                    }`}
+                  >
+                    <Smartphone className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Mode Toggle */}
+                <div className="flex bg-tier-800 rounded-lg p-1">
+                  <button
+                    onClick={() => setEditorMode('preview')}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      editorMode === 'preview'
+                        ? 'bg-accent-500 text-white'
+                        : 'text-tier-300 hover:text-tier-50'
+                    }`}
+                  >
+                    <Eye className="w-4 h-4 inline mr-2" />
+                    Preview
+                  </button>
+                  <button
+                    onClick={() => setEditorMode('settings')}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      editorMode === 'settings'
+                        ? 'bg-accent-500 text-white'
+                        : 'text-tier-300 hover:text-tier-50'
+                    }`}
+                  >
+                    <Settings className="w-4 h-4 inline mr-2" />
+                    Settings
+                  </button>
+                </div>
 
                 <Button
                   onClick={handleSave}
@@ -473,10 +528,194 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                   ) : (
                     <Save className="w-4 h-4 mr-2" />
                   )}
-                  Save Changes
+                  Save
                 </Button>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 flex overflow-hidden">
+          {/* Preview Panel */}
+          <div className="flex-1 overflow-auto bg-tier-900 p-6">
+            {editorMode === 'preview' ? (
+              <div className="space-y-4">
+                <div className="text-center">
+                  <p className="text-tier-300 text-sm">
+                    Click on any text to edit directly • {currentView === 'mobile' ? 'Mobile' : 'Desktop'} view
+                  </p>
+                </div>
+                {renderFunnelPreview()}
+              </div>
+            ) : (
+              <div className="max-w-4xl mx-auto space-y-8">
+                {/* Pixel Tracking */}
+                <Card className="bg-tier-900 border-tier-800">
+                  <CardHeader>
+                    <CardTitle className="text-tier-50 flex items-center gap-2">
+                      <Code className="w-5 h-5" />
+                      Pixel Tracking
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-tier-300 mb-2">
+                        Facebook Pixel
+                      </label>
+                      <Textarea
+                        value={customization.pixelCodes.facebook}
+                        onChange={(e) => handlePixelCodeChange('facebook', e.target.value)}
+                        placeholder="Paste your Facebook pixel code here..."
+                        className="bg-tier-800 border-tier-700 text-tier-50"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-tier-300 mb-2">
+                        Google Analytics
+                      </label>
+                      <Textarea
+                        value={customization.pixelCodes.google}
+                        onChange={(e) => handlePixelCodeChange('google', e.target.value)}
+                        placeholder="Paste your Google Analytics code here..."
+                        className="bg-tier-800 border-tier-700 text-tier-50"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-tier-300 mb-2">
+                        Custom Tracking Code
+                      </label>
+                      <Textarea
+                        value={customization.pixelCodes.custom}
+                        onChange={(e) => handlePixelCodeChange('custom', e.target.value)}
+                        placeholder="Any additional tracking codes..."
+                        className="bg-tier-800 border-tier-700 text-tier-50"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Colors & Branding */}
+                <Card className="bg-tier-900 border-tier-800">
+                  <CardHeader>
+                    <CardTitle className="text-tier-50 flex items-center gap-2">
+                      <Palette className="w-5 h-5" />
+                      Colors & Branding
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-medium text-tier-300 mb-2">
+                        Logo
+                      </label>
+                      <div className="flex items-center gap-4">
+                        {customization.logoUrl && (
+                          <img 
+                            src={customization.logoUrl} 
+                            alt="Logo" 
+                            className="h-12 w-auto border rounded"
+                          />
+                        )}
+                        <label className="cursor-pointer">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleLogoUpload}
+                            className="hidden"
+                          />
+                          <Button variant="outline" className="border-tier-600 text-tier-300">
+                            <Upload className="w-4 h-4 mr-2" />
+                            {customization.logoUrl ? 'Change Logo' : 'Upload Logo'}
+                          </Button>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {Object.entries(customization.colors).map(([key, value]) => (
+                        <div key={key}>
+                          <label className="block text-sm font-medium text-tier-300 mb-2 capitalize">
+                            {key} Color
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={value}
+                              onChange={(e) => handleColorChange(key, e.target.value)}
+                              className="w-12 h-10 rounded border border-tier-700"
+                            />
+                            <Input
+                              value={value}
+                              onChange={(e) => handleColorChange(key, e.target.value)}
+                              className="bg-tier-800 border-tier-700 text-tier-50"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-tier-300 mb-2">
+                          Font Family
+                        </label>
+                        <select
+                          value={customization.font}
+                          onChange={(e) => setCustomization(prev => ({ ...prev, font: e.target.value }))}
+                          className="w-full bg-tier-800 border-tier-700 text-tier-50 rounded px-3 py-2"
+                        >
+                          <option value="inter">Inter</option>
+                          <option value="system">System UI</option>
+                          <option value="serif">Times New Roman</option>
+                          <option value="mono">Monospace</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-tier-300 mb-2">
+                          Theme Style
+                        </label>
+                        <select
+                          value={customization.theme}
+                          onChange={(e) => setCustomization(prev => ({ ...prev, theme: e.target.value }))}
+                          className="w-full bg-tier-800 border-tier-700 text-tier-50 rounded px-3 py-2"
+                        >
+                          <option value="modern">Modern</option>
+                          <option value="classic">Classic</option>
+                          <option value="minimal">Minimal</option>
+                          <option value="bold">Bold</option>
+                        </select>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Domain Settings */}
+                <Card className="bg-tier-900 border-tier-800">
+                  <CardHeader>
+                    <CardTitle className="text-tier-50 flex items-center gap-2">
+                      <Globe className="w-5 h-5" />
+                      Domain Settings
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div>
+                      <label className="block text-sm font-medium text-tier-300 mb-2">
+                        Custom Domain
+                      </label>
+                      <Input
+                        value={customization.domain}
+                        onChange={(e) => setCustomization(prev => ({ ...prev, domain: e.target.value }))}
+                        placeholder="yourdomain.com"
+                        className="bg-tier-800 border-tier-700 text-tier-50"
+                      />
+                      <p className="text-sm text-tier-400 mt-2">
+                        Configure your custom domain to make your funnel accessible at your own URL.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </div>
         </div>
       </div>
