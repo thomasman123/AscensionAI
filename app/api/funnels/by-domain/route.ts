@@ -31,8 +31,32 @@ export async function GET(request: NextRequest) {
 
     if (customDomain && customDomain.saved_funnels) {
       console.log('Found funnel via custom domain:', customDomain.funnel_id)
+      
+      // Transform the funnel data to include customization fields
+      const funnel = customDomain.saved_funnels as any
+      const transformedFunnel = {
+        ...funnel,
+        // Map new customization fields to expected fields
+        headline: funnel.headline || 'Your Headline Here',
+        subheadline: funnel.subheadline || 'Your subheadline here',
+        hero_text: funnel.hero_text || 'Your hero text here',
+        cta_text: funnel.cta_text || 'Get Started Now',
+        offer_description: funnel.offer_description || 'Your offer description',
+        guarantee_text: funnel.guarantee_text || 'Your guarantee',
+        primary_color: funnel.primary_color || funnel.background_color || '#3B82F6',
+        secondary_color: funnel.secondary_color || funnel.text_color || '#1E40AF',
+        accent_color: funnel.accent_color || '#F59E0B',
+        background_color: funnel.background_color || '#FFFFFF',
+        text_color: funnel.text_color || '#1F2937',
+        font_family: funnel.font_family || 'inter',
+        theme_style: funnel.theme_style || 'clean',
+        facebook_pixel_code: funnel.facebook_pixel_code,
+        google_analytics_code: funnel.google_analytics_code,
+        custom_tracking_code: funnel.custom_tracking_code
+      }
+      
       return NextResponse.json({ 
-        funnel: customDomain.saved_funnels,
+        funnel: transformedFunnel,
         source: 'custom_domain'
       })
     }
@@ -47,8 +71,31 @@ export async function GET(request: NextRequest) {
 
     if (funnel) {
       console.log('Found funnel via default domain:', funnel.id)
+      
+      // Transform the funnel data to include customization fields
+      const transformedFunnel = {
+        ...funnel,
+        // Map new customization fields to expected fields
+        headline: funnel.headline || 'Your Headline Here',
+        subheadline: funnel.subheadline || 'Your subheadline here',
+        hero_text: funnel.hero_text || 'Your hero text here',
+        cta_text: funnel.cta_text || 'Get Started Now',
+        offer_description: funnel.offer_description || 'Your offer description',
+        guarantee_text: funnel.guarantee_text || 'Your guarantee',
+        primary_color: funnel.primary_color || funnel.background_color || '#3B82F6',
+        secondary_color: funnel.secondary_color || funnel.text_color || '#1E40AF',
+        accent_color: funnel.accent_color || '#F59E0B',
+        background_color: funnel.background_color || '#FFFFFF',
+        text_color: funnel.text_color || '#1F2937',
+        font_family: funnel.font_family || 'inter',
+        theme_style: funnel.theme_style || 'clean',
+        facebook_pixel_code: funnel.facebook_pixel_code,
+        google_analytics_code: funnel.google_analytics_code,
+        custom_tracking_code: funnel.custom_tracking_code
+      }
+      
       return NextResponse.json({ 
-        funnel,
+        funnel: transformedFunnel,
         source: 'default_domain'
       })
     }
@@ -65,8 +112,31 @@ export async function GET(request: NextRequest) {
 
     if (patternFunnel) {
       console.log('Found funnel via pattern matching:', patternFunnel.id)
+      
+      // Transform the funnel data to include customization fields
+      const transformedFunnel = {
+        ...patternFunnel,
+        // Map new customization fields to expected fields
+        headline: patternFunnel.headline || 'Your Headline Here',
+        subheadline: patternFunnel.subheadline || 'Your subheadline here',
+        hero_text: patternFunnel.hero_text || 'Your hero text here',
+        cta_text: patternFunnel.cta_text || 'Get Started Now',
+        offer_description: patternFunnel.offer_description || 'Your offer description',
+        guarantee_text: patternFunnel.guarantee_text || 'Your guarantee',
+        primary_color: patternFunnel.primary_color || patternFunnel.background_color || '#3B82F6',
+        secondary_color: patternFunnel.secondary_color || patternFunnel.text_color || '#1E40AF',
+        accent_color: patternFunnel.accent_color || '#F59E0B',
+        background_color: patternFunnel.background_color || '#FFFFFF',
+        text_color: patternFunnel.text_color || '#1F2937',
+        font_family: patternFunnel.font_family || 'inter',
+        theme_style: patternFunnel.theme_style || 'clean',
+        facebook_pixel_code: patternFunnel.facebook_pixel_code,
+        google_analytics_code: patternFunnel.google_analytics_code,
+        custom_tracking_code: patternFunnel.custom_tracking_code
+      }
+      
       return NextResponse.json({ 
-        funnel: patternFunnel,
+        funnel: transformedFunnel,
         source: 'pattern_match'
       })
     }

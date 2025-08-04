@@ -270,10 +270,53 @@ function FunnelViewerContent() {
   }
 
   const themeClass = isDarkMode ? 'dark' : ''
-  const bgClass = isDarkMode 
-    ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900' 
-    : 'bg-gradient-to-br from-white via-slate-50 to-white'
+  
+  // Apply theme-specific styling
+  const getThemeStyles = () => {
+    const theme = (funnelData as any).theme_style || 'clean'
+    
+    switch (theme) {
+      case 'clean':
+        return {
+          background: isDarkMode ? '#0f172a' : '#ffffff',
+          headerBg: isDarkMode ? 'rgba(15, 23, 42, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+          textPrimary: isDarkMode ? '#f8fafc' : '#1e293b',
+          textSecondary: isDarkMode ? '#cbd5e1' : '#475569',
+          accent: '#3b82f6',
+          ctaGradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+          sectionBg: isDarkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(248, 250, 252, 0.5)',
+          cardBg: isDarkMode ? 'rgba(51, 65, 85, 0.8)' : 'rgba(255, 255, 255, 0.9)',
+          borderColor: isDarkMode ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.3)'
+        }
+      case 'modern':
+        return {
+          background: isDarkMode ? '#111827' : '#fafafa',
+          headerBg: isDarkMode ? 'rgba(17, 24, 39, 0.9)' : 'rgba(250, 250, 250, 0.95)',
+          textPrimary: isDarkMode ? '#f9fafb' : '#111827',
+          textSecondary: isDarkMode ? '#d1d5db' : '#4b5563',
+          accent: '#8b5cf6',
+          ctaGradient: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+          sectionBg: isDarkMode ? 'rgba(55, 65, 81, 0.5)' : 'rgba(243, 244, 246, 0.5)',
+          cardBg: isDarkMode ? 'rgba(75, 85, 99, 0.8)' : 'rgba(255, 255, 255, 0.9)',
+          borderColor: isDarkMode ? 'rgba(156, 163, 175, 0.2)' : 'rgba(156, 163, 175, 0.3)'
+        }
+      default:
+        return {
+          background: isDarkMode ? '#0f172a' : '#ffffff',
+          headerBg: isDarkMode ? 'rgba(15, 23, 42, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+          textPrimary: isDarkMode ? '#f8fafc' : '#1e293b',
+          textSecondary: isDarkMode ? '#cbd5e1' : '#475569',
+          accent: '#3b82f6',
+          ctaGradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+          sectionBg: isDarkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(248, 250, 252, 0.5)',
+          cardBg: isDarkMode ? 'rgba(51, 65, 85, 0.8)' : 'rgba(255, 255, 255, 0.9)',
+          borderColor: isDarkMode ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.3)'
+        }
+    }
+  }
 
+  const themeStyles = getThemeStyles()
+  
   const styles = {
     '--primary-color': funnelData.primary_color,
     '--secondary-color': funnelData.secondary_color,
@@ -371,9 +414,21 @@ function FunnelViewerContent() {
           />
         </Head>
         
-        <div className={`min-h-screen ${bgClass} transition-all duration-300`} style={styles}>
+        <div 
+          className="min-h-screen transition-all duration-300"
+          style={{ 
+            backgroundColor: themeStyles.background,
+            ...styles 
+          }}
+        >
           {/* Header */}
-          <header className="backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50">
+          <header 
+            className="backdrop-blur-md border-b sticky top-0 z-50"
+            style={{ 
+              backgroundColor: themeStyles.headerBg,
+              borderColor: themeStyles.borderColor
+            }}
+          >
             <div className="container mx-auto px-6 py-4 flex items-center justify-between">
               {funnelData.logo_url ? (
                 <img 
@@ -382,7 +437,12 @@ function FunnelViewerContent() {
                   className="h-10 max-w-xs object-contain"
                 />
               ) : (
-                <div className="h-10 w-24 bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 rounded-lg animate-pulse"></div>
+                <div 
+                  className="text-xl font-bold"
+                  style={{ color: themeStyles.textPrimary }}
+                >
+                  Your Logo
+                </div>
               )}
               
               {/* Theme Toggle */}
@@ -390,7 +450,8 @@ function FunnelViewerContent() {
                 variant="ghost"
                 size="sm"
                 onClick={toggleTheme}
-                className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
+                style={{ color: themeStyles.textSecondary }}
+                className="hover:opacity-80 transition-opacity"
               >
                 {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </Button>
@@ -398,38 +459,41 @@ function FunnelViewerContent() {
           </header>
 
           {/* Hero Section */}
-          <section className="py-20 px-6 relative overflow-hidden">
-            {/* Background Elements */}
-            <div className="absolute inset-0 -z-10">
-              <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400/10 dark:bg-blue-600/10 rounded-full blur-3xl animate-pulse"></div>
-              <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-400/10 dark:bg-purple-600/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-            </div>
-            
-            <div className="max-w-6xl mx-auto text-center relative">
+          <section className="py-16 px-6">            
+            <div className="max-w-6xl mx-auto text-center">
               <div className="mb-8">
                 <Badge 
-                  className="mb-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 px-4 py-2 font-medium shadow-lg"
+                  className="mb-6 border-0 px-4 py-2 font-medium shadow-sm"
+                  style={{ 
+                    backgroundColor: themeStyles.accent,
+                    color: '#ffffff'
+                  }}
                 >
                   ✨ Limited Time Offer
                 </Badge>
               </div>
               
               <h1 
-                className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 dark:from-slate-100 dark:via-slate-200 dark:to-slate-100 bg-clip-text text-transparent leading-tight"
-                style={{ 
-                  color: isDarkMode ? 'transparent' : funnelData.primary_color,
-                  backgroundImage: isDarkMode ? undefined : `linear-gradient(to right, ${funnelData.primary_color}, ${funnelData.secondary_color})`
-                }}
+                className="text-4xl md:text-6xl font-bold mb-8 leading-tight"
+                style={{ color: themeStyles.textPrimary }}
               >
                 {funnelData.headline}
               </h1>
               
-              <p className="text-xl md:text-2xl mb-12 text-slate-700 dark:text-slate-300 max-w-4xl mx-auto leading-relaxed font-light">
+              <p 
+                className="text-xl md:text-2xl mb-12 max-w-4xl mx-auto leading-relaxed font-normal"
+                style={{ color: themeStyles.textSecondary }}
+              >
                 {funnelData.subheadline}
               </p>
 
-              <div className="prose prose-lg prose-slate dark:prose-invert mx-auto mb-16 text-slate-600 dark:text-slate-400 max-w-3xl">
-                <p className="text-lg leading-relaxed">{funnelData.hero_text}</p>
+              <div className="max-w-3xl mx-auto mb-16">
+                <p 
+                  className="text-lg leading-relaxed"
+                  style={{ color: themeStyles.textSecondary }}
+                >
+                  {funnelData.hero_text}
+                </p>
               </div>
 
               {/* Video Section */}
@@ -464,12 +528,14 @@ function FunnelViewerContent() {
               )}
 
               {/* CTA Button */}
-              <div className="relative inline-block">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur-lg opacity-30 scale-110 animate-pulse"></div>
+              <div className="inline-block">
                 <Button
                   onClick={goToNextPage}
                   size="lg"
-                  className="relative text-xl px-16 py-8 rounded-full font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-0"
+                  className="text-xl px-12 py-6 rounded-lg font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 border-0"
+                  style={{ 
+                    background: themeStyles.ctaGradient,
+                  }}
                 >
                   {funnelData.cta_text}
                   <ArrowRight className="w-6 h-6 ml-3" />
@@ -592,7 +658,13 @@ function FunnelViewerContent() {
           {funnelData.logo_url && <meta property="og:image" content={funnelData.logo_url} />}
         </Head>
         
-        <div className={`min-h-screen ${bgClass} transition-all duration-300`} style={styles}>
+        <div 
+          className="min-h-screen transition-all duration-300"
+          style={{ 
+            backgroundColor: themeStyles.background,
+            ...styles 
+          }}
+        >
           {/* Header */}
           <header className="backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50">
             <div className="container mx-auto px-6 py-4 flex items-center justify-between">
@@ -711,7 +783,10 @@ function FunnelViewerContent() {
 
   // Fallback for invalid page numbers
   return (
-    <div className={`${themeClass} min-h-screen ${bgClass} flex items-center justify-center`}>
+          <div 
+        className={`${themeClass} min-h-screen flex items-center justify-center`}
+        style={{ backgroundColor: themeStyles.background }}
+      >
       <div className="text-center">
         <h1 className="text-2xl font-bold mb-4 text-slate-900 dark:text-slate-100">Page Not Found</h1>
         <Button 

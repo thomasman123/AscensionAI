@@ -13,7 +13,8 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  BookOpen
+  BookOpen,
+  Users
 } from 'lucide-react'
 
 interface NavigationItem {
@@ -34,6 +35,11 @@ const navigationItems: NavigationItem[] = [
     icon: Shuffle, 
     label: "Ascension Funnels", 
     href: "/funnels" 
+  },
+  { 
+    icon: Users, 
+    label: "Offer Profiles", 
+    href: "/offer-profiles" 
   },
   { 
     icon: BookOpen, 

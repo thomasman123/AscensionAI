@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useAuth } from '@/lib/auth-context'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
@@ -52,6 +53,7 @@ const mechanismPoints = [
 ]
 
 function MechanismContent() {
+  const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const funnelType = searchParams.get('type') as 'trigger' | 'gateway'
@@ -78,7 +80,7 @@ function MechanismContent() {
     }))
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
     let offerData = {}
     
     // Safely parse the data parameter with proper error handling
@@ -103,6 +105,28 @@ function MechanismContent() {
     const combinedData = {
       ...offerData,
       ...mechanismData
+    }
+
+    // Save offer profile now that we have complete data
+    try {
+      const profileName = (offerData as any).who && (offerData as any).outcome 
+        ? `${(offerData as any).who} - ${(offerData as any).outcome}`
+        : `Profile - ${new Date().toLocaleDateString()}`
+
+      await fetch('/api/user/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user?.id || '00000000-0000-0000-0000-000000000000',
+          name: profileName,
+          data: combinedData
+        })
+      })
+      
+      console.log('Offer profile saved successfully')
+    } catch (error) {
+      console.error('Failed to save offer profile:', error)
+      // Don't block the funnel creation if profile save fails
     }
     
     router.push(`/funnels/create/case-studies?type=${funnelType}&data=${encodeURIComponent(JSON.stringify(combinedData))}`)

@@ -112,12 +112,58 @@ export default function PreviewPage() {
     text: '#1F2937'
   }
 
+  // Apply theme-specific styling to match funnel-viewer
+  const getThemeStyles = () => {
+    const theme = customization.theme || 'clean'
+    
+    switch (theme) {
+      case 'clean':
+        return {
+          background: '#ffffff',
+          headerBg: 'rgba(255, 255, 255, 0.95)',
+          textPrimary: '#1e293b',
+          textSecondary: '#475569',
+          accent: '#3b82f6',
+          ctaGradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+          sectionBg: 'rgba(248, 250, 252, 0.5)',
+          cardBg: 'rgba(255, 255, 255, 0.9)',
+          borderColor: 'rgba(148, 163, 184, 0.3)'
+        }
+      case 'modern':
+        return {
+          background: '#fafafa',
+          headerBg: 'rgba(250, 250, 250, 0.95)',
+          textPrimary: '#111827',
+          textSecondary: '#4b5563',
+          accent: '#8b5cf6',
+          ctaGradient: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+          sectionBg: 'rgba(243, 244, 246, 0.5)',
+          cardBg: 'rgba(255, 255, 255, 0.9)',
+          borderColor: 'rgba(156, 163, 175, 0.3)'
+        }
+      default:
+        return {
+          background: '#ffffff',
+          headerBg: 'rgba(255, 255, 255, 0.95)',
+          textPrimary: '#1e293b',
+          textSecondary: '#475569',
+          accent: '#3b82f6',
+          ctaGradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+          sectionBg: 'rgba(248, 250, 252, 0.5)',
+          cardBg: 'rgba(255, 255, 255, 0.9)',
+          borderColor: 'rgba(148, 163, 184, 0.3)'
+        }
+    }
+  }
+
+  const themeStyles = getThemeStyles()
+
   const renderPage1 = () => (
     <div 
       className="min-h-screen"
       style={{
-        backgroundColor: colors.background,
-        color: colors.text,
+        backgroundColor: themeStyles.background,
+        color: themeStyles.textPrimary,
         fontFamily: customization.font === 'inter' ? 'Inter, sans-serif' : 
                    customization.font === 'serif' ? 'Times New Roman, serif' :
                    customization.font === 'mono' ? 'Courier New, monospace' : 'system-ui'
@@ -136,8 +182,11 @@ export default function PreviewPage() {
 
       {/* Header */}
       <header 
-        className="py-4 px-6 border-b"
-        style={{ backgroundColor: colors.background, borderColor: colors.text + '20' }}
+        className="py-4 px-6 border-b backdrop-blur-md"
+        style={{ 
+          backgroundColor: themeStyles.headerBg, 
+          borderColor: themeStyles.borderColor 
+        }}
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {customization.logoUrl ? (
@@ -147,54 +196,85 @@ export default function PreviewPage() {
               className="h-8 w-auto"
             />
           ) : (
-            <div className="text-xl font-bold" style={{ color: colors.primary }}>
+            <div 
+              className="text-xl font-bold" 
+              style={{ color: themeStyles.textPrimary }}
+            >
               Your Logo
             </div>
           )}
           <nav className="hidden md:flex space-x-6">
-            <a href="#" className="text-sm font-medium hover:opacity-80 transition-opacity">About</a>
-            <a href="#" className="text-sm font-medium hover:opacity-80 transition-opacity">Contact</a>
+            <a 
+              href="#" 
+              className="text-sm font-medium hover:opacity-80 transition-opacity"
+              style={{ color: themeStyles.textSecondary }}
+            >
+              About
+            </a>
+            <a 
+              href="#" 
+              className="text-sm font-medium hover:opacity-80 transition-opacity"
+              style={{ color: themeStyles.textSecondary }}
+            >
+              Contact
+            </a>
           </nav>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="py-16 px-6">
+        <div className="max-w-6xl mx-auto text-center">
+          <div className="mb-8">
+            <span 
+              className="inline-block px-4 py-2 rounded-lg text-white text-sm font-medium mb-6"
+              style={{ backgroundColor: themeStyles.accent }}
+            >
+              ✨ Limited Time Offer
+            </span>
+          </div>
+          
           <h1 
-            className="text-4xl md:text-6xl font-bold mb-6"
-            style={{ color: colors.text }}
+            className="text-4xl md:text-6xl font-bold mb-8 leading-tight"
+            style={{ color: themeStyles.textPrimary }}
           >
             {customization.headline || 'Your Compelling Headline Here'}
           </h1>
           <p 
-            className="text-xl md:text-2xl mb-8 opacity-80"
-            style={{ color: colors.text }}
+            className="text-xl md:text-2xl mb-12 max-w-4xl mx-auto leading-relaxed font-normal"
+            style={{ color: themeStyles.textSecondary }}
           >
             {customization.subheadline || 'A powerful subheadline that explains the value proposition'}
           </p>
-          <div className="mb-12 text-lg leading-relaxed">
-            {customization.heroText || 'This is where you describe your offer in detail, explaining how it will transform your prospect\'s life and why they need to act now.'}
+          <div className="mb-16 max-w-3xl mx-auto">
+            <p 
+              className="text-lg leading-relaxed"
+              style={{ color: themeStyles.textSecondary }}
+            >
+              {customization.heroText || 'This is where you describe your offer in detail, explaining how it will transform your prospect\'s life and why they need to act now.'}
+            </p>
           </div>
           
           {/* VSL Placeholder */}
           <div className="mb-12">
             <div 
-              className="aspect-video bg-black rounded-lg flex items-center justify-center text-white text-xl font-semibold max-w-4xl mx-auto"
-              style={{ backgroundColor: colors.secondary }}
+              className="aspect-video rounded-lg flex items-center justify-center text-white text-xl font-semibold max-w-4xl mx-auto shadow-lg"
+              style={{ backgroundColor: themeStyles.textSecondary }}
             >
               📹 Your Video Sales Letter Goes Here
             </div>
           </div>
 
-          <button 
-            onClick={goToNextPage}
-            className="px-8 py-4 rounded-lg text-white text-lg font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2"
-            style={{ backgroundColor: colors.primary }}
-          >
-            {customization.ctaText || 'Get Started Now'}
-            <ArrowRight className="w-5 h-5" />
-          </button>
+          <div className="inline-block">
+            <button 
+              onClick={goToNextPage}
+              className="px-12 py-6 rounded-lg text-white text-xl font-semibold hover:opacity-90 transition-all duration-200 transform hover:scale-105 inline-flex items-center gap-3 shadow-lg"
+              style={{ background: themeStyles.ctaGradient }}
+            >
+              {customization.ctaText || 'Get Started Now'}
+              <ArrowRight className="w-6 h-6" />
+            </button>
+          </div>
         </div>
       </section>
 
