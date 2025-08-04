@@ -23,22 +23,35 @@ export async function GET(request: NextRequest) {
     const funnelId = searchParams.get('funnelId')
     const domainId = searchParams.get('domainId')
     
-    let query = supabaseAdmin
-      .from('custom_domains')
-      .select('*')
-      .eq('user_id', userId)
-
-    if (funnelId) {
-      query = query.eq('funnel_id', funnelId)
-    }
+    let data, error
 
     if (domainId) {
-      query = query.eq('id', domainId).single()
+      // Single domain query
+      const result = await supabaseAdmin
+        .from('custom_domains')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('id', domainId)
+        .single()
+      
+      data = result.data
+      error = result.error
     } else {
-      query = query.order('created_at', { ascending: false })
-    }
+      // Multiple domains query
+      let query = supabaseAdmin
+        .from('custom_domains')
+        .select('*')
+        .eq('user_id', userId)
 
-    const { data, error } = await query
+      if (funnelId) {
+        query = query.eq('funnel_id', funnelId)
+      }
+
+      const result = await query.order('created_at', { ascending: false })
+      
+      data = result.data
+      error = result.error
+    }
 
     if (error) {
       console.error('Supabase error:', error)
