@@ -391,9 +391,8 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
               />
             ) : (
               <div 
-                className="text-xl font-bold mx-auto inline-block cursor-pointer"
+                className="text-xl font-bold mx-auto inline-block"
                 style={{ color: themeStyles.textPrimary }}
-                onClick={() => setActiveEdit('logo')}
               >
                 Your Logo
               </div>
@@ -406,23 +405,31 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             {/* 2. Headline (centered) */}
             <section className="text-center py-8">
               <h1 
-                className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 cursor-pointer"
+                className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6"
                 style={{ color: themeStyles.textPrimary }}
-                onClick={() => setActiveEdit('headline')}
               >
-                {customization.headline || 'Your Compelling Headline Here'}
+                {renderEditableText(editableFields.find(f => f.id === 'headline')!)}
               </h1>
             </section>
 
             {/* 3. Sub heading (centered) */}
             <section className="text-center py-4">
               <p 
-                className="text-xl md:text-2xl font-medium max-w-3xl mx-auto cursor-pointer"
+                className="text-xl md:text-2xl font-medium max-w-3xl mx-auto"
                 style={{ color: themeStyles.textSecondary }}
-                onClick={() => setActiveEdit('subheadline')}
               >
-                {customization.subheadline || 'Your powerful subheadline that explains the value'}
+                {renderEditableText(editableFields.find(f => f.id === 'subheadline')!)}
               </p>
+            </section>
+
+            {/* Hero Text (centered) */}
+            <section className="text-center py-4">
+              <div 
+                className="max-w-3xl mx-auto text-lg leading-relaxed"
+                style={{ color: themeStyles.textSecondary }}
+              >
+                {renderEditableText(editableFields.find(f => f.id === 'heroText')!)}
+              </div>
             </section>
 
             {/* 4. VSL (centered) */}
@@ -444,14 +451,13 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             {/* 5. CTA Button (centered) */}
             <section className="py-8 text-center">
               <button
-                className="px-12 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 text-white cursor-pointer"
+                className="px-12 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 text-white"
                 style={{ 
                   background: themeStyles.ctaGradient,
                   border: 'none'
                 }}
-                onClick={() => setActiveEdit('ctaText')}
               >
-                {customization.ctaText || 'Get Started Now'}
+                {renderEditableText(editableFields.find(f => f.id === 'ctaText')!)}
               </button>
             </section>
 
@@ -503,6 +509,42 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
               </div>
             </section>
 
+            {/* Offer Description */}
+            <section className="py-12 text-center">
+              <div className="max-w-4xl mx-auto">
+                <h2 
+                  className="text-3xl md:text-4xl font-bold mb-8"
+                  style={{ color: themeStyles.textPrimary }}
+                >
+                  What You'll Get
+                </h2>
+                <div 
+                  className="text-lg leading-relaxed"
+                  style={{ color: themeStyles.textSecondary }}
+                >
+                  {renderEditableText(editableFields.find(f => f.id === 'offerDescription')!)}
+                </div>
+              </div>
+            </section>
+
+            {/* Guarantee */}
+            <section className="py-12 text-center">
+              <div className="max-w-4xl mx-auto">
+                <h2 
+                  className="text-2xl md:text-3xl font-bold mb-6"
+                  style={{ color: themeStyles.textPrimary }}
+                >
+                  Our Guarantee
+                </h2>
+                <div 
+                  className="text-lg leading-relaxed"
+                  style={{ color: themeStyles.textSecondary }}
+                >
+                  {renderEditableText(editableFields.find(f => f.id === 'guaranteeText')!)}
+                </div>
+              </div>
+            </section>
+
             {/* 7. CTA Button (centered) */}
             <section className="py-8 text-center">
               <button
@@ -512,7 +554,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                   border: 'none'
                 }}
               >
-                {customization.ctaText || 'Get Started Now'}
+                {renderEditableText(editableFields.find(f => f.id === 'ctaText')!)}
               </button>
             </section>
           </div>
