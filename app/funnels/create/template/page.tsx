@@ -29,89 +29,44 @@ const templates: Template[] = [
   {
     id: 'trigger-template-1',
     name: 'Two-Page Trigger Funnel',
-    description: 'High-converting two-page funnel: Main sales page → Calendar booking page with seamless navigation',
+    description: 'Clean, conversion-optimized funnel with the exact structure: Logo → Headline → Sub heading → VSL → CTA → Case Studies → CTA → Footer',
     preview: '/templates/trigger-template-1.jpg',
     category: 'trigger',
     features: [
-      'Two-page funnel structure',
-      'VSL-optimized main page',
-      'Dedicated booking page', 
-      'Smooth page transitions',
-      'Mobile-responsive design',
-      'Conversion optimized CTAs'
+      'Logo (centered)',
+      'Headline (centered)',
+      'Sub heading (centered)', 
+      'VSL (centered)',
+      'CTA Button (centered)',
+      'Case Studies section',
+      'Second CTA Button (centered)',
+      'Footer'
     ],
     recommended: true,
     pages: [
       {
         name: 'Page 1: Main Sales Page',
-        description: 'Primary landing page with VSL, social proof and Get Started CTA',
+        description: 'Primary landing page with the exact order specified',
         elements: [
-          'Header with logo',
-          'Bold headline & subheadline',
-          'VSL embed (YouTube or custom video)',
-          'Hero text and value proposition',
-          'Primary "Get Started" CTA button',
-          'What You\'ll Get section',
-          'Features/benefits cards',
-          'Guarantee section',
-          'Final "Get Started" CTA',
+          'Logo at top (centered)',
+          'Headline (centered)',
+          'Sub heading (centered)',
+          'VSL (centered)',
+          'CTA Button (centered)',
+          'Case Studies (add/remove functionality)',
+          'CTA Button (centered)',
           'Footer'
         ]
       },
       {
         name: 'Page 2: Calendar Booking',
-        description: 'Dedicated booking page with calendar integration and back navigation',
+        description: 'Dedicated booking page - keeping current structure for now',
         elements: [
           'Header with logo (consistent branding)',
           'Back button to Page 1',
           'Booking headline and subtitle',
           'Calendar embed (Calendly, Acuity, etc.)',
           'Next steps information',
-          'Footer'
-        ]
-      }
-    ]
-  },
-  {
-    id: 'gateway-template-1', 
-    name: 'Two-Page Gateway Funnel',
-    description: 'Educational two-page funnel: Content/training page → Calendar booking page for consultations',
-    preview: '/templates/gateway-template-1.jpg',
-    category: 'gateway',
-    features: [
-      'Two-page funnel structure',
-      'Educational content focus',
-      'Authority building elements',
-      'Dedicated consultation booking',
-      'Trust-building design',
-      'Expert positioning'
-    ],
-    pages: [
-      {
-        name: 'Page 1: Educational Content',
-        description: 'Authority-building page with training content and consultation CTA',
-        elements: [
-          'Header with logo',
-          'Educational headline',
-          'Training/content sections',
-          'Expert credibility indicators',
-          'Value-driven content',
-          '"Book Consultation" CTA',
-          'Social proof elements',
-          'Final consultation CTA',
-          'Footer'
-        ]
-      },
-      {
-        name: 'Page 2: Consultation Booking',
-        description: 'Professional booking page for consultation scheduling',
-        elements: [
-          'Header with logo',
-          'Back button to Page 1',
-          'Consultation booking headline',
-          'Calendar embed',
-          'What to expect section',
-          'Preparation instructions',
           'Footer'
         ]
       }
@@ -204,7 +159,7 @@ function TemplateSelectionContent() {
       <div className="h-full overflow-auto bg-tier-950">
         <div className="min-h-full flex items-center justify-center p-8">
           <div className="max-w-2xl w-full text-center">
-            <div className="w-16 h-16 border-4 border-accent-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+            <div className="w-16 h-16 bg-accent-500 rounded-full mx-auto mb-6 opacity-75"></div>
             <h1 className="text-2xl font-bold text-tier-50 mb-4">
               Generating Your AI-Powered Funnel
             </h1>

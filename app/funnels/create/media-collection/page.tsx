@@ -255,11 +255,7 @@ function MediaCollectionContent() {
   }
 
   if (!funnelData) {
-    return (
-      <div className="h-full flex items-center justify-center bg-tier-950">
-        <div className="w-8 h-8 border-2 border-accent-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    )
+    return null
   }
 
   if (isGenerating) {

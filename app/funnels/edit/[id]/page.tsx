@@ -75,7 +75,12 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     },
     font: 'inter',
     theme: 'clean',
-    funnelTheme: 'light' // This controls only the funnel preview appearance
+    funnelTheme: 'light', // This controls only the funnel preview appearance
+    // Metadata fields
+    metaTitle: '',
+    metaDescription: '',
+    metaKeywords: '',
+    themeMode: 'light' // This controls the live funnel theme
   })
 
   const editableFields: EditableField[] = [
@@ -161,7 +166,12 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           },
           font: data.funnel.data?.customization?.font || 'inter',
           theme: data.funnel.data?.customization?.theme || 'clean',
-          funnelTheme: data.funnel.data?.customization?.funnelTheme || 'light'
+          funnelTheme: data.funnel.data?.customization?.funnelTheme || 'light',
+          // Metadata fields
+          metaTitle: data.funnel.meta_title || '',
+          metaDescription: data.funnel.meta_description || '',
+          metaKeywords: data.funnel.meta_keywords || '',
+          themeMode: data.funnel.theme_mode || 'light'
         })
       } else {
         console.error('Failed to load funnel')
@@ -826,10 +836,44 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                       </div>
                     </div>
 
-                    {/* Funnel Theme Setting */}
+                    {/* Live Funnel Theme Setting */}
                     <div>
                       <label className="block text-sm font-medium mb-2 text-tier-300">
-                        Funnel Theme
+                        Live Funnel Theme
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setCustomization(prev => ({ ...prev, themeMode: 'light' }))}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+                            customization.themeMode === 'light'
+                              ? 'bg-accent-500 text-white'
+                              : 'bg-tier-800 text-tier-300 hover:text-tier-50'
+                          }`}
+                        >
+                          <Sun className="w-4 h-4" />
+                          Light
+                        </button>
+                        <button
+                          onClick={() => setCustomization(prev => ({ ...prev, themeMode: 'dark' }))}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+                            customization.themeMode === 'dark'
+                              ? 'bg-accent-500 text-white'
+                              : 'bg-tier-800 text-tier-300 hover:text-tier-50'
+                          }`}
+                        >
+                          <Moon className="w-4 h-4" />
+                          Dark
+                        </button>
+                      </div>
+                      <p className="text-sm mt-2 text-tier-400">
+                        Choose how your live funnel appears to visitors. This controls the actual theme visitors see.
+                      </p>
+                    </div>
+
+                    {/* Preview Theme Setting */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-tier-300">
+                        Editor Preview Theme
                       </label>
                       <div className="flex items-center gap-2">
                         <button
@@ -856,9 +900,88 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                         </button>
                       </div>
                       <p className="text-sm mt-2 text-tier-400">
-                        Choose how your funnel appears to visitors. This only affects the funnel content, not the editor interface.
+                        Choose how the funnel appears in this editor preview. This only affects the editor, not the live page.
                       </p>
                     </div>
+                  </CardContent>
+                </Card>
+
+                {/* SEO & Metadata Settings */}
+                <Card className={`bg-tier-900 border-tier-800`}>
+                  <CardHeader>
+                    <CardTitle className={`flex items-center gap-2 text-tier-50`}>
+                      <Globe className="w-5 h-5" />
+                      SEO & Metadata
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-tier-300">
+                        Page Title
+                      </label>
+                      <Input
+                        value={customization.metaTitle}
+                        onChange={(e) => setCustomization(prev => ({ ...prev, metaTitle: e.target.value }))}
+                        placeholder="Custom page title (leave empty to use headline)"
+                        className="bg-tier-800 border-tier-700 text-tier-50 placeholder-tier-400"
+                      />
+                      <p className="text-sm mt-1 text-tier-400">
+                        This will be the browser tab title. If empty, will use your headline.
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-tier-300">
+                        Meta Description
+                      </label>
+                      <Textarea
+                        value={customization.metaDescription}
+                        onChange={(e) => setCustomization(prev => ({ ...prev, metaDescription: e.target.value }))}
+                        placeholder="Brief description for search engines (150-160 characters)"
+                        className="bg-tier-800 border-tier-700 text-tier-50 placeholder-tier-400"
+                        rows={3}
+                      />
+                      <p className="text-sm mt-1 text-tier-400">
+                        This appears in search engine results. Keep it under 160 characters.
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-tier-300">
+                        Keywords
+                      </label>
+                      <Input
+                        value={customization.metaKeywords}
+                        onChange={(e) => setCustomization(prev => ({ ...prev, metaKeywords: e.target.value }))}
+                        placeholder="keyword1, keyword2, keyword3"
+                        className="bg-tier-800 border-tier-700 text-tier-50 placeholder-tier-400"
+                      />
+                      <p className="text-sm mt-1 text-tier-400">
+                        Comma-separated keywords related to your offer.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Case Studies Management */}
+                <Card className={`bg-tier-900 border-tier-800`}>
+                  <CardHeader>
+                    <CardTitle className={`flex items-center gap-2 text-tier-50`}>
+                      <Edit3 className="w-5 h-5" />
+                      Case Studies
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-tier-400">
+                      Add customer success stories and testimonials to build trust and credibility.
+                    </p>
+                    <Button
+                      onClick={() => {/* TODO: Open case study management modal */}}
+                      className="w-full bg-accent-500 hover:bg-accent-600 text-white"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Manage Case Studies
+                    </Button>
                   </CardContent>
                 </Card>
 

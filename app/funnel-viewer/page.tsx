@@ -33,6 +33,10 @@ interface FunnelData {
   facebook_pixel_id?: string
   google_analytics_id?: string
   theme_mode?: 'light' | 'dark'
+  // Metadata fields
+  meta_title?: string
+  meta_description?: string
+  meta_keywords?: string
 }
 
 // Facebook Pixel and Analytics tracking functions
@@ -94,6 +98,7 @@ function FunnelViewerContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
+  const [caseStudies, setCaseStudies] = useState<any[]>([])
 
   useEffect(() => {
     // Wait for component to mount and search params to be available
@@ -154,16 +159,9 @@ function FunnelViewerContent() {
     }
   }, [funnelData, currentPage, loading])
 
-  // Show minimal loading while component is mounting
+  // Remove loading animation - load normally
   if (!mounted) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
-        <div className="relative">
-          <div className="w-12 h-12 border-4 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"></div>
-          <div className="absolute inset-0 w-12 h-12 border-4 border-transparent border-t-blue-400 rounded-full animate-spin animation-delay-150"></div>
-        </div>
-      </div>
-    )
+    return null
   }
 
   // If no domain after mounting, show redirect message
@@ -182,21 +180,32 @@ function FunnelViewerContent() {
 
   const loadFunnelByDomain = async (domainName: string) => {
     try {
+      setLoading(true)
       const response = await fetch(`/api/funnels/by-domain?domain=${encodeURIComponent(domainName)}`)
       
       if (response.ok) {
         const data = await response.json()
+        console.log('Loaded funnel data:', data)
         setFunnelData(data.funnel)
-      } else if (response.status === 404) {
-        setError('Funnel not found for this domain')
+        
+        // Load case studies for this funnel
+        if (data.funnel?.id) {
+          const caseStudiesResponse = await fetch(`/api/case-studies?funnelId=${data.funnel.id}`)
+          if (caseStudiesResponse.ok) {
+            const caseStudiesData = await caseStudiesResponse.json()
+            setCaseStudies(caseStudiesData.caseStudies || [])
+          }
+        }
       } else {
-        setError('Failed to load funnel')
+        const errorData = await response.json()
+        setError(errorData.error || 'Failed to load funnel')
       }
-    } catch (error) {
-      console.error('Error loading funnel:', error)
+    } catch (err) {
+      console.error('Error loading funnel:', err)
       setError('Failed to load funnel')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   // Navigate to next page with conversion tracking
@@ -226,20 +235,11 @@ function FunnelViewerContent() {
     }
   }
 
-  // Toggle theme mode
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode)
-  }
+  // Theme mode is now controlled by funnel creator settings, not user interaction
 
+  // Remove loading animation - load normally
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
-        <div className="relative">
-          <div className="w-12 h-12 border-4 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"></div>
-          <div className="absolute inset-0 w-12 h-12 border-4 border-transparent border-t-blue-400 rounded-full animate-spin animation-delay-150"></div>
-        </div>
-      </div>
-    )
+    return null
   }
 
   if (error || !funnelData) {
@@ -337,81 +337,41 @@ function FunnelViewerContent() {
     return (
       <div className={themeClass}>
         <Head>
-          <title>{funnelData.headline} | {funnelData.name}</title>
-          <meta name="description" content={funnelData.subheadline} />
+          <title>{funnelData.meta_title || funnelData.headline} | {funnelData.name}</title>
+          <meta name="description" content={funnelData.meta_description || funnelData.subheadline} />
+          {funnelData.meta_keywords && <meta name="keywords" content={funnelData.meta_keywords} />}
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           
           {/* Open Graph Meta Tags */}
-          <meta property="og:title" content={funnelData.headline} />
-          <meta property="og:description" content={funnelData.subheadline} />
+          <meta property="og:title" content={funnelData.meta_title || funnelData.headline} />
+          <meta property="og:description" content={funnelData.meta_description || funnelData.subheadline} />
           <meta property="og:type" content="website" />
           <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
           {funnelData.logo_url && <meta property="og:image" content={funnelData.logo_url} />}
           
           {/* Twitter Card */}
           <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content={funnelData.headline} />
-          <meta name="twitter:description" content={funnelData.subheadline} />
+          <meta name="twitter:title" content={funnelData.meta_title || funnelData.headline} />
+          <meta name="twitter:description" content={funnelData.meta_description || funnelData.subheadline} />
           {funnelData.logo_url && <meta name="twitter:image" content={funnelData.logo_url} />}
           
           {/* Facebook Pixel */}
           {funnelData.facebook_pixel_id && (
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
-                  !function(f,b,e,v,n,t,s)
-                  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-                  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-                  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-                  n.queue=[];t=b.createElement(e);t.async=!0;
-                  t.src=v;s=b.getElementsByTagName(e)[0];
-                  s.parentNode.insertBefore(t,s)}(window, document,'script',
-                  'https://connect.facebook.net/en_US/fbevents.js');
-                  fbq('init', '${funnelData.facebook_pixel_id}');
-                  fbq('track', 'PageView');
-                `
-              }}
-            />
+            <script>
+              {`
+                !function(f,b,e,v,n,t,s)
+                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)}(window, document,'script',
+                'https://connect.facebook.net/en_US/fbevents.js');
+                fbq('init', '${funnelData.facebook_pixel_id}');
+                fbq('track', 'PageView');
+              `}
+            </script>
           )}
-          
-          {/* Google Analytics */}
-          {funnelData.google_analytics_id && (
-            <>
-              <script async src={`https://www.googletagmanager.com/gtag/js?id=${funnelData.google_analytics_id}`}></script>
-              <script
-                dangerouslySetInnerHTML={{
-                  __html: `
-                    window.dataLayer = window.dataLayer || [];
-                    function gtag(){dataLayer.push(arguments);}
-                    gtag('js', new Date());
-                    gtag('config', '${funnelData.google_analytics_id}');
-                  `
-                }}
-              />
-            </>
-          )}
-          
-          {/* Structured Data */}
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "Product",
-                "name": funnelData.name,
-                "description": funnelData.offer_description,
-                "brand": {
-                  "@type": "Brand",
-                  "name": funnelData.name
-                },
-                "offers": {
-                  "@type": "Offer",
-                  "description": funnelData.offer_description,
-                  "availability": "https://schema.org/InStock"
-                }
-              })
-            }}
-          />
         </Head>
         
         <div 
@@ -421,228 +381,185 @@ function FunnelViewerContent() {
             ...styles 
           }}
         >
-          {/* Header */}
-          <header 
-            className="backdrop-blur-md border-b sticky top-0 z-50"
-            style={{ 
-              backgroundColor: themeStyles.headerBg,
-              borderColor: themeStyles.borderColor
-            }}
-          >
-            <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-              {funnelData.logo_url ? (
-                <img 
-                  src={funnelData.logo_url} 
-                  alt="Logo" 
-                  className="h-10 max-w-xs object-contain"
-                />
-              ) : (
-                <div 
-                  className="text-xl font-bold"
-                  style={{ color: themeStyles.textPrimary }}
-                >
-                  Your Logo
-                </div>
-              )}
-              
-              {/* Theme Toggle */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleTheme}
-                style={{ color: themeStyles.textSecondary }}
-                className="hover:opacity-80 transition-opacity"
+          {/* 1. Logo at top (centered) */}
+          <header className="py-6 px-6 text-center">
+            {funnelData.logo_url ? (
+              <img 
+                src={funnelData.logo_url} 
+                alt="Logo" 
+                className="h-12 max-w-xs object-contain mx-auto"
+              />
+            ) : (
+              <div 
+                className="text-xl font-bold mx-auto inline-block"
+                style={{ color: themeStyles.textPrimary }}
               >
-                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </Button>
-            </div>
+                Your Logo
+              </div>
+            )}
           </header>
 
-          {/* Hero Section */}
-          <section className="py-16 px-6">            
-            <div className="max-w-6xl mx-auto text-center">
-              <div className="mb-8">
-                <Badge 
-                  className="mb-6 border-0 px-4 py-2 font-medium shadow-sm"
-                  style={{ 
-                    backgroundColor: themeStyles.accent,
-                    color: '#ffffff'
-                  }}
-                >
-                  ✨ Limited Time Offer
-                </Badge>
-              </div>
-              
+          {/* Main Content Container */}
+          <div className="container mx-auto px-6 max-w-4xl">
+            
+            {/* 2. Headline (centered) */}
+            <section className="text-center py-8">
               <h1 
-                className="text-4xl md:text-6xl font-bold mb-8 leading-tight"
+                className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6"
                 style={{ color: themeStyles.textPrimary }}
               >
                 {funnelData.headline}
               </h1>
-              
+            </section>
+
+            {/* 3. Sub heading (centered) */}
+            <section className="text-center py-4">
               <p 
-                className="text-xl md:text-2xl mb-12 max-w-4xl mx-auto leading-relaxed font-normal"
+                className="text-xl md:text-2xl font-medium max-w-3xl mx-auto"
                 style={{ color: themeStyles.textSecondary }}
               >
                 {funnelData.subheadline}
               </p>
+            </section>
 
-              <div className="max-w-3xl mx-auto mb-16">
-                <p 
-                  className="text-lg leading-relaxed"
-                  style={{ color: themeStyles.textSecondary }}
-                >
-                  {funnelData.hero_text}
-                </p>
-              </div>
-
-              {/* Video Section */}
-              {funnelData.vsl_type === 'video' && funnelData.vsl_url && (
-                <div className="mb-16">
-                  <h3 className="text-3xl font-semibold mb-8 text-slate-900 dark:text-slate-100">{funnelData.vsl_title}</h3>
-                  <div className="aspect-video max-w-4xl mx-auto relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur-lg opacity-25 scale-105"></div>
-                    {funnelData.vsl_url.includes('youtube.com') || funnelData.vsl_url.includes('youtu.be') ? (
+            {/* 4. VSL (centered) */}
+            {funnelData.vsl_url && (
+              <section className="py-12 text-center">
+                <div className="max-w-4xl mx-auto">
+                  {funnelData.vsl_type === 'youtube' ? (
+                    <div className="relative aspect-video rounded-lg overflow-hidden shadow-xl">
                       <iframe
-                        src={funnelData.vsl_url.replace('watch?v=', 'embed/').replace('youtu.be/', 'www.youtube.com/embed/')}
-                        title={funnelData.vsl_title}
-                        className="w-full h-full rounded-2xl shadow-2xl relative z-10 border border-slate-200 dark:border-slate-700"
+                        src={funnelData.vsl_url}
+                        className="w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                       />
-                    ) : (
-                      <video
-                        src={funnelData.vsl_url}
-                        title={funnelData.vsl_title}
-                        className="w-full h-full rounded-2xl shadow-2xl relative z-10 border border-slate-200 dark:border-slate-700"
-                        controls
-                      />
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {funnelData.vsl_type === 'canva' && funnelData.vsl_url && (
-                <div className="mb-16">
-                  <h3 className="text-3xl font-semibold mb-8 text-slate-900 dark:text-slate-100">{funnelData.vsl_title}</h3>
-                  <div className="aspect-video max-w-4xl mx-auto relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur-lg opacity-25 scale-105"></div>
-                    <iframe
+                    </div>
+                  ) : (
+                    <video
                       src={funnelData.vsl_url}
-                      title={funnelData.vsl_title}
-                      className="w-full h-full rounded-2xl shadow-2xl relative z-10 border border-slate-200 dark:border-slate-700"
-                      allowFullScreen
+                      controls
+                      className="w-full max-w-4xl rounded-lg shadow-xl"
+                      style={{ maxHeight: '70vh' }}
                     />
-                  </div>
+                  )}
+                  {funnelData.vsl_title && (
+                    <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+                      {funnelData.vsl_title}
+                    </p>
+                  )}
                 </div>
-              )}
+              </section>
+            )}
 
-              {/* CTA Button */}
-              <div className="inline-block">
-                <Button
-                  onClick={goToNextPage}
-                  size="lg"
-                  className="text-xl px-12 py-6 rounded-lg font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 border-0"
-                  style={{ 
-                    background: themeStyles.ctaGradient,
-                  }}
+            {/* 5. CTA Button (centered) */}
+            <section className="py-8 text-center">
+              <Button
+                onClick={goToNextPage}
+                size="lg"
+                className="px-12 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                style={{ 
+                  background: themeStyles.ctaGradient,
+                  border: 'none',
+                  color: 'white'
+                }}
+              >
+                {funnelData.cta_text || 'Get Started Now'}
+              </Button>
+            </section>
+
+            {/* 6. Case Studies */}
+            <section className="py-16">
+              <div className="text-center mb-12">
+                <h2 
+                  className="text-3xl md:text-4xl font-bold mb-4"
+                  style={{ color: themeStyles.textPrimary }}
                 >
-                  {funnelData.cta_text}
-                  <ArrowRight className="w-6 h-6 ml-3" />
-                </Button>
-              </div>
-            </div>
-          </section>
-
-          {/* Offer Section */}
-          <section className="py-20 px-6 bg-slate-50/50 dark:bg-slate-800/50 backdrop-blur-sm">
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center mb-16">
-                <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900 dark:text-slate-100">
-                  What You'll Get
+                  Success Stories
                 </h2>
-                <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-                  Everything you need to transform your business
+                <p 
+                  className="text-lg"
+                  style={{ color: themeStyles.textSecondary }}
+                >
+                  See what others have achieved
                 </p>
               </div>
               
-              <Card className="mb-12 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-slate-200 dark:border-slate-700 shadow-xl">
-                <CardContent className="p-12">
-                  <div className="prose prose-xl prose-slate dark:prose-invert mx-auto text-center">
-                    <p className="text-lg leading-relaxed text-slate-700 dark:text-slate-300">{funnelData.offer_description}</p>
+              {/* Case Studies Grid - Will be populated dynamically */}
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {/* Case studies will be rendered here from funnel data */}
+                {caseStudies.length > 0 ? caseStudies.map((caseStudy, index) => (
+                  <div 
+                    key={index}
+                    className="p-6 rounded-lg shadow-lg"
+                    style={{ backgroundColor: themeStyles.cardBg }}
+                  >
+                    <div className="text-center">
+                                              <h3 
+                          className="text-xl font-semibold mb-3"
+                          style={{ color: themeStyles.textPrimary }}
+                        >
+                          {caseStudy.name || `Case Study ${index + 1}`}
+                        </h3>
+                      <p 
+                        className="mb-4"
+                        style={{ color: themeStyles.textSecondary }}
+                      >
+                        {caseStudy.description || 'Description not available.'}
+                      </p>
+                      <div 
+                        className="text-lg font-bold"
+                        style={{ color: themeStyles.accent }}
+                      >
+                        {caseStudy.result || 'Amazing Result'}
+                      </div>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Features/Benefits */}
-              <div className="grid md:grid-cols-3 gap-8">
-                {[
-                  { icon: CheckCircle, title: "Proven Results", description: "Get the exact strategies that work", color: "emerald" },
-                  { icon: Star, title: "Expert Support", description: "Direct access to our team", color: "blue" },
-                  { icon: Clock, title: "Fast Results", description: "See results in weeks, not months", color: "purple" }
-                ].map((feature, index) => {
-                  const IconComponent = feature.icon
-                  return (
-                    <Card key={index} className="group bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                      <CardContent className="p-8 text-center">
-                        <div className={`w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-${feature.color}-500 to-${feature.color}-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                          <IconComponent className="w-8 h-8 text-white" />
-                        </div>
-                        <h3 className="text-xl font-semibold mb-3 text-slate-900 dark:text-slate-100">{feature.title}</h3>
-                        <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{feature.description}</p>
-                      </CardContent>
-                    </Card>
-                  )
-                })}
-              </div>
-            </div>
-          </section>
-
-          {/* Guarantee Section */}
-          {funnelData.guarantee_text && (
-            <section className="py-20 px-6">
-              <div className="max-w-4xl mx-auto text-center">
-                <div className="relative inline-block mb-8">
-                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-green-600 rounded-full blur-lg opacity-30 scale-110"></div>
-                  <Badge className="relative text-lg px-8 py-4 bg-gradient-to-r from-emerald-500 to-green-600 text-white border-0 font-semibold shadow-xl">
-                    <Shield className="w-5 h-5 mr-2" />
-                    100% Money-Back Guarantee
-                  </Badge>
-                </div>
-                <p className="text-xl leading-relaxed text-slate-700 dark:text-slate-300 max-w-3xl mx-auto">
-                  {funnelData.guarantee_text}
-                </p>
+                )) : (
+                   <div className="text-center py-8">
+                     <p 
+                       className="text-lg"
+                       style={{ color: themeStyles.textSecondary }}
+                     >
+                       No case studies added yet.
+                     </p>
+                   </div>
+                 )}
               </div>
             </section>
-          )}
 
-          {/* Final CTA */}
-          <section className="py-20 px-6 bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-800 dark:to-slate-900">
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-4xl md:text-5xl font-bold mb-8 text-white">
-                Ready to Get Started?
-              </h2>
-              <p className="text-xl mb-12 text-slate-300 max-w-2xl mx-auto">
-                Join thousands of successful entrepreneurs who transformed their business
+            {/* 7. CTA Button (centered) */}
+            <section className="py-8 text-center">
+              <Button
+                onClick={goToNextPage}
+                size="lg"
+                className="px-12 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                style={{ 
+                  background: themeStyles.ctaGradient,
+                  border: 'none',
+                  color: 'white'
+                }}
+              >
+                {funnelData.cta_text || 'Get Started Now'}
+              </Button>
+            </section>
+          </div>
+
+          {/* 8. Footer */}
+          <footer 
+            className="py-8 px-6 text-center border-t"
+            style={{ 
+              backgroundColor: themeStyles.sectionBg,
+              borderColor: themeStyles.borderColor
+            }}
+          >
+            <div className="container mx-auto">
+              <p 
+                className="text-sm"
+                style={{ color: themeStyles.textSecondary }}
+              >
+                © 2024 {funnelData.name}. All rights reserved.
               </p>
-              
-              <div className="relative inline-block">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur-lg opacity-50 scale-110 animate-pulse"></div>
-                <Button
-                  onClick={goToNextPage}
-                  size="lg"
-                  className="relative text-xl px-16 py-8 rounded-full font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-0"
-                >
-                  {funnelData.cta_text}
-                  <ArrowRight className="w-6 h-6 ml-3" />
-                </Button>
-              </div>
-            </div>
-          </section>
-
-          {/* Footer */}
-          <footer className="py-12 px-6 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700">
-            <div className="text-center text-slate-600 dark:text-slate-400">
-              <p>&copy; 2024 {funnelData.name}. All rights reserved.</p>
             </div>
           </footer>
         </div>
@@ -687,15 +604,7 @@ function FunnelViewerContent() {
                 <div className="h-10 w-24 bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 rounded-lg animate-pulse"></div>
               )}
               
-              {/* Theme Toggle */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleTheme}
-                className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
-              >
-                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </Button>
+              {/* Removed theme toggle - now controlled by funnel creator settings */}
             </div>
           </header>
 
@@ -810,14 +719,7 @@ function FunnelViewerContent() {
 }
 
 function LoadingFallback() {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
-      <div className="relative">
-        <div className="w-12 h-12 border-4 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"></div>
-        <div className="absolute inset-0 w-12 h-12 border-4 border-transparent border-t-blue-400 rounded-full animate-spin animation-delay-150"></div>
-      </div>
-    </div>
-  )
+  return null
 }
 
 export default function FunnelViewer() {

@@ -139,30 +139,7 @@ export default function FunnelsPage() {
     loadFunnels()
   }
 
-  if (loading || isLoading) {
-    return (
-      <DashboardNav>
-        <div className="h-full flex items-center justify-center bg-tier-950">
-          <div className="text-center">
-            <div className="w-8 h-8 border-2 border-accent-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-tier-300">Loading funnels...</p>
-          </div>
-        </div>
-
-        {/* Domain Setup Guide Modal - Available during loading */}
-        {showDomainGuide.show && (
-          <DomainSetupGuide
-            funnelId={showDomainGuide.funnelId}
-            funnelName={showDomainGuide.funnelName}
-            userId={user?.id || '00000000-0000-0000-0000-000000000000'}
-            onClose={closeDomainGuide}
-            onDomainConnected={(domain) => handleDomainConnected(showDomainGuide.funnelId, domain)}
-            existingDomain={showDomainGuide.existingDomain}
-          />
-        )}
-      </DashboardNav>
-    )
-  }
+  // Remove loading animation - load normally
 
   if (!user) {
     return null
