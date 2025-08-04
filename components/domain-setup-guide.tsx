@@ -440,6 +440,16 @@ export function DomainSetupGuide({
                   <Clock className="w-4 h-4 inline mr-1" />
                   DNS changes can take up to 24 hours to propagate. Most changes take effect within a few minutes.
                 </p>
+                <div className="mt-3">
+                  <a 
+                    href={`https://dnschecker.org/all-dns-records-of-domain.php?query=${domainData.domain.split('.').slice(-2).join('.')}&rtype=TXT&dns=google`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 hover:text-blue-300 text-sm underline"
+                  >
+                    🔍 Check DNS propagation status
+                  </a>
+                </div>
               </div>
             </div>
           )}

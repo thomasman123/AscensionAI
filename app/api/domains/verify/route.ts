@@ -2,6 +2,47 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { promises as dns } from 'dns'
 
+// Add domain to Vercel project automatically
+async function addDomainToVercel(domain: string) {
+  try {
+    const vercelToken = process.env.VERCEL_TOKEN
+    const vercelProjectId = process.env.VERCEL_PROJECT_ID
+    
+    if (!vercelToken || !vercelProjectId) {
+      console.error('Missing Vercel credentials. Set VERCEL_TOKEN and VERCEL_PROJECT_ID environment variables')
+      return false
+    }
+
+    console.log(`Adding domain ${domain} to Vercel project ${vercelProjectId}`)
+
+    const response = await fetch(`https://api.vercel.com/v10/projects/${vercelProjectId}/domains`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${vercelToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: domain,
+        // Optional: can set up redirects or other config here
+      })
+    })
+
+    const result = await response.json()
+    
+    if (response.ok) {
+      console.log(`Successfully added domain ${domain} to Vercel:`, result)
+      return true
+    } else {
+      console.error(`Failed to add domain ${domain} to Vercel:`, result)
+      // Don't fail verification if domain addition fails - it might already exist
+      return result.error?.code === 'domain_already_in_use'
+    }
+  } catch (error) {
+    console.error('Error adding domain to Vercel:', error)
+    return false
+  }
+}
+
 // DNS verification service - checks if DNS records are properly configured
 async function verifyDNSRecords(domain: string, verificationToken: string) {
   try {
@@ -102,17 +143,53 @@ async function checkTXTRecord(domain: string, token: string): Promise<boolean> {
       const allTxtValues = txtRecords.flat()
       console.log('All TXT values:', allTxtValues)
       
-      const hasVerificationRecord = allTxtValues.some(record => {
-        // Check for records that contain our exact verification token
-        const recordContainsToken = record.includes(token)
-        console.log(`Checking TXT record "${record}" for token "${token}":`, recordContainsToken)
-        return recordContainsToken
+      // Check for the exact token
+      let hasExactToken = false
+      let hasVerifyPrefix = false
+      
+      allTxtValues.forEach(record => {
+        console.log(`Checking TXT record: "${record}"`)
+        
+        // Check for exact token match
+        if (record.includes(token)) {
+          hasExactToken = true
+          console.log(`✅ Found exact token match in: "${record}"`)
+        }
+        
+        // Check for _ascension-verify prefix (in case record format is different)
+        if (record.includes('_ascension-verify') || record.includes('ascension-verify')) {
+          hasVerifyPrefix = true
+          console.log(`🔍 Found verification prefix in: "${record}"`)
+        }
       })
       
-      console.log('TXT verification result:', hasVerificationRecord)
-      return hasVerificationRecord
+      console.log('TXT verification results:', {
+        hasExactToken,
+        hasVerifyPrefix,
+        totalRecords: allTxtValues.length,
+        expectedToken: token
+      })
+      
+      return hasExactToken
     } catch (txtError) {
       console.log('TXT record lookup failed:', (txtError as Error).message)
+      
+      // Try alternative lookup methods
+      console.log('Trying alternative TXT lookup methods...')
+      
+      // Try looking for the _ascension-verify subdomain specifically
+      try {
+        const verifySubdomain = `_ascension-verify.${rootDomain}`
+        console.log('Checking _ascension-verify subdomain:', verifySubdomain)
+        const verifyRecords = await dns.resolveTxt(verifySubdomain)
+        console.log('_ascension-verify subdomain records:', verifyRecords)
+        
+        const verifyValues = verifyRecords.flat()
+        return verifyValues.some(record => record.includes(token))
+      } catch (verifyError) {
+        console.log('_ascension-verify subdomain lookup failed:', (verifyError as Error).message)
+      }
+      
       return false
     }
   } catch (error) {
@@ -160,6 +237,10 @@ export async function POST(request: NextRequest) {
     console.log('POST /api/domains/verify - Verification result:', verification)
 
     if (verification.success) {
+      // Add domain to Vercel project automatically
+      const vercelAdded = await addDomainToVercel(domain.domain)
+      console.log(`Vercel domain addition result for ${domain.domain}:`, vercelAdded)
+
       // Update domain as verified
       const { error: updateError } = await supabaseAdmin
         .from('custom_domains')
@@ -179,8 +260,11 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        message: 'Domain verified successfully! Your custom domain is now active.',
-        verification
+        message: vercelAdded 
+          ? 'Domain verified and automatically configured! Your custom domain is now active.'
+          : 'Domain verified successfully! Your custom domain is now active.',
+        verification,
+        vercelConfigured: vercelAdded
       })
     } else {
       return NextResponse.json({

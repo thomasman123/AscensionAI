@@ -12,13 +12,16 @@ export async function middleware(request: NextRequest) {
     url.pathname.includes('.') ||
     hostname?.includes('localhost') ||
     hostname?.includes('127.0.0.1') ||
-    hostname?.includes('ascension-ai-sm36.vercel.app')
+    hostname?.includes('ascension-ai-sm36.vercel.app') ||
+    // Skip deployment URLs that contain project/user identifiers
+    hostname?.includes('-thomas-8419s-projects.vercel.app') ||
+    hostname?.match(/^ascension-ai-sm36-[a-z0-9]+-.*\.vercel\.app$/)
   ) {
     return NextResponse.next()
   }
 
   // Handle custom domains
-  if (hostname && !hostname.includes('ascension-ai-sm36.vercel.app')) {
+  if (hostname && !hostname.includes('vercel.app')) {
     console.log('Custom domain detected:', hostname)
     
     // Rewrite to the funnel viewer with the custom domain as a parameter

@@ -41,10 +41,27 @@ function FunnelViewerContent() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (domain) {
-      loadFunnelByDomain(domain)
+    // If no domain parameter, redirect to main app
+    if (!domain) {
+      console.log('No domain parameter found, redirecting to main app')
+      window.location.href = '/'
+      return
     }
+    
+    loadFunnelByDomain(domain)
   }, [domain])
+
+  // If no domain, show redirect message while redirecting
+  if (!domain) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirecting to main application...</p>
+        </div>
+      </div>
+    )
+  }
 
   const loadFunnelByDomain = async (domainName: string) => {
     try {
