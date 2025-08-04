@@ -33,31 +33,62 @@ interface FunnelData {
 
 function FunnelViewerContent() {
   const searchParams = useSearchParams()
-  const domain = searchParams.get('domain')
-  const path = searchParams.get('path') || '/'
+  const [domain, setDomain] = useState<string | null>(null)
+  const [path, setPath] = useState<string>('/')
   
   const [funnelData, setFunnelData] = useState<FunnelData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    // If no domain parameter, redirect to main app
+    // Wait for component to mount and search params to be available
+    setMounted(true)
+    const domainParam = searchParams.get('domain')
+    const pathParam = searchParams.get('path') || '/'
+    
+    console.log('Search params:', { domain: domainParam, path: pathParam })
+    
+    setDomain(domainParam)
+    setPath(pathParam)
+  }, [searchParams])
+
+  useEffect(() => {
+    // Only process after component is mounted and we have checked for domain
+    if (!mounted) return
+
     if (!domain) {
-      console.log('No domain parameter found, redirecting to main app')
-      window.location.href = '/'
+      console.log('No domain parameter found after mounting, redirecting to main app')
+      // Use a longer delay to prevent rapid redirects
+      setTimeout(() => {
+        window.location.href = '/'
+      }, 2000)
       return
     }
     
+    console.log('Loading funnel for domain:', domain)
     loadFunnelByDomain(domain)
-  }, [domain])
+  }, [domain, mounted])
 
-  // If no domain, show redirect message while redirecting
+  // Show loading while component is mounting
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Initializing...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // If no domain after mounting, show redirect message
   if (!domain) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Redirecting to main application...</p>
+          <p className="text-gray-600">No domain configured, redirecting to main application...</p>
         </div>
       </div>
     )
