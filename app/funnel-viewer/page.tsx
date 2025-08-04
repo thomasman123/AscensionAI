@@ -497,31 +497,40 @@ function FunnelViewerContent() {
               </div>
 
               {/* Video Section */}
-              {funnelData.vsl_type === 'youtube' && funnelData.vsl_url && (
+              {funnelData.vsl_type === 'video' && funnelData.vsl_url && (
+                <div className="mb-16">
+                  <h3 className="text-3xl font-semibold mb-8 text-slate-900 dark:text-slate-100">{funnelData.vsl_title}</h3>
+                  <div className="aspect-video max-w-4xl mx-auto relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur-lg opacity-25 scale-105"></div>
+                    {funnelData.vsl_url.includes('youtube.com') || funnelData.vsl_url.includes('youtu.be') ? (
+                      <iframe
+                        src={funnelData.vsl_url.replace('watch?v=', 'embed/').replace('youtu.be/', 'www.youtube.com/embed/')}
+                        title={funnelData.vsl_title}
+                        className="w-full h-full rounded-2xl shadow-2xl relative z-10 border border-slate-200 dark:border-slate-700"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <video
+                        src={funnelData.vsl_url}
+                        title={funnelData.vsl_title}
+                        className="w-full h-full rounded-2xl shadow-2xl relative z-10 border border-slate-200 dark:border-slate-700"
+                        controls
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {funnelData.vsl_type === 'canva' && funnelData.vsl_url && (
                 <div className="mb-16">
                   <h3 className="text-3xl font-semibold mb-8 text-slate-900 dark:text-slate-100">{funnelData.vsl_title}</h3>
                   <div className="aspect-video max-w-4xl mx-auto relative">
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur-lg opacity-25 scale-105"></div>
                     <iframe
-                      src={funnelData.vsl_url.replace('watch?v=', 'embed/')}
-                      title={funnelData.vsl_title}
-                      className="w-full h-full rounded-2xl shadow-2xl relative z-10 border border-slate-200 dark:border-slate-700"
-                      allowFullScreen
-                    />
-                  </div>
-                </div>
-              )}
-
-              {funnelData.vsl_type === 'custom' && funnelData.vsl_url && (
-                <div className="mb-16">
-                  <h3 className="text-3xl font-semibold mb-8 text-slate-900 dark:text-slate-100">{funnelData.vsl_title}</h3>
-                  <div className="aspect-video max-w-4xl mx-auto relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur-lg opacity-25 scale-105"></div>
-                    <video
                       src={funnelData.vsl_url}
                       title={funnelData.vsl_title}
                       className="w-full h-full rounded-2xl shadow-2xl relative z-10 border border-slate-200 dark:border-slate-700"
-                      controls
+                      allowFullScreen
                     />
                   </div>
                 </div>
