@@ -425,18 +425,15 @@ export function DomainSetupGuide({
                     <div></div>
                   </div>
                   {/* Updated instructions for subdomain TXT records */}
-                  <div className="mt-3 p-3 bg-orange-500/10 border border-orange-500/20 rounded">
-                    <p className="text-orange-400 text-sm">
+                  <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded">
+                    <p className="text-blue-400 text-sm">
                       📝 <strong>Instructions:</strong> 
                       {domainData.domain.split('.').length > 2 ? (
                         <>
-                          <strong>Important:</strong> Add this TXT record in your DNS panel:
-                          <div className="mt-2 text-xs text-orange-300 space-y-1">
-                            <p><strong>For Namecheap users:</strong> Use "{domainData.domain}" (full subdomain) as the Host name</p>
-                            <p><strong>For other providers:</strong> Try "{domainData.dnsRecords?.txt?.name}" first, then "{domainData.domain}" if it doesn't work</p>
-                          </div>
-                          <div className="mt-2 text-orange-200 text-xs">
-                            💡 Namecheap requires the full subdomain name ({domainData.domain}) in the Host field for subdomain TXT records.
+                          Add this TXT record in your DNS panel for the root domain ({domainData.domain.split('.').slice(-2).join('.')}).
+                          <div className="mt-2 text-blue-300 text-xs">
+                            <strong>Important:</strong> The TXT record CANNOT be on the same subdomain as the CNAME record.
+                            Use the name "{domainData.dnsRecords?.txt?.name}" for verification.
                           </div>
                         </>
                       ) : (
@@ -453,38 +450,50 @@ export function DomainSetupGuide({
                   DNS changes can take up to 24 hours to propagate. Most changes take effect within a few minutes.
                 </p>
                 <div className="mt-3 space-y-2">
-                  <a 
-                    href={`https://dnschecker.org/#TXT/${domainData.domain}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400 hover:text-blue-300 text-sm underline block"
-                  >
-                    🔍 Check TXT records for {domainData.domain}
-                  </a>
-                  <a 
-                    href={`https://dnschecker.org/#TXT/${domainData.domain.split('.').slice(-2).join('.')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400 hover:text-blue-300 text-sm underline block"
-                  >
-                    🔍 Check TXT records for root domain {domainData.domain.split('.').slice(-2).join('.')}
-                  </a>
+                  {domainData.domain.split('.').length > 2 ? (
+                    <>
+                      <a 
+                        href={`https://dnschecker.org/#TXT/${domainData.dnsRecords?.txt?.name}.${domainData.domain.split('.').slice(-2).join('.')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-400 hover:text-blue-300 text-sm underline block"
+                      >
+                        🔍 Check TXT records for verification domain
+                      </a>
+                      <a 
+                        href={`https://dnschecker.org/#TXT/${domainData.domain.split('.').slice(-2).join('.')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-400 hover:text-blue-300 text-sm underline block"
+                      >
+                        🔍 Check TXT records for root domain {domainData.domain.split('.').slice(-2).join('.')}
+                      </a>
+                    </>
+                  ) : (
+                    <a 
+                      href={`https://dnschecker.org/#TXT/${domainData.domain}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-400 hover:text-blue-300 text-sm underline block"
+                    >
+                      🔍 Check TXT records for {domainData.domain}
+                    </a>
+                  )}
                 </div>
               </div>
 
               {/* Troubleshooting section for subdomains */}
               {domainData.domain && domainData.domain.split('.').length > 2 && (
-                <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-                  <h4 className="text-red-400 font-medium mb-2">🚨 Subdomain TXT Record Troubleshooting:</h4>
-                  <div className="text-red-300 text-sm space-y-2">
-                    <p><strong>If verification fails:</strong></p>
+                <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                  <h4 className="text-green-400 font-medium mb-2">✅ DNS Conflict Resolution:</h4>
+                  <div className="text-green-300 text-sm space-y-2">
+                    <p><strong>Why we use a separate verification record:</strong></p>
                     <ul className="text-xs space-y-1 ml-4">
-                      <li>• Make sure your CNAME record is working first (it should be ✅)</li>
-                      <li><strong>• For Namecheap:</strong> Delete current TXT record and recreate with Host: "{domainData.domain}"</li>
-                      <li>• Wait 5-10 minutes after making DNS changes</li>
-                      <li>• Check both links above to see where your TXT record actually appears</li>
-                      <li>• Your other TXT records won't interfere - this is specific to your subdomain</li>
-                      <li>• If still failing, the record might only appear on your root domain (we check there too)</li>
+                      <li>• DNS rule: CNAME and TXT records cannot exist on the same subdomain</li>
+                      <li>• Your CNAME record ({domainData.domain}) handles the website traffic</li>
+                      <li>• TXT record ({domainData.dnsRecords?.txt?.name}.{domainData.domain.split('.').slice(-2).join('.')}) handles verification</li>
+                      <li>• This is standard practice for domain verification services</li>
+                      <li>• Both records go in your {domainData.domain.split('.').slice(-2).join('.')} DNS panel</li>
                     </ul>
                   </div>
                 </div>

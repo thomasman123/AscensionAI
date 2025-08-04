@@ -130,30 +130,32 @@ async function checkTXTRecord(domain: string, token: string): Promise<boolean> {
     
     if (isSubdomain) {
       // For subdomains like "yes.heliosscale.com"
-      // Try multiple approaches since DNS providers handle subdomain TXT records differently
+      // CANNOT check subdomain directly due to CNAME conflict
       const rootDomain = domainParts.slice(-2).join('.')
       const subdomainName = domainParts[0]
+      const verificationDomain = `_ascension-verify-${subdomainName}.${rootDomain}`
       
       console.log('Checking TXT record for subdomain:', domain)
       console.log('Root domain:', rootDomain, 'Subdomain name:', subdomainName)
+      console.log('Verification domain:', verificationDomain)
       
-      // Approach 1: Check directly on the subdomain
+      // Approach 1: Check the verification subdomain (primary method)
       try {
-        const txtRecords = await dns.resolveTxt(domain)
-        console.log('Direct subdomain TXT records found:', txtRecords)
+        const txtRecords = await dns.resolveTxt(verificationDomain)
+        console.log('Verification subdomain TXT records found:', txtRecords)
         
         const allTxtValues = txtRecords.flat()
         const hasExactToken = allTxtValues.some(record => record.includes(token))
         
         if (hasExactToken) {
-          console.log('✅ Found verification token in direct subdomain TXT record')
+          console.log('✅ Found verification token in verification subdomain TXT record')
           return true
         }
-      } catch (subdomainError) {
-        console.log('Direct subdomain TXT lookup failed:', (subdomainError as Error).message)
+      } catch (verificationError) {
+        console.log('Verification subdomain TXT lookup failed:', (verificationError as Error).message)
       }
       
-      // Approach 2: Check root domain for subdomain-specific records (Namecheap fix)
+      // Approach 2: Check root domain as fallback
       try {
         const rootTxtRecords = await dns.resolveTxt(rootDomain)
         console.log('Root domain TXT records found:', rootTxtRecords)
@@ -162,28 +164,11 @@ async function checkTXTRecord(domain: string, token: string): Promise<boolean> {
         const hasTokenInRoot = rootTxtValues.some(record => record.includes(token))
         
         if (hasTokenInRoot) {
-          console.log('✅ Found verification token in root domain TXT records (Namecheap fallback)')
+          console.log('✅ Found verification token in root domain TXT records (fallback)')
           return true
         }
       } catch (rootError) {
         console.log('Root domain TXT lookup failed:', (rootError as Error).message)
-      }
-      
-      // Approach 3: Check for _subdomain.rootdomain pattern
-      try {
-        const specialTxtDomain = `${subdomainName}.${rootDomain}`
-        const specialTxtRecords = await dns.resolveTxt(specialTxtDomain)
-        console.log('Special subdomain TXT records found at', specialTxtDomain, ':', specialTxtRecords)
-        
-        const specialTxtValues = specialTxtRecords.flat()
-        const hasTokenInSpecial = specialTxtValues.some(record => record.includes(token))
-        
-        if (hasTokenInSpecial) {
-          console.log('✅ Found verification token in special subdomain TXT record')
-          return true
-        }
-      } catch (specialError) {
-        console.log('Special subdomain TXT lookup failed:', (specialError as Error).message)
       }
     } else {
       // For root domains like "heliosscale.com"
