@@ -31,10 +31,25 @@ function FunnelSuccessContent() {
   useEffect(() => {
     if (dataParam) {
       try {
-        const data = JSON.parse(decodeURIComponent(dataParam))
+        let data
+        try {
+          data = JSON.parse(decodeURIComponent(dataParam))
+        } catch (decodeError) {
+          console.error('Error decoding funnel data:', decodeError)
+          // Try to parse without URI decoding as fallback
+          try {
+            data = JSON.parse(dataParam)
+          } catch (parseError) {
+            console.error('Error parsing funnel data:', parseError)
+            // If all parsing fails, redirect to funnels list
+            alert('There was an issue loading your funnel data.')
+            router.push('/funnels')
+            return
+          }
+        }
         setFunnelData(data)
       } catch (error) {
-        console.error('Error parsing funnel data:', error)
+        console.error('Error processing funnel data:', error)
         router.push('/funnels')
       }
     } else {
