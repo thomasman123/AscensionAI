@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate domain if not provided
-    const funnelDomain = domain || `${name.toLowerCase().replace(/\s+/g, '-')}.ascensionai.com`
+    const funnelDomain = domain || `${name.toLowerCase().replace(/\s+/g, '-')}.ascension-ai-sm36.vercel.app`
 
     // Prepare data for database
     const dbData = {

@@ -457,7 +457,7 @@ function CustomizeContent() {
                       className="bg-tier-800 border-tier-700 text-tier-100"
                     />
                     <p className="text-tier-500 text-sm mt-1">
-                      This will be your funnel URL: {customization.domain || 'your-funnel-name'}.ascensionai.vercel.app
+                      This will be your funnel URL: {customization.domain || 'your-funnel-name'}.ascension-ai-sm36.vercel.app
                     </p>
                   </div>
                 </CardContent>

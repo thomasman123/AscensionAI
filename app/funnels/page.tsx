@@ -183,7 +183,7 @@ export default function FunnelsPage() {
                         <div className="flex justify-between">
                           <span className="text-tier-500">Default URL:</span>
                           <span className="text-tier-300 text-right truncate ml-2 text-xs">
-                            {funnel.domain}.ascensionai.vercel.app
+                            {funnel.domain}.ascension-ai-sm36.vercel.app
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
@@ -253,11 +253,26 @@ export default function FunnelsPage() {
                       </div>
 
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="flex-1 border-tier-600 text-tier-300 hover:border-tier-500">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex-1 border-tier-600 text-tier-300 hover:border-tier-500"
+                          onClick={() => {
+                            const funnelUrl = funnel.custom_domain && funnel.domain_verified 
+                              ? `https://${funnel.custom_domain}`
+                              : `https://${funnel.domain}.ascension-ai-sm36.vercel.app`
+                            window.open(funnelUrl, '_blank')
+                          }}
+                        >
                           <Eye className="w-4 h-4 mr-1" />
                           View
                         </Button>
-                        <Button variant="outline" size="sm" className="flex-1 border-tier-600 text-tier-300 hover:border-tier-500">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex-1 border-tier-600 text-tier-300 hover:border-tier-500"
+                          onClick={() => router.push(`/funnels/edit/${funnel.id}`)}
+                        >
                           <Edit className="w-4 h-4 mr-1" />
                           Edit
                         </Button>
