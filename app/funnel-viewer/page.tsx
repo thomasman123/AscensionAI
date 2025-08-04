@@ -48,8 +48,23 @@ function FunnelViewerContent() {
     const pathParam = searchParams.get('path') || '/'
     
     console.log('Search params:', { domain: domainParam, path: pathParam })
+    console.log('Current URL:', window.location.href)
+    console.log('Current hostname:', window.location.hostname)
     
-    setDomain(domainParam)
+    // Fallback: if no domain param, try to get from hostname
+    let finalDomain = domainParam
+    if (!finalDomain && typeof window !== 'undefined') {
+      const currentHostname = window.location.hostname
+      // Only use hostname if it's not a vercel domain
+      if (!currentHostname.includes('vercel.app') && !currentHostname.includes('localhost')) {
+        console.log('Using hostname as fallback domain:', currentHostname)
+        finalDomain = currentHostname
+      }
+    }
+    
+    console.log('Final domain to use:', finalDomain)
+    
+    setDomain(finalDomain)
     setPath(pathParam)
   }, [searchParams])
 

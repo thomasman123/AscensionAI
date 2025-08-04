@@ -4,8 +4,12 @@ export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host')
   const url = request.nextUrl.clone()
   
+  console.log('🔍 Middleware - Hostname:', hostname)
+  console.log('🔍 Middleware - URL pathname:', url.pathname)
+  console.log('🔍 Middleware - Original URL:', request.url)
+  
   // Skip middleware for internal app routes, API routes, and static files
-  if (
+  const shouldSkip = (
     url.pathname.startsWith('/api/') ||
     url.pathname.startsWith('/_next/') ||
     url.pathname.startsWith('/static/') ||
@@ -16,23 +20,37 @@ export async function middleware(request: NextRequest) {
     // Skip deployment URLs that contain project/user identifiers
     hostname?.includes('-thomas-8419s-projects.vercel.app') ||
     hostname?.match(/^ascension-ai-sm36-[a-z0-9]+-.*\.vercel\.app$/)
-  ) {
+  )
+  
+  if (shouldSkip) {
+    console.log('🔍 Middleware - Skipping for:', hostname, 'pathname:', url.pathname, 'reasons:', {
+      api: url.pathname.startsWith('/api/'),
+      next: url.pathname.startsWith('/_next/'),
+      static: url.pathname.startsWith('/static/'),
+      hasDot: url.pathname.includes('.'),
+      localhost: hostname?.includes('localhost'),
+      vercelApp: hostname?.includes('ascension-ai-sm36.vercel.app'),
+      deployment: hostname?.includes('-thomas-8419s-projects.vercel.app'),
+      pattern: hostname?.match(/^ascension-ai-sm36-[a-z0-9]+-.*\.vercel\.app$/)
+    })
     return NextResponse.next()
   }
 
   // Handle custom domains
   if (hostname && !hostname.includes('vercel.app')) {
-    console.log('Custom domain detected:', hostname)
+    console.log('✅ Custom domain detected:', hostname)
     
     // Rewrite to the funnel viewer with the custom domain as a parameter
     url.pathname = `/funnel-viewer`
     url.searchParams.set('domain', hostname)
     url.searchParams.set('path', request.nextUrl.pathname)
     
-    console.log('Rewriting to:', url.pathname + url.search)
+    console.log('✅ Rewriting to:', url.pathname + url.search)
+    console.log('✅ Search params after set:', url.searchParams.toString())
     return NextResponse.rewrite(url)
   }
 
+  console.log('🔍 Middleware - No action taken for:', hostname)
   return NextResponse.next()
 }
 
