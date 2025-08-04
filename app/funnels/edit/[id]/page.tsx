@@ -51,7 +51,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   const [currentView, setCurrentView] = useState<'desktop' | 'mobile'>('desktop')
   const [editorMode, setEditorMode] = useState<'preview' | 'settings'>('preview')
   const [activeEdit, setActiveEdit] = useState<string | null>(null)
-  const [editorTheme, setEditorTheme] = useState<'light' | 'dark'>('dark')
 
   const [customization, setCustomization] = useState({
     headline: '',
@@ -75,7 +74,8 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       custom: ''
     },
     font: 'inter',
-    theme: 'clean'
+    theme: 'clean',
+    funnelTheme: 'light' // This controls only the funnel preview appearance
   })
 
   const editableFields: EditableField[] = [
@@ -160,7 +160,8 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             custom: ''
           },
           font: data.funnel.data?.customization?.font || 'inter',
-          theme: data.funnel.data?.customization?.theme || 'clean'
+          theme: data.funnel.data?.customization?.theme || 'clean',
+          funnelTheme: data.funnel.data?.customization?.funnelTheme || 'light'
         })
       } else {
         console.error('Failed to load funnel')
@@ -340,22 +341,24 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
 
     // Apply theme-specific styling
     const getThemeStyles = () => {
+      // Base styles with funnel theme consideration
+      const isDarkTheme = customization.funnelTheme === 'dark'
+      
       const baseStyles = {
-        backgroundColor: customization.colors.background || '#FFFFFF',
-        color: customization.colors.text || '#1F2937',
+        backgroundColor: isDarkTheme ? '#0F172A' : '#FFFFFF',
+        color: isDarkTheme ? '#F1F5F9' : '#1F2937',
         fontFamily: customization.font === 'inter' ? 'Inter, sans-serif' : 
                    customization.font === 'serif' ? 'Times New Roman, serif' :
                    customization.font === 'mono' ? 'Courier New, monospace' : 'system-ui',
         height: currentView === 'mobile' ? '812px' : 'auto'
       }
 
-      if (customization.theme === 'clean') {
-        return {
-          ...baseStyles,
-          backgroundColor: '#FFFFFF',
-          color: '#1F2937',
-          fontFamily: 'Inter, sans-serif'
-        }
+      // Override with custom colors if they differ from default theme colors
+      if (customization.colors.background !== (isDarkTheme ? '#0F172A' : '#FFFFFF')) {
+        baseStyles.backgroundColor = customization.colors.background
+      }
+      if (customization.colors.text !== (isDarkTheme ? '#F1F5F9' : '#1F2937')) {
+        baseStyles.color = customization.colors.text
       }
 
       return baseStyles
@@ -387,8 +390,8 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           <header 
             className="py-4 px-6 border-b"
             style={{ 
-              backgroundColor: customization.theme === 'clean' ? '#FFFFFF' : (customization.colors.background || '#FFFFFF'),
-              borderColor: customization.theme === 'clean' ? '#E5E7EB' : ((customization.colors.text || '#1F2937') + '20')
+              backgroundColor: customization.funnelTheme === 'dark' ? '#1E293B' : '#FFFFFF',
+              borderColor: customization.funnelTheme === 'dark' ? '#334155' : '#E5E7EB'
             }}
           >
             <div className="flex items-center justify-between">
@@ -416,7 +419,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                   href="#" 
                   className="text-sm font-medium hover:opacity-80 transition-opacity"
                   style={{ 
-                    color: customization.theme === 'clean' ? '#6B7280' : (customization.colors.text || '#1F2937')
+                    color: customization.funnelTheme === 'dark' ? '#94A3B8' : '#6B7280'
                   }}
                 >
                   About
@@ -425,7 +428,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                   href="#" 
                   className="text-sm font-medium hover:opacity-80 transition-opacity"
                   style={{ 
-                    color: customization.theme === 'clean' ? '#6B7280' : (customization.colors.text || '#1F2937')
+                    color: customization.funnelTheme === 'dark' ? '#94A3B8' : '#6B7280'
                   }}
                 >
                   Contact
@@ -438,14 +441,14 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           <section 
             className="py-20 px-6"
             style={{ 
-              backgroundColor: customization.theme === 'clean' ? '#FFFFFF' : (customization.colors.background || '#FFFFFF')
+              backgroundColor: customization.funnelTheme === 'dark' ? '#0F172A' : '#FFFFFF'
             }}
           >
             <div className="max-w-4xl mx-auto text-center">
               <h1 
                 className="text-4xl md:text-6xl font-bold mb-6"
                 style={{ 
-                  color: customization.theme === 'clean' ? '#1F2937' : (customization.colors.text || '#1F2937')
+                  color: customization.funnelTheme === 'dark' ? '#F1F5F9' : '#1F2937'
                 }}
               >
                 {renderEditableText(editableFields.find(f => f.id === 'headline')!)}
@@ -574,43 +577,43 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
 
   return (
     <DashboardNav>
-      <div className={`h-full flex flex-col ${editorTheme === 'dark' ? 'bg-tier-950' : 'bg-gray-50'}`}>
+      <div className={`h-full flex flex-col bg-tier-950`}>
         {/* Top Bar */}
-        <div className={`border-b ${editorTheme === 'dark' ? 'border-tier-800 bg-tier-900' : 'border-gray-200 bg-white'}`}>
+        <div className={`border-b border-tier-800 bg-tier-900`}>
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Button
                   variant="outline"
                   onClick={() => router.push('/funnels')}
-                  className={editorTheme === 'dark' ? 'border-tier-600 text-tier-300 hover:border-tier-500' : 'border-gray-300 text-gray-600 hover:border-gray-400'}
+                  className={`border-tier-600 text-tier-300 hover:border-tier-500`}
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back
                 </Button>
-                <h1 className={`text-xl font-bold ${editorTheme === 'dark' ? 'text-tier-50' : 'text-gray-900'}`}>
+                <h1 className={`text-xl font-bold text-tier-50`}>
                   Edit: {funnel?.name}
                 </h1>
               </div>
 
               <div className="flex items-center gap-3">
-                {/* Editor Theme Toggle */}
+                {/* Funnel Theme Toggle */}
                 <button
-                  onClick={() => setEditorTheme(editorTheme === 'dark' ? 'light' : 'dark')}
-                  className={`p-2 rounded-md transition-colors ${editorTheme === 'dark' ? 'hover:bg-tier-800 text-tier-300 hover:text-tier-50' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'}`}
-                  title={`Switch to ${editorTheme === 'dark' ? 'light' : 'dark'} theme`}
+                  onClick={() => setCustomization(prev => ({ ...prev, funnelTheme: prev.funnelTheme === 'light' ? 'dark' : 'light' }))}
+                  className="p-2 rounded-md transition-colors hover:bg-tier-800 text-tier-300 hover:text-tier-50"
+                  title={`Switch funnel to ${customization.funnelTheme === 'light' ? 'dark' : 'light'} theme`}
                 >
-                  {editorTheme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                  {customization.funnelTheme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
                 </button>
 
                 {/* View Toggle */}
-                <div className={`flex rounded-lg p-1 ${editorTheme === 'dark' ? 'bg-tier-800' : 'bg-gray-200'}`}>
+                <div className="flex rounded-lg p-1 bg-tier-800">
                   <button
                     onClick={() => setCurrentView('desktop')}
                     className={`p-2 rounded-md transition-colors ${
                       currentView === 'desktop'
                         ? 'bg-accent-500 text-white'
-                        : editorTheme === 'dark' ? 'text-tier-300 hover:text-tier-50' : 'text-gray-600 hover:text-gray-900'
+                        : 'text-tier-300 hover:text-tier-50'
                     }`}
                   >
                     <Monitor className="w-4 h-4" />
@@ -620,7 +623,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                     className={`p-2 rounded-md transition-colors ${
                       currentView === 'mobile'
                         ? 'bg-accent-500 text-white'
-                        : editorTheme === 'dark' ? 'text-tier-300 hover:text-tier-50' : 'text-gray-600 hover:text-gray-900'
+                        : 'text-tier-300 hover:text-tier-50'
                     }`}
                   >
                     <Smartphone className="w-4 h-4" />
@@ -628,13 +631,13 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                 </div>
 
                 {/* Mode Toggle */}
-                <div className={`flex rounded-lg p-1 ${editorTheme === 'dark' ? 'bg-tier-800' : 'bg-gray-200'}`}>
+                <div className="flex rounded-lg p-1 bg-tier-800">
                   <button
                     onClick={() => setEditorMode('preview')}
                     className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       editorMode === 'preview'
                         ? 'bg-accent-500 text-white'
-                        : editorTheme === 'dark' ? 'text-tier-300 hover:text-tier-50' : 'text-gray-600 hover:text-gray-900'
+                        : 'text-tier-300 hover:text-tier-50'
                     }`}
                   >
                     <Eye className="w-4 h-4 inline mr-2" />
@@ -645,7 +648,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                     className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       editorMode === 'settings'
                         ? 'bg-accent-500 text-white'
-                        : editorTheme === 'dark' ? 'text-tier-300 hover:text-tier-50' : 'text-gray-600 hover:text-gray-900'
+                        : 'text-tier-300 hover:text-tier-50'
                     }`}
                   >
                     <Settings className="w-4 h-4 inline mr-2" />
@@ -673,11 +676,11 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         {/* Main Content */}
         <div className="flex-1 flex overflow-hidden">
           {/* Preview Panel */}
-          <div className={`flex-1 overflow-auto p-6 ${editorTheme === 'dark' ? 'bg-tier-900' : 'bg-gray-100'}`}>
+          <div className={`flex-1 overflow-auto p-6 bg-tier-900`}>
             {editorMode === 'preview' ? (
               <div className="space-y-4">
                 <div className="text-center">
-                  <p className={`text-sm ${editorTheme === 'dark' ? 'text-tier-300' : 'text-gray-600'}`}>
+                  <p className={`text-sm text-tier-300`}>
                     Click on any text to edit directly • {currentView === 'mobile' ? 'Mobile' : 'Desktop'} view
                   </p>
                 </div>
@@ -686,61 +689,61 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             ) : (
               <div className="max-w-4xl mx-auto space-y-8">
                 {/* Pixel Tracking */}
-                <Card className={editorTheme === 'dark' ? 'bg-tier-900 border-tier-800' : 'bg-white border-gray-200'}>
+                <Card className={`bg-tier-900 border-tier-800`}>
                   <CardHeader>
-                    <CardTitle className={`flex items-center gap-2 ${editorTheme === 'dark' ? 'text-tier-50' : 'text-gray-900'}`}>
+                    <CardTitle className={`flex items-center gap-2 text-tier-50`}>
                       <Code className="w-5 h-5" />
                       Pixel Tracking
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <label className={`block text-sm font-medium mb-2 ${editorTheme === 'dark' ? 'text-tier-300' : 'text-gray-700'}`}>
+                      <label className={`block text-sm font-medium mb-2 text-tier-300`}>
                         Facebook Pixel
                       </label>
                       <Textarea
                         value={customization.pixelCodes.facebook}
                         onChange={(e) => handlePixelCodeChange('facebook', e.target.value)}
                         placeholder="Paste your Facebook pixel code here..."
-                        className={editorTheme === 'dark' ? 'bg-tier-800 border-tier-700 text-tier-50' : 'bg-white border-gray-300 text-gray-900'}
+                        className={`bg-tier-800 border-tier-700 text-tier-50`}
                       />
                     </div>
                     <div>
-                      <label className={`block text-sm font-medium mb-2 ${editorTheme === 'dark' ? 'text-tier-300' : 'text-gray-700'}`}>
+                      <label className={`block text-sm font-medium mb-2 text-tier-300`}>
                         Google Analytics
                       </label>
                       <Textarea
                         value={customization.pixelCodes.google}
                         onChange={(e) => handlePixelCodeChange('google', e.target.value)}
                         placeholder="Paste your Google Analytics code here..."
-                        className={editorTheme === 'dark' ? 'bg-tier-800 border-tier-700 text-tier-50' : 'bg-white border-gray-300 text-gray-900'}
+                        className={`bg-tier-800 border-tier-700 text-tier-50`}
                       />
                     </div>
                     <div>
-                      <label className={`block text-sm font-medium mb-2 ${editorTheme === 'dark' ? 'text-tier-300' : 'text-gray-700'}`}>
+                      <label className={`block text-sm font-medium mb-2 text-tier-300`}>
                         Custom Tracking Code
                       </label>
                       <Textarea
                         value={customization.pixelCodes.custom}
                         onChange={(e) => handlePixelCodeChange('custom', e.target.value)}
                         placeholder="Any additional tracking codes..."
-                        className={editorTheme === 'dark' ? 'bg-tier-800 border-tier-700 text-tier-50' : 'bg-white border-gray-300 text-gray-900'}
+                        className={`bg-tier-800 border-tier-700 text-tier-50`}
                       />
                     </div>
                   </CardContent>
                 </Card>
 
                 {/* Colors & Branding */}
-                <Card className={editorTheme === 'dark' ? 'bg-tier-900 border-tier-800' : 'bg-white border-gray-200'}>
+                <Card className={`bg-tier-900 border-tier-800`}>
                   <CardHeader>
-                    <CardTitle className={`flex items-center gap-2 ${editorTheme === 'dark' ? 'text-tier-50' : 'text-gray-900'}`}>
+                    <CardTitle className={`flex items-center gap-2 text-tier-50`}>
                       <Palette className="w-5 h-5" />
                       Colors & Branding
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div>
-                      <label className={`block text-sm font-medium mb-2 ${editorTheme === 'dark' ? 'text-tier-300' : 'text-gray-700'}`}>
+                      <label className={`block text-sm font-medium mb-2 capitalize text-tier-300`}>
                         Logo
                       </label>
                       <div className="flex items-center gap-4">
@@ -758,7 +761,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                             onChange={handleLogoUpload}
                             className="hidden"
                           />
-                          <Button variant="outline" className={editorTheme === 'dark' ? 'border-tier-600 text-tier-300' : 'border-gray-300 text-gray-600'}>
+                          <Button variant="outline" className={`border-tier-600 text-tier-300`}>
                             <Upload className="w-4 h-4 mr-2" />
                             {customization.logoUrl ? 'Change Logo' : 'Upload Logo'}
                           </Button>
@@ -769,7 +772,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       {Object.entries(customization.colors).map(([key, value]) => (
                         <div key={key}>
-                          <label className={`block text-sm font-medium mb-2 capitalize ${editorTheme === 'dark' ? 'text-tier-300' : 'text-gray-700'}`}>
+                          <label className={`block text-sm font-medium mb-2 capitalize text-tier-300`}>
                             {key} Color
                           </label>
                           <div className="flex items-center gap-2">
@@ -777,12 +780,12 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                               type="color"
                               value={value}
                               onChange={(e) => handleColorChange(key, e.target.value)}
-                              className={`w-12 h-10 rounded border ${editorTheme === 'dark' ? 'border-tier-700' : 'border-gray-300'}`}
+                              className={`w-12 h-10 rounded border ${`border-tier-700`}`}
                             />
                             <Input
                               value={value}
                               onChange={(e) => handleColorChange(key, e.target.value)}
-                              className={editorTheme === 'dark' ? 'bg-tier-800 border-tier-700 text-tier-50' : 'bg-white border-gray-300 text-gray-900'}
+                              className={`bg-tier-800 border-tier-700 text-tier-50`}
                             />
                           </div>
                         </div>
@@ -791,13 +794,13 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className={`block text-sm font-medium mb-2 ${editorTheme === 'dark' ? 'text-tier-300' : 'text-gray-700'}`}>
+                        <label className={`block text-sm font-medium mb-2 text-tier-300`}>
                           Font Family
                         </label>
                         <select
                           value={customization.font}
                           onChange={(e) => setCustomization(prev => ({ ...prev, font: e.target.value }))}
-                          className={`w-full rounded px-3 py-2 ${editorTheme === 'dark' ? 'bg-tier-800 border-tier-700 text-tier-50' : 'bg-white border-gray-300 text-gray-900'}`}
+                          className={`w-full rounded px-3 py-2 bg-tier-800 border-tier-700 text-tier-50`}
                         >
                           <option value="inter">Inter</option>
                           <option value="system">System UI</option>
@@ -806,15 +809,15 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                         </select>
                       </div>
                       <div>
-                        <label className={`block text-sm font-medium mb-2 ${editorTheme === 'dark' ? 'text-tier-300' : 'text-gray-700'}`}>
-                          Funnel Style (Not Editor Theme)
+                        <label className={`block text-sm font-medium mb-2 text-tier-300`}>
+                          Funnel Style
                         </label>
                         <select
                           value={customization.theme}
                           onChange={(e) => setCustomization(prev => ({ ...prev, theme: e.target.value }))}
-                          className={`w-full rounded px-3 py-2 ${editorTheme === 'dark' ? 'bg-tier-800 border-tier-700 text-tier-50' : 'bg-white border-gray-300 text-gray-900'}`}
+                          className={`w-full rounded px-3 py-2 bg-tier-800 border-tier-700 text-tier-50`}
                         >
-                          <option value="clean">Clean (Like Editor Preview)</option>
+                          <option value="clean">Clean</option>
                           <option value="modern">Modern</option>
                           <option value="classic">Classic</option>
                           <option value="minimal">Minimal</option>
@@ -822,29 +825,63 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                         </select>
                       </div>
                     </div>
+
+                    {/* Funnel Theme Setting */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-tier-300">
+                        Funnel Theme
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setCustomization(prev => ({ ...prev, funnelTheme: 'light' }))}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+                            customization.funnelTheme === 'light'
+                              ? 'bg-accent-500 text-white'
+                              : 'bg-tier-800 text-tier-300 hover:text-tier-50'
+                          }`}
+                        >
+                          <Sun className="w-4 h-4" />
+                          Light
+                        </button>
+                        <button
+                          onClick={() => setCustomization(prev => ({ ...prev, funnelTheme: 'dark' }))}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+                            customization.funnelTheme === 'dark'
+                              ? 'bg-accent-500 text-white'
+                              : 'bg-tier-800 text-tier-300 hover:text-tier-50'
+                          }`}
+                        >
+                          <Moon className="w-4 h-4" />
+                          Dark
+                        </button>
+                      </div>
+                      <p className="text-sm mt-2 text-tier-400">
+                        Choose how your funnel appears to visitors. This only affects the funnel content, not the editor interface.
+                      </p>
+                    </div>
                   </CardContent>
                 </Card>
 
                 {/* Domain Settings */}
-                <Card className={editorTheme === 'dark' ? 'bg-tier-900 border-tier-800' : 'bg-white border-gray-200'}>
+                <Card className={`bg-tier-900 border-tier-800`}>
                   <CardHeader>
-                    <CardTitle className={`flex items-center gap-2 ${editorTheme === 'dark' ? 'text-tier-50' : 'text-gray-900'}`}>
+                    <CardTitle className={`flex items-center gap-2 text-tier-50`}>
                       <Globe className="w-5 h-5" />
                       Domain Settings
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div>
-                      <label className={`block text-sm font-medium mb-2 ${editorTheme === 'dark' ? 'text-tier-300' : 'text-gray-700'}`}>
+                      <label className={`block text-sm font-medium mb-2 text-tier-300`}>
                         Custom Domain
                       </label>
                       <Input
                         value={customization.domain}
                         onChange={(e) => setCustomization(prev => ({ ...prev, domain: e.target.value }))}
                         placeholder="yourdomain.com"
-                        className={editorTheme === 'dark' ? 'bg-tier-800 border-tier-700 text-tier-50' : 'bg-white border-gray-300 text-gray-900'}
+                        className={`bg-tier-800 border-tier-700 text-tier-50`}
                       />
-                      <p className={`text-sm mt-2 ${editorTheme === 'dark' ? 'text-tier-400' : 'text-gray-500'}`}>
+                      <p className={`text-sm mt-2 text-tier-400`}>
                         Configure your custom domain to make your funnel accessible at your own URL.
                       </p>
                     </div>

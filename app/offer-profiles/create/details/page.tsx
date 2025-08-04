@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, Suspense } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -58,77 +58,52 @@ interface OfferData {
   mechanismPoint5: string
 }
 
-const getSectionsForType = (profileType: string) => {
-  const baseSections = [
-    {
-      id: 'avatar',
-      title: 'Target Avatar',
-      description: `Define your ideal customer for ${profileType} profiles`,
-      fields: [
-        { id: 'niche', label: 'Niche', placeholder: 'e.g., Digital Marketing Agency Owners', type: 'input' },
-        { id: 'income', label: 'Income Level', placeholder: 'e.g., $50k-$200k annually', type: 'input' },
-        { id: 'age', label: 'Age Range', placeholder: 'e.g., 30-45 years old', type: 'input' },
-        { id: 'traits', label: 'Key Traits', placeholder: 'e.g., Ambitious, Tech-savvy, Time-poor', type: 'textarea' }
-      ]
-    },
-    {
-      id: 'goals',
-      title: 'Goals & Pain Points',
-      description: 'Understand what drives your avatar',
-      fields: [
-        { id: 'primaryGoal1', label: 'Primary Goal 1', placeholder: 'Main goal they want to achieve', type: 'input' },
-        { id: 'primaryGoal2', label: 'Primary Goal 2', placeholder: 'Secondary important goal', type: 'input' },
-        { id: 'primaryGoal3', label: 'Primary Goal 3', placeholder: 'Third important goal', type: 'input' },
-        { id: 'complaint1', label: 'Main Complaint', placeholder: 'What frustrates them most', type: 'input' },
-        { id: 'complaint2', label: 'Secondary Complaint', placeholder: 'Another major frustration', type: 'input' },
-        { id: 'fear', label: 'Biggest Fear', placeholder: 'What keeps them up at night', type: 'textarea' }
-      ]
-    },
-    {
-      id: 'transformation',
-      title: 'Transformation Offer',
-      description: 'Define your core value proposition',
-      fields: [
-        { id: 'who', label: 'Who You Help', placeholder: 'e.g., Agency owners', type: 'input' },
-        { id: 'outcome', label: 'Desired Outcome', placeholder: 'e.g., Scale to $50k/month', type: 'input' },
-        { id: 'method', label: 'Your Method', placeholder: 'e.g., Proven funnel system', type: 'input' },
-        { id: 'timeframe', label: 'Timeframe', placeholder: 'e.g., In 90 days', type: 'input' },
-        { id: 'guarantee', label: 'Guarantee', placeholder: 'e.g., 30-day money back', type: 'textarea' }
-      ]
-    }
-  ]
-
-  // Customize placeholders based on profile type
-  if (profileType === 'conversion') {
-    baseSections[1].fields[0].placeholder = 'Immediate results they want'
-    baseSections[1].fields[5].placeholder = 'Fear of missing out or failing quickly'
-    baseSections[2].fields[1].placeholder = 'Quick, measurable outcome'
-    baseSections[2].fields[3].placeholder = 'Fast timeline (e.g., 30 days)'
-  } else if (profileType === 'nurture') {
-    baseSections[1].fields[0].placeholder = 'Long-term growth goals'
-    baseSections[1].fields[5].placeholder = 'Fear of making wrong decisions'
-    baseSections[2].fields[1].placeholder = 'Sustainable, lasting transformation'
-    baseSections[2].fields[3].placeholder = 'Realistic timeline (e.g., 6-12 months)'
-  } else if (profileType === 'premium') {
-    baseSections[1].fields[0].placeholder = 'Exclusive, high-end outcomes'
-    baseSections[1].fields[5].placeholder = 'Fear of status loss or reputation damage'
-    baseSections[2].fields[1].placeholder = 'Premium, exclusive results'
-    baseSections[2].fields[3].placeholder = 'Premium timeline with white-glove service'
+const sections = [
+  {
+    id: 'avatar',
+    title: 'Target Avatar',
+    description: 'Define your ideal customer',
+    fields: [
+      { id: 'niche', label: 'Niche', placeholder: 'e.g., Digital Marketing Agency Owners', type: 'input' },
+      { id: 'income', label: 'Income Level', placeholder: 'e.g., $50k-$200k annually', type: 'input' },
+      { id: 'age', label: 'Age Range', placeholder: 'e.g., 30-45 years old', type: 'input' },
+      { id: 'traits', label: 'Key Traits', placeholder: 'e.g., Ambitious, Tech-savvy, Time-poor', type: 'textarea' }
+    ]
+  },
+  {
+    id: 'goals',
+    title: 'Goals & Pain Points',
+    description: 'Understand what drives your avatar',
+    fields: [
+      { id: 'primaryGoal1', label: 'Primary Goal 1', placeholder: 'Main goal they want to achieve', type: 'input' },
+      { id: 'primaryGoal2', label: 'Primary Goal 2', placeholder: 'Secondary important goal', type: 'input' },
+      { id: 'primaryGoal3', label: 'Primary Goal 3', placeholder: 'Third important goal', type: 'input' },
+      { id: 'complaint1', label: 'Main Complaint', placeholder: 'What frustrates them most', type: 'input' },
+      { id: 'complaint2', label: 'Secondary Complaint', placeholder: 'Another major frustration', type: 'input' },
+      { id: 'fear', label: 'Biggest Fear', placeholder: 'What keeps them up at night', type: 'textarea' }
+    ]
+  },
+  {
+    id: 'transformation',
+    title: 'Transformation Offer',
+    description: 'Define your core value proposition',
+    fields: [
+      { id: 'who', label: 'Who You Help', placeholder: 'e.g., Agency owners', type: 'input' },
+      { id: 'outcome', label: 'Desired Outcome', placeholder: 'e.g., Scale to $50k/month', type: 'input' },
+      { id: 'method', label: 'Your Method', placeholder: 'e.g., Proven funnel system', type: 'input' },
+      { id: 'timeframe', label: 'Timeframe', placeholder: 'e.g., In 90 days', type: 'input' },
+      { id: 'guarantee', label: 'Guarantee', placeholder: 'e.g., 30-day money back', type: 'textarea' }
+    ]
   }
-
-  return baseSections
-}
+]
 
 function CreateOfferProfileDetailsContent() {
   const { user } = useAuth()
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const profileType = searchParams.get('type') || 'conversion'
   
   const [currentSection, setCurrentSection] = useState(0)
   const [profileName, setProfileName] = useState('')
   const [isSaving, setIsSaving] = useState(false)
-  const [sections, setSections] = useState(getSectionsForType(profileType))
   const [offerData, setOfferData] = useState<OfferData>({
     // Avatar fields
     niche: '',
@@ -176,10 +151,6 @@ function CreateOfferProfileDetailsContent() {
     mechanismPoint4: '',
     mechanismPoint5: ''
   })
-
-  useEffect(() => {
-    setSections(getSectionsForType(profileType))
-  }, [profileType])
 
   const currentSectionData = sections[currentSection]
   const isLastSection = currentSection === sections.length - 1
@@ -235,7 +206,6 @@ function CreateOfferProfileDetailsContent() {
         body: JSON.stringify({
           userId: user?.id || '00000000-0000-0000-0000-000000000000',
           name: profileName,
-          type: profileType,
           data: offerData
         })
       })
@@ -255,15 +225,6 @@ function CreateOfferProfileDetailsContent() {
   const completeness = getSectionCompleteness(currentSectionData.id)
   const progress = ((currentSection + completeness) / sections.length) * 100
 
-  const getProfileTypeTitle = () => {
-    switch (profileType) {
-      case 'conversion': return 'Conversion Profile'
-      case 'nurture': return 'Nurture Profile' 
-      case 'premium': return 'Premium Profile'
-      default: return 'Offer Profile'
-    }
-  }
-
   return (
     <DashboardNav>
       <div className="h-full overflow-auto bg-tier-950">
@@ -272,7 +233,7 @@ function CreateOfferProfileDetailsContent() {
             {/* Header */}
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-tier-50 mb-2">
-                {getProfileTypeTitle()}
+                Create New Offer Profile
               </h1>
               <p className="text-tier-300">
                 Step {currentSection + 1} of {sections.length}
@@ -302,7 +263,7 @@ function CreateOfferProfileDetailsContent() {
                   <Input
                     value={profileName}
                     onChange={(e) => setProfileName(e.target.value)}
-                    placeholder={`e.g., ${getProfileTypeTitle()} - Digital Agency Owners`}
+                    placeholder="e.g., Digital Agency Owners - Scale to $50k"
                     className="bg-tier-800 border-tier-700 text-tier-100"
                   />
                   <p className="text-xs text-tier-500 mt-2">
@@ -358,7 +319,7 @@ function CreateOfferProfileDetailsContent() {
                 className="border-tier-600 text-tier-300 hover:border-tier-500"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                {currentSection === 0 ? 'Back to Type Selection' : 'Previous'}
+                {currentSection === 0 ? 'Back to Profile Selection' : 'Previous'}
               </Button>
 
               <div className="text-center">
