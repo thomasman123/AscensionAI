@@ -72,8 +72,24 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Generate domain if not provided
-    const funnelDomain = domain || `${name.toLowerCase().replace(/\s+/g, '-')}.ascension-ai-sm36.vercel.app`
+    // Generate domain if not provided - make it URL-safe
+    const generateUrlSafeDomain = (name: string): string => {
+      return name
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
+        .replace(/\s+/g, '-')         // Replace spaces with hyphens
+        .replace(/-+/g, '-')          // Replace multiple hyphens with single hyphen
+        .replace(/^-+|-+$/g, '')      // Remove leading/trailing hyphens
+        .substring(0, 50)             // Limit length for DNS compatibility
+    }
+    
+    const funnelDomain = domain || `${generateUrlSafeDomain(name)}.ascension-ai-sm36.vercel.app`
+    
+    console.log('🔧 Funnel Creation:', {
+      originalName: name,
+      generatedDomain: funnelDomain,
+      providedDomain: domain
+    })
 
     // Prepare data for database
     const dbData = {

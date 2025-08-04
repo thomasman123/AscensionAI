@@ -43,13 +43,13 @@ export async function middleware(request: NextRequest) {
   if (isCustomDomain || isSubdomain) {
     console.log('✅ Funnel domain detected:', hostname, 'type:', isCustomDomain ? 'custom' : 'subdomain')
     
-    // Rewrite to the funnel viewer with the custom domain as a parameter
+    // Rewrite to the funnel viewer with the domain as a parameter
     url.pathname = `/funnel-viewer`
-    url.searchParams.set('domain', hostname)
+    url.searchParams.set('domain', hostname.toLowerCase()) // Ensure lowercase for consistency
     url.searchParams.set('path', request.nextUrl.pathname)
     
     console.log('✅ Rewriting to:', url.pathname + url.search)
-    console.log('✅ Search params after set:', url.searchParams.toString())
+    console.log('✅ Final domain parameter:', hostname.toLowerCase())
     return NextResponse.rewrite(url)
   }
 

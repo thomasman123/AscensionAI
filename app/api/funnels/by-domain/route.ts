@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       }, { status: 400 })
     }
 
-    console.log('Looking up funnel for domain:', domain)
+    console.log('🔍 Looking up funnel for domain:', domain)
 
     // First try to find by custom domain
     let { data: customDomain, error: customDomainError } = await supabaseAdmin
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (customDomain && customDomain.saved_funnels) {
-      console.log('Found funnel via custom domain:', customDomain.funnel_id)
+      console.log('✅ Found funnel via custom domain:', customDomain.funnel_id)
       
       // Transform the funnel data to include customization fields
       const funnel = customDomain.saved_funnels as any
@@ -61,16 +61,17 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // If not found by custom domain, try default domain format
+    // If not found by custom domain, try exact domain match (case-insensitive)
+    console.log('🔍 Trying exact domain match for:', domain)
     const { data: funnel, error: funnelError } = await supabaseAdmin
       .from('saved_funnels')
       .select('*')
-      .eq('domain', domain)
+      .eq('domain', domain.toLowerCase())
       .eq('status', 'published')
       .single()
 
     if (funnel) {
-      console.log('Found funnel via default domain:', funnel.id)
+      console.log('✅ Found funnel via exact domain match:', funnel.id, 'stored domain:', funnel.domain)
       
       // Transform the funnel data to include customization fields
       const transformedFunnel = {
@@ -100,18 +101,21 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // Try matching against domain patterns
+    // As a last resort, try pattern matching (this should rarely be needed)
+    console.log('🔍 Trying pattern matching fallback for domain:', domain)
     const domainBase = domain.replace('.ascension-ai-sm36.vercel.app', '')
+    console.log('🔍 Pattern matching with base:', domainBase)
+    
     const { data: patternFunnel, error: patternError } = await supabaseAdmin
       .from('saved_funnels')
       .select('*')
-      .ilike('name', `%${domainBase}%`)
+      .ilike('domain', `%${domainBase}%`)  // Search in domain field, not name field
       .eq('status', 'published')
       .limit(1)
       .single()
 
     if (patternFunnel) {
-      console.log('Found funnel via pattern matching:', patternFunnel.id)
+      console.log('⚠️  Found funnel via pattern matching:', patternFunnel.id, 'stored domain:', patternFunnel.domain, 'This should not happen often!')
       
       // Transform the funnel data to include customization fields
       const transformedFunnel = {
