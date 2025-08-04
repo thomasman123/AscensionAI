@@ -42,11 +42,6 @@ const navigationItems: NavigationItem[] = [
     href: "/offer-profiles" 
   },
   { 
-    icon: BookOpen, 
-    label: "AI Training", 
-    href: "/training" 
-  },
-  { 
     icon: Megaphone, 
     label: "Ascension Ads", 
     href: "/ads",

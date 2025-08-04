@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
+import { 
+  buildCopySystemPrompt, 
+  buildCopyUserPrompt, 
+  getModelConfig 
+} from '@/lib/ai-prompts'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -117,69 +122,20 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    const systemPrompt = `You are an expert copywriter specializing in high-converting marketing copy. 
-    ${writingStylePrompt}
-    
-    Generate compelling copy for a ${templateType || 'trigger'} funnel based on the provided offer data. 
-    Focus on emotional triggers, clear value propositions, and strong calls to action.
-    
-    Return a JSON object with the following structure:
-    {
-      "headline": "Main compelling headline",
-      "subheadline": "Supporting subheadline",
-      "heroText": "Hero section paragraph",
-      "ctaText": "Call to action button text",
-      "offerDescription": "Brief offer description",
-      "guaranteeText": "Guarantee statement",
-      "pageTitle": "SEO page title",
-      "metaDescription": "SEO meta description",
-      "emailSubject": "Follow-up email subject",
-      "emailPreview": "Email preview text"
-    }`
-
-    const userPrompt = `Create high-converting copy for this offer:
-
-TARGET AVATAR:
-- Niche: ${offerData.niche}
-- Income Level: ${offerData.income}
-- Age: ${offerData.age}
-- Key Traits: ${offerData.traits}
-
-PRIMARY GOALS:
-1. ${offerData.primaryGoal1}
-2. ${offerData.primaryGoal2}
-3. ${offerData.primaryGoal3}
-
-MAIN COMPLAINTS:
-1. ${offerData.complaint1}
-2. ${offerData.complaint2}
-3. ${offerData.complaint3}
-
-TRANSFORMATION OFFER:
-- WHO: ${offerData.who}
-- OUTCOME: ${offerData.outcome}
-- METHOD: ${offerData.method}
-- TIMEFRAME: ${offerData.timeframe}
-- GUARANTEE: ${offerData.guarantee}
-
-KEY PAIN POINTS:
-- Fear: ${offerData.fear}
-- False Solution: ${offerData.falseSolution}
-- Mistaken Belief: ${offerData.mistakenBelief}
-
-AVATAR STORY: ${offerData.avatarStory}
-
-Please generate compelling, conversion-focused copy that speaks directly to this avatar's pain points and desires.`
+    // Build prompts using centralized configuration
+    const systemPrompt = buildCopySystemPrompt(writingStylePrompt)
+    const userPrompt = buildCopyUserPrompt(offerData, templateType)
 
     try {
+      const modelConfig = getModelConfig('default')
       const completion = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: modelConfig.model,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
         ],
-        temperature: 0.7,
-        max_tokens: 2000
+        temperature: modelConfig.temperature,
+        max_tokens: modelConfig.max_tokens
       })
 
       const response = completion.choices[0]?.message?.content

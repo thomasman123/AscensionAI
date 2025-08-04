@@ -170,72 +170,29 @@ function TemplateSelectionContent() {
         }
       }
 
-      // Create default customization
-      const defaultCustomization = {
-        headline: '',
-        subheadline: '',
-        heroText: '',
-        ctaText: 'Get Started Now',
-        offerDescription: '',
-        guaranteeText: '',
-        colors: {
-          primary: '#3B82F6',
-          secondary: '#1E40AF',
-          accent: '#F59E0B',
-          background: '#FFFFFF',
-          text: '#1F2937'
-        },
-        logoUrl: '',
-        domain: '',
-        font: 'inter',
-        theme: 'clean',
-        pixelCodes: {
-          facebook: '',
-          google: '',
-          custom: ''
-        }
+      const combinedData = {
+        ...funnelData,
+        templateId: selectedTemplate,
+        timestamp: new Date().toISOString(),
+        userId: user.id,
       }
 
       // Simulate AI processing time
-      await new Promise(resolve => setTimeout(resolve, 3000))
+      await new Promise(resolve => setTimeout(resolve, 2000))
 
-      // Save funnel directly
-      const saveData = {
-        userId: user.id,
-        name: (funnelData as any)?.offerData?.who 
-          ? `${(funnelData as any).offerData.who} - ${(funnelData as any).offerData.outcome}` 
-          : 'My Funnel',
-        type: funnelType,
-        status: 'published',
-        offerData: (funnelData as any)?.offerData,
-        caseStudies: (funnelData as any)?.caseStudies,
-        media: (funnelData as any)?.media,
-        templateId: selectedTemplate,
-        customization: defaultCustomization
-      }
-
-      const response = await fetch('/api/funnels/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(saveData)
-      })
-
-      if (response.ok) {
-        router.push('/funnels')
-      } else {
-        const errorData = await response.json()
-        alert(errorData.error || 'Failed to save funnel')
-      }
+      // Navigate to media collection step
+      const encodedData = encodeURIComponent(JSON.stringify(combinedData))
+      router.push(`/funnels/create/media-collection?type=${funnelType}&data=${encodedData}`)
     } catch (error) {
-      console.error('Error creating funnel:', error)
-      alert('There was an error creating your funnel. Please try again.')
+      console.error('Error processing template:', error)
+      alert('There was an error processing your template selection. Please try again.')
     }
     
     setIsGenerating(false)
   }
 
   const handlePrevious = () => {
-    router.push(`/funnels/create/case-studies?type=${funnelType}&data=${dataParam}`)
+    router.push(`/funnels/create/offer-profiles?type=${funnelType}`)
   }
 
   if (!funnelType || !dataParam) {
@@ -422,11 +379,11 @@ function TemplateSelectionContent() {
               {isGenerating ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Creating Funnel...
+                  Processing...
                 </>
               ) : (
                 <>
-                  Create Funnel
+                  Continue
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </>
               )}
@@ -438,13 +395,16 @@ function TemplateSelectionContent() {
           {selectedTemplate && (
             <Card className="bg-tier-900/50 border-tier-800 mt-8">
               <CardContent className="p-6">
-                <h3 className="font-semibold text-tier-50 mb-3">🚀 What happens next?</h3>
-                <div className="grid gap-4 md:grid-cols-2 text-sm">
+                <h3 className="font-semibold text-tier-50 mb-3">🚀 What's next?</h3>
+                <div className="grid gap-4 md:grid-cols-3 text-sm">
                   <div className="text-tier-300">
-                    <strong className="text-tier-200">1. AI Generation:</strong> Our AI will analyze all your offer data and generate personalized copy, headlines, and content.
+                    <strong className="text-tier-200">1. Media Assets:</strong> Add your VSL, logo, and calendar booking details to complete your funnel.
                   </div>
                   <div className="text-tier-300">
-                    <strong className="text-tier-200">2. Launch:</strong> Your high-converting funnel will be deployed and ready to use instantly.
+                    <strong className="text-tier-200">2. AI Generation:</strong> Our AI will analyze all your data and generate personalized copy and content.
+                  </div>
+                  <div className="text-tier-300">
+                    <strong className="text-tier-200">3. Launch:</strong> Your high-converting funnel will be deployed and ready to use instantly.
                   </div>
                 </div>
               </CardContent>

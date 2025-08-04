@@ -77,7 +77,7 @@ function OfferProfilesContent() {
   const handleSelectProfile = (profile: UserOfferProfile) => {
     // Encode the profile data and continue to template selection
     const dataParam = encodeURIComponent(JSON.stringify(profile.data))
-    router.push(`/funnels/create/template?type=${funnelType}&data=${dataParam}&fromProfile=true`)
+    router.push(`/funnels/create/template?type=${funnelType}&data=${dataParam}`)
   }
 
   const handleCreateNew = () => {

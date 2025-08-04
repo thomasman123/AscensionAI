@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import { OfferData } from '../generate-copy/route'
+import { 
+  buildEmailSystemPrompt, 
+  buildEmailUserPrompt, 
+  getModelConfig 
+} from '@/lib/ai-prompts'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -35,41 +40,20 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    const systemPrompt = `You are an expert email marketer. Create a 5-day email follow-up sequence.
-    ${writingStylePrompt}
-    
-    Return a JSON array of email objects with this structure:
-    [
-      {
-        "subject": "Email subject line",
-        "content": "Full email content with proper formatting",
-        "day": 1
-      }
-    ]`
-
-    const userPrompt = `Create a 5-day email sequence for leads who didn't convert immediately.
-    
-    Target: ${offerData.who}
-    Outcome: ${offerData.outcome}
-    Method: ${offerData.method}
-    Timeframe: ${offerData.timeframe}
-    
-    Address these objections:
-    1. ${offerData.objection1}
-    2. ${offerData.objection2}
-    3. ${offerData.objection3}
-    
-    Include social proof from case studies if available.`
+    // Build prompts using centralized configuration
+    const systemPrompt = buildEmailSystemPrompt(writingStylePrompt)
+    const userPrompt = buildEmailUserPrompt(offerData, 'trigger') // Default to trigger for now
 
     try {
+      const modelConfig = getModelConfig('default')
       const completion = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: modelConfig.model,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
         ],
-        temperature: 0.7,
-        max_tokens: 3000
+        temperature: modelConfig.temperature,
+        max_tokens: modelConfig.max_tokens
       })
 
       const response = completion.choices[0]?.message?.content
