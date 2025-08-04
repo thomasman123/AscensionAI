@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { promises as dns } from 'dns'
 
 // DNS verification service - checks if DNS records are properly configured
 async function verifyDNSRecords(domain: string, verificationToken: string) {
   try {
-    // In production, you would use a DNS lookup service here
-    // For now, we'll simulate the verification
+    console.log('Verifying DNS records for domain:', domain, 'with token:', verificationToken)
     
     // Check CNAME record (this would be a real DNS lookup in production)
     const cnameValid = await checkCNAMERecord(domain)
@@ -37,78 +37,95 @@ async function verifyDNSRecords(domain: string, verificationToken: string) {
 }
 
 async function checkCNAMERecord(domain: string): Promise<boolean> {
-  // In production, use a DNS library like 'dns' module or external service
-  // For demo purposes, we'll do a simple HTTP check
   try {
-    // Try to fetch the domain to see if it resolves to our servers
-    // This is a basic check - in production you'd use proper DNS lookup
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 5000)
+    console.log('Checking CNAME for domain:', domain)
     
-    const response = await fetch(`https://${domain}`, { 
-      method: 'HEAD',
-      signal: controller.signal,
-      redirect: 'manual'
-    })
-    
-    clearTimeout(timeoutId)
-    // If we get any response, consider it as configured
-    return true
+    // Use Node.js DNS module to actually check CNAME records
+    try {
+      const records = await dns.resolveCname(domain)
+      console.log('CNAME records found:', records)
+      
+      // Check if any CNAME record points to our Vercel domain
+      const targetDomain = 'ascension-ai-sm36.vercel.app'
+      const isValid = records.some(record => 
+        record.includes(targetDomain) || 
+        record.includes('vercel.app')
+      )
+      
+      console.log('CNAME check - Valid:', isValid)
+      return isValid
+    } catch (dnsError) {
+      // If CNAME lookup fails, try A record resolution as fallback
+      console.log('CNAME not found, trying A record resolution')
+      
+      try {
+        const addresses = await dns.resolve4(domain)
+        console.log('A records found:', addresses)
+        // If domain resolves to any IP, we'll consider it potentially valid
+        return addresses.length > 0
+      } catch (aError) {
+        console.log('A record resolution also failed:', (aError as Error).message)
+        return false
+      }
+    }
   } catch (error) {
-    // For demo, we'll be more lenient and assume CNAME is configured if domain format is valid
-    const domainRegex = /^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$/
-    return domainRegex.test(domain)
+    console.log('CNAME check failed:', (error as Error).message || 'Unknown error')
+    return false
   }
 }
 
 async function checkTXTRecord(domain: string, token: string): Promise<boolean> {
-  // In production, use DNS TXT record lookup
-  // For now, we'll simulate a more realistic verification process
-  
-  // Check if domain and token are valid
-  if (!domain || !token) return false
-  
-  // For demo purposes, we'll check if the token follows expected format
-  const isValidToken = token.startsWith('ascension-verify-') && token.length > 20
-  
-  if (!isValidToken) return false
-  
-  // Simulate DNS propagation check - more realistic than pure random
-  // In real implementation, this would be an actual DNS TXT record lookup
   try {
-    // Simulate that newer tokens (created more recently) are more likely to be found
-    // as DNS propagation takes time
-    const tokenParts = token.split('-')
-    const timestamp = tokenParts[tokenParts.length - 1]
+    console.log('Checking TXT record for domain:', domain, 'looking for token:', token)
     
-    // Convert base36 timestamp back to number
-    const createdTime = parseInt(timestamp, 36)
-    const currentTime = Date.now()
-    const timeSinceCreation = currentTime - createdTime
+    // Determine the domain to check TXT records on
+    // For subdomains, we need to check TXT records at the root domain
+    const domainParts = domain.split('.')
+    const rootDomain = domainParts.length > 2 
+      ? domainParts.slice(-2).join('.') // Get root domain for subdomains
+      : domain
     
-    // Simulate progressive success rate based on time since creation
-    // 0-5 min: 20% chance (DNS not yet propagated)
-    // 5-30 min: 70% chance (partial propagation)
-    // 30+ min: 95% chance (full propagation)
-    let successRate = 0.2
-    if (timeSinceCreation > 5 * 60 * 1000) successRate = 0.7  // 5 minutes
-    if (timeSinceCreation > 30 * 60 * 1000) successRate = 0.95 // 30 minutes
+    console.log('Checking TXT records on root domain:', rootDomain)
     
-    return Math.random() < successRate
+    // Use Node.js DNS module to check TXT records
+    try {
+      const txtRecords = await dns.resolveTxt(rootDomain)
+      console.log('TXT records found:', txtRecords)
+      
+      // Flatten the TXT records array and check for our verification token
+      const allTxtValues = txtRecords.flat()
+      const hasVerificationRecord = allTxtValues.some(record => {
+        // Check for records that start with our verification prefix
+        return record.includes('_ascension-verify') || record.includes(token)
+      })
+      
+      console.log('TXT verification result:', hasVerificationRecord)
+      return hasVerificationRecord
+    } catch (txtError) {
+      console.log('TXT record lookup failed:', (txtError as Error).message)
+      return false
+    }
   } catch (error) {
+    console.log('TXT check failed:', (error as Error).message || 'Unknown error')
     return false
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { domainId, userId } = await request.json()
+    const body = await request.json()
+    console.log('POST /api/domains/verify - Request body:', body)
+    
+    const { domainId, userId } = body
 
     if (!domainId || !userId) {
+      console.log('POST /api/domains/verify - Error: Missing required params:', { domainId, userId })
       return NextResponse.json({ 
         error: 'Domain ID and User ID are required' 
       }, { status: 400 })
     }
+
+    console.log('POST /api/domains/verify - Looking up domain:', domainId, 'for user:', userId)
 
     // Get domain from database
     const { data: domain, error: fetchError } = await supabaseAdmin
@@ -119,13 +136,18 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (fetchError || !domain) {
+      console.log('POST /api/domains/verify - Domain not found error:', fetchError)
       return NextResponse.json({ 
         error: 'Domain not found' 
       }, { status: 404 })
     }
 
+    console.log('POST /api/domains/verify - Found domain:', domain.domain, 'with token:', domain.verification_token)
+
     // Verify DNS records
     const verification = await verifyDNSRecords(domain.domain, domain.verification_token)
+    
+    console.log('POST /api/domains/verify - Verification result:', verification)
 
     if (verification.success) {
       // Update domain as verified

@@ -260,84 +260,104 @@ export async function POST(request: NextRequest) {
 // PUT - Verify domain
 export async function PUT(request: NextRequest) {
   try {
+    const body = await request.json()
+    console.log('PUT /api/domains - Request body:', body)
+    
     const { 
       userId = '00000000-0000-0000-0000-000000000000',
       domainId,
       action
-    } = await request.json()
+    } = body
+
+    console.log('PUT /api/domains - Parsed params:', { userId, domainId, action })
 
     if (!domainId) {
+      console.log('PUT /api/domains - Error: Domain ID is missing')
       return NextResponse.json({ 
         error: 'Domain ID is required' 
       }, { status: 400 })
     }
 
-    if (action === 'verify') {
-      // Get domain details
-      const { data: domain, error: domainError } = await supabaseAdmin
-        .from('custom_domains')
-        .select('*')
-        .eq('id', domainId)
-        .eq('user_id', userId)
-        .single()
-
-      if (domainError || !domain) {
-        return NextResponse.json({ error: 'Domain not found' }, { status: 404 })
-      }
-
-      // Use the dedicated verification service
-      try {
-        const verifyResponse = await fetch(`${request.nextUrl.origin}/api/domains/verify`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            domainId,
-            userId
-          })
-        })
-
-        const verifyData = await verifyResponse.json()
-
-        if (verifyResponse.ok && verifyData.success) {
-          // Transform for frontend compatibility
-          const transformedDomain = {
-            ...domain,
-            verified: true,
-            ssl_status: 'active',
-            userId: domain.user_id,
-            funnelId: domain.funnel_id,
-            verificationToken: domain.verification_token,
-            dnsRecords: domain.dns_records,
-            sslStatus: 'active',
-            createdAt: domain.created_at,
-            updatedAt: domain.updated_at,
-            lastVerifiedAt: new Date().toISOString()
-          }
-
-          return NextResponse.json({ 
-            domain: transformedDomain,
-            message: verifyData.message,
-            verification: verifyData.verification
-          })
-        } else {
-          return NextResponse.json({ 
-            error: verifyData.message || 'Domain verification failed. Please check your DNS records.',
-            details: verifyData.verification?.details || 'Make sure both CNAME and TXT records are properly configured and have propagated.',
-            verification: verifyData.verification
-          }, { status: 400 })
-        }
-      } catch (verifyError) {
-        console.error('Error calling verification service:', verifyError)
-        return NextResponse.json({ 
-          error: 'Domain verification failed. Please check your DNS records.',
-          details: 'Unable to verify DNS configuration. Please try again later.'
-        }, { status: 500 })
-      }
+    if (!action) {
+      console.log('PUT /api/domains - Error: Action is missing')
+      return NextResponse.json({ 
+        error: 'Action is required' 
+      }, { status: 400 })
     }
 
-    return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
+    if (action !== 'verify') {
+      console.log('PUT /api/domains - Error: Invalid action:', action)
+      return NextResponse.json({ 
+        error: 'Invalid action. Expected "verify"' 
+      }, { status: 400 })
+    }
+
+    console.log('PUT /api/domains - Starting verification for domain:', domainId)
+
+    // Get domain details
+    const { data: domain, error: domainError } = await supabaseAdmin
+      .from('custom_domains')
+      .select('*')
+      .eq('id', domainId)
+      .eq('user_id', userId)
+      .single()
+
+    if (domainError || !domain) {
+      console.log('PUT /api/domains - Error: Domain not found or error fetching domain:', domainError || 'Domain not found')
+      return NextResponse.json({ error: 'Domain not found' }, { status: 404 })
+    }
+
+    // Use the dedicated verification service
+    try {
+      const verifyResponse = await fetch(`${request.nextUrl.origin}/api/domains/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          domainId,
+          userId
+        })
+      })
+
+      const verifyData = await verifyResponse.json()
+
+      if (verifyResponse.ok && verifyData.success) {
+        // Transform for frontend compatibility
+        const transformedDomain = {
+          ...domain,
+          verified: true,
+          ssl_status: 'active',
+          userId: domain.user_id,
+          funnelId: domain.funnel_id,
+          verificationToken: domain.verification_token,
+          dnsRecords: domain.dns_records,
+          sslStatus: 'active',
+          createdAt: domain.created_at,
+          updatedAt: domain.updated_at,
+          lastVerifiedAt: new Date().toISOString()
+        }
+
+        return NextResponse.json({ 
+          domain: transformedDomain,
+          message: verifyData.message,
+          verification: verifyData.verification
+        })
+      } else {
+        console.log('PUT /api/domains - Error calling verification service:', verifyData.message || 'Domain verification failed. Please check your DNS records.', verifyData.verification?.details || 'Make sure both CNAME and TXT records are properly configured and have propagated.')
+        return NextResponse.json({ 
+          error: verifyData.message || 'Domain verification failed. Please check your DNS records.',
+          details: verifyData.verification?.details || 'Make sure both CNAME and TXT records are properly configured and have propagated.',
+          verification: verifyData.verification
+        }, { status: 400 })
+      }
+    } catch (verifyError) {
+      console.error('PUT /api/domains - Error calling verification service:', verifyError)
+      return NextResponse.json({ 
+        error: 'Domain verification failed. Please check your DNS records.',
+        details: 'Unable to verify DNS configuration. Please try again later.'
+      }, { status: 500 })
+    }
   } catch (error) {
-    console.error('Error verifying domain:', error)
+    console.error('PUT /api/domains - Error verifying domain:', error)
     return NextResponse.json({ error: 'Failed to verify domain' }, { status: 500 })
   }
 }
