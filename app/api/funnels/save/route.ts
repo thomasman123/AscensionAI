@@ -106,8 +106,11 @@ export async function POST(request: NextRequest) {
       logo_url: customization?.logoUrl || null,
       font_family: customization?.font || 'inter',
       theme_style: customization?.theme || 'clean',
+      theme_mode: customization?.themeMode || 'light',
       
       // Tracking fields
+      facebook_pixel_id: customization?.pixelIds?.facebook || null,
+      google_analytics_id: customization?.pixelIds?.google || null,
       facebook_pixel_code: customization?.pixelCodes?.facebook || null,
       google_analytics_code: customization?.pixelCodes?.google || null,
       custom_tracking_code: customization?.pixelCodes?.custom || null
@@ -307,6 +310,11 @@ export async function GET(request: NextRequest) {
             domain: funnel.domain,
             font: funnel.font_family,
             theme: funnel.theme_style,
+            themeMode: funnel.theme_mode,
+            pixelIds: {
+              facebook: funnel.facebook_pixel_id || '',
+              google: funnel.google_analytics_id || ''
+            },
             pixelCodes: {
               facebook: funnel.facebook_pixel_code || '',
               google: funnel.google_analytics_code || '',
@@ -464,6 +472,9 @@ export async function PUT(request: NextRequest) {
         if (customization.colors?.text) updates.text_color = customization.colors.text
         if (customization.font) updates.font_family = customization.font
         if (customization.theme) updates.theme_style = customization.theme
+        if (customization.themeMode) updates.theme_mode = customization.themeMode
+        if (customization.pixelIds?.facebook) updates.facebook_pixel_id = customization.pixelIds.facebook
+        if (customization.pixelIds?.google) updates.google_analytics_id = customization.pixelIds.google
         if (customization.pixelCodes?.facebook) updates.facebook_pixel_code = customization.pixelCodes.facebook
         if (customization.pixelCodes?.google) updates.google_analytics_code = customization.pixelCodes.google
         if (customization.pixelCodes?.custom) updates.custom_tracking_code = customization.pixelCodes.custom
