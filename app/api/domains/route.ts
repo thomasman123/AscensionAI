@@ -148,15 +148,20 @@ export async function POST(request: NextRequest) {
     
     let cnameRecordName: string
     let cnameDescription: string
+    let txtRecordName: string
     
     if (isSubdomain) {
-      // For subdomains like "lol.heliosscale.com", CNAME name should be "lol"
+      // For subdomains like "yes.heliosscale.com", CNAME name should be "yes"
       cnameRecordName = domainParts[0]
       cnameDescription = `Points your subdomain (${domain}) to our servers`
+      // TXT record should be "_ascension-verify-yes" so it's queryable at the subdomain
+      txtRecordName = `_ascension-verify-${domainParts[0]}`
     } else {
       // For root domains like "heliosscale.com", CNAME name should be "@"
       cnameRecordName = '@'
       cnameDescription = `Points your domain (${domain}) to our servers`
+      // TXT record should be "_ascension-verify" for root domain
+      txtRecordName = '_ascension-verify'
     }
     
     const dnsRecords = {
@@ -167,7 +172,7 @@ export async function POST(request: NextRequest) {
         ttl: 3600
       },
       txt: {
-        name: '_ascension-verify',
+        name: txtRecordName,
         value: verificationToken,
         type: 'TXT',
         ttl: 3600
@@ -231,7 +236,7 @@ export async function POST(request: NextRequest) {
           },
           {
             type: 'TXT',
-            name: '_ascension-verify',
+            name: txtRecordName,
             value: verificationToken,
             description: 'Verifies domain ownership',
             ttl: 3600

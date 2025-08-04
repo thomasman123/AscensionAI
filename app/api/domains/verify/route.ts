@@ -124,72 +124,74 @@ async function checkTXTRecord(domain: string, token: string): Promise<boolean> {
   try {
     console.log('Checking TXT record for domain:', domain, 'looking for token:', token)
     
-    // Check TXT records on the actual domain being used
-    // For man.heliosscale.com → check man.heliosscale.com
-    // For heliosscale.com → check heliosscale.com
-    const domainToCheck = domain
+    // Determine the correct TXT record location based on domain type
+    const domainParts = domain.split('.')
+    const isSubdomain = domainParts.length > 2
     
-    console.log('Checking TXT records on domain:', domainToCheck)
-    
-    // Use Node.js DNS module to check TXT records
-    try {
-      const txtRecords = await dns.resolveTxt(domainToCheck)
-      console.log('TXT records found:', txtRecords)
+    if (isSubdomain) {
+      // For subdomains like "yes.heliosscale.com"
+      // Check for TXT record at "_ascension-verify-yes.heliosscale.com"
+      const rootDomain = domainParts.slice(-2).join('.')
+      const subdomainName = domainParts[0]
+      const txtRecordDomain = `_ascension-verify-${subdomainName}.${rootDomain}`
       
-      // Flatten the TXT records array and check for our verification token
-      const allTxtValues = txtRecords.flat()
-      console.log('All TXT values:', allTxtValues)
+      console.log('Checking TXT record for subdomain at:', txtRecordDomain)
       
-      // Check for the exact token
-      let hasExactToken = false
-      let hasVerifyPrefix = false
-      
-      allTxtValues.forEach(record => {
-        console.log(`Checking TXT record: "${record}"`)
-        
-        // Check for exact token match
-        if (record.includes(token)) {
-          hasExactToken = true
-          console.log(`✅ Found exact token match in: "${record}"`)
-        }
-        
-        // Check for _ascension-verify prefix (in case record format is different)
-        if (record.includes('_ascension-verify') || record.includes('ascension-verify')) {
-          hasVerifyPrefix = true
-          console.log(`🔍 Found verification prefix in: "${record}"`)
-        }
-      })
-      
-      console.log('TXT verification results:', {
-        hasExactToken,
-        hasVerifyPrefix,
-        totalRecords: allTxtValues.length,
-        expectedToken: token,
-        checkedDomain: domainToCheck
-      })
-      
-      return hasExactToken
-    } catch (txtError) {
-      console.log('TXT record lookup failed:', (txtError as Error).message)
-      
-      // Try alternative lookup methods
-      console.log('Trying alternative TXT lookup methods...')
-      
-      // Try looking for the _ascension-verify subdomain specifically
       try {
-        const verifySubdomain = `_ascension-verify.${domainToCheck}`
-        console.log('Checking _ascension-verify subdomain:', verifySubdomain)
-        const verifyRecords = await dns.resolveTxt(verifySubdomain)
-        console.log('_ascension-verify subdomain records:', verifyRecords)
+        const txtRecords = await dns.resolveTxt(txtRecordDomain)
+        console.log('Subdomain TXT records found:', txtRecords)
         
-        const verifyValues = verifyRecords.flat()
-        return verifyValues.some(record => record.includes(token))
-      } catch (verifyError) {
-        console.log('_ascension-verify subdomain lookup failed:', (verifyError as Error).message)
+        const allTxtValues = txtRecords.flat()
+        const hasExactToken = allTxtValues.some(record => record.includes(token))
+        
+        if (hasExactToken) {
+          console.log('✅ Found verification token in subdomain TXT record')
+          return true
+        }
+      } catch (subdomainError) {
+        console.log('Subdomain TXT lookup failed:', (subdomainError as Error).message)
       }
       
-      return false
+      // Fallback: try root domain approach
+      console.log('Trying fallback: checking TXT records on root domain:', rootDomain)
+      try {
+        const rootTxtRecords = await dns.resolveTxt(rootDomain)
+        console.log('Root domain TXT records found:', rootTxtRecords)
+        
+        const rootTxtValues = rootTxtRecords.flat()
+        const hasTokenInRoot = rootTxtValues.some(record => record.includes(token))
+        
+        if (hasTokenInRoot) {
+          console.log('✅ Found verification token in root domain as fallback')
+          return true
+        }
+      } catch (rootError) {
+        console.log('Root domain TXT lookup also failed:', (rootError as Error).message)
+      }
+    } else {
+      // For root domains like "heliosscale.com"
+      // Check for TXT record at "_ascension-verify.heliosscale.com" 
+      const txtRecordDomain = `_ascension-verify.${domain}`
+      
+      console.log('Checking TXT record for root domain at:', txtRecordDomain)
+      
+      try {
+        const txtRecords = await dns.resolveTxt(txtRecordDomain)
+        console.log('Root domain TXT records found:', txtRecords)
+        
+        const allTxtValues = txtRecords.flat()
+        const hasExactToken = allTxtValues.some(record => record.includes(token))
+        
+        if (hasExactToken) {
+          console.log('✅ Found verification token in root domain TXT record')
+          return true
+        }
+      } catch (rootError) {
+        console.log('Root domain TXT lookup failed:', (rootError as Error).message)
+      }
     }
+    
+    return false
   } catch (error) {
     console.log('TXT check failed:', (error as Error).message || 'Unknown error')
     return false
