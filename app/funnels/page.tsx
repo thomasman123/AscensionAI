@@ -53,10 +53,13 @@ export default function FunnelsPage() {
 
   const loadFunnels = async () => {
     try {
-      const response = await fetch('/api/funnels/save?userId=00000000-0000-0000-0000-000000000000')
+      const userId = user?.id || '00000000-0000-0000-0000-000000000000'
+      const response = await fetch(`/api/funnels/save?userId=${userId}`)
       if (response.ok) {
         const data = await response.json()
         setFunnels(data.funnels || [])
+      } else {
+        console.error('Failed to load funnels:', response.status, response.statusText)
       }
     } catch (error) {
       console.error('Error loading funnels:', error)
@@ -89,12 +92,12 @@ export default function FunnelsPage() {
           </div>
         </div>
 
-        {/* Domain Setup Guide Modal */}
+        {/* Domain Setup Guide Modal - Available during loading */}
         {showDomainGuide.show && (
           <DomainSetupGuide
             funnelId={showDomainGuide.funnelId}
             funnelName={showDomainGuide.funnelName}
-            userId="00000000-0000-0000-0000-000000000000"
+            userId={user?.id || '00000000-0000-0000-0000-000000000000'}
             onClose={closeDomainGuide}
             onDomainConnected={(domain) => handleDomainConnected(showDomainGuide.funnelId, domain)}
             existingDomain={showDomainGuide.existingDomain}
@@ -326,6 +329,18 @@ export default function FunnelsPage() {
           </div>
         </div>
       </div>
+
+      {/* Domain Setup Guide Modal - Available when funnels are loaded */}
+      {showDomainGuide.show && (
+        <DomainSetupGuide
+          funnelId={showDomainGuide.funnelId}
+          funnelName={showDomainGuide.funnelName}
+          userId={user?.id || '00000000-0000-0000-0000-000000000000'}
+          onClose={closeDomainGuide}
+          onDomainConnected={(domain) => handleDomainConnected(showDomainGuide.funnelId, domain)}
+          existingDomain={showDomainGuide.existingDomain}
+        />
+      )}
     </DashboardNav>
   )
 } 
