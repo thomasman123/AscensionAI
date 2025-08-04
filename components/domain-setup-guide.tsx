@@ -424,16 +424,21 @@ export function DomainSetupGuide({
                     </div>
                     <div></div>
                   </div>
-                  {/* Simplified instructions for both subdomains and root domains */}
-                  <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded">
-                    <p className="text-blue-400 text-sm">
+                  {/* Updated instructions for subdomain TXT records */}
+                  <div className="mt-3 p-3 bg-orange-500/10 border border-orange-500/20 rounded">
+                    <p className="text-orange-400 text-sm">
                       📝 <strong>Instructions:</strong> 
                       {domainData.domain.split('.').length > 2 ? (
                         <>
-                          Add this TXT record in your DNS panel for the root domain ({domainData.domain.split('.').slice(-2).join('.')}).
-                          <span className="block mt-1">
-                            💡 The name "{domainData.dnsRecords?.txt?.name}" will create a TXT record specifically for your subdomain {domainData.domain}.
-                          </span>
+                          <strong>Important:</strong> Add this TXT record in your DNS panel. Try one of these approaches:
+                          <div className="mt-2 text-xs text-orange-300 space-y-1">
+                            <p><strong>Option 1:</strong> Name: "{domainData.dnsRecords?.txt?.name}" (in your {domainData.domain.split('.').slice(-2).join('.')} DNS panel)</p>
+                            <p><strong>Option 2:</strong> Name: "{domainData.domain}" (full subdomain name)</p>
+                            <p><strong>Option 3:</strong> Add it directly to subdomain if your DNS provider supports subdomain zones</p>
+                          </div>
+                          <div className="mt-2 text-orange-200 text-xs">
+                            💡 Different DNS providers handle subdomain TXT records differently. Try Option 1 first, then Option 2 if it doesn't work.
+                          </div>
                         </>
                       ) : (
                         <>Add this TXT record to your domain ({domainData.domain}) in your DNS provider.</>
@@ -448,17 +453,42 @@ export function DomainSetupGuide({
                   <Clock className="w-4 h-4 inline mr-1" />
                   DNS changes can take up to 24 hours to propagate. Most changes take effect within a few minutes.
                 </p>
-                <div className="mt-3">
+                <div className="mt-3 space-y-2">
                   <a 
-                    href={`https://dnschecker.org/all-dns-records-of-domain.php?query=${domainData.domain}&rtype=TXT&dns=google`}
+                    href={`https://dnschecker.org/#TXT/${domainData.domain}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-400 hover:text-blue-300 text-sm underline"
+                    className="text-blue-400 hover:text-blue-300 text-sm underline block"
                   >
-                    🔍 Check DNS propagation status for {domainData.domain}
+                    🔍 Check TXT records for {domainData.domain}
+                  </a>
+                  <a 
+                    href={`https://dnschecker.org/#TXT/${domainData.domain.split('.').slice(-2).join('.')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 hover:text-blue-300 text-sm underline block"
+                  >
+                    🔍 Check TXT records for root domain {domainData.domain.split('.').slice(-2).join('.')}
                   </a>
                 </div>
               </div>
+
+              {/* Troubleshooting section for subdomains */}
+              {domainData.domain && domainData.domain.split('.').length > 2 && (
+                <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                  <h4 className="text-red-400 font-medium mb-2">🚨 Subdomain TXT Record Troubleshooting:</h4>
+                  <div className="text-red-300 text-sm space-y-2">
+                    <p><strong>If verification fails:</strong></p>
+                    <ul className="text-xs space-y-1 ml-4">
+                      <li>• Make sure your CNAME record is working first (it should be ✅)</li>
+                      <li>• Try adding the TXT record with name: "{domainData.domain}" (full subdomain)</li>
+                      <li>• Some DNS providers need the full subdomain name, not just "{domainData.dnsRecords?.txt?.name}"</li>
+                      <li>• Check both links above to see where your TXT record actually appears</li>
+                      <li>• Your other TXT records won't interfere - this is specific to your subdomain</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

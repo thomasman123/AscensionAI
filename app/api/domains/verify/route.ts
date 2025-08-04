@@ -130,22 +130,60 @@ async function checkTXTRecord(domain: string, token: string): Promise<boolean> {
     
     if (isSubdomain) {
       // For subdomains like "yes.heliosscale.com"
-      // Simple approach: just check the subdomain itself for TXT records
-      console.log('Checking TXT record directly on subdomain:', domain)
+      // Try multiple approaches since DNS providers handle subdomain TXT records differently
+      const rootDomain = domainParts.slice(-2).join('.')
+      const subdomainName = domainParts[0]
       
+      console.log('Checking TXT record for subdomain:', domain)
+      console.log('Root domain:', rootDomain, 'Subdomain name:', subdomainName)
+      
+      // Approach 1: Check directly on the subdomain
       try {
         const txtRecords = await dns.resolveTxt(domain)
-        console.log('Subdomain TXT records found:', txtRecords)
+        console.log('Direct subdomain TXT records found:', txtRecords)
         
         const allTxtValues = txtRecords.flat()
         const hasExactToken = allTxtValues.some(record => record.includes(token))
         
         if (hasExactToken) {
-          console.log('✅ Found verification token in subdomain TXT record')
+          console.log('✅ Found verification token in direct subdomain TXT record')
           return true
         }
       } catch (subdomainError) {
-        console.log('Subdomain TXT lookup failed:', (subdomainError as Error).message)
+        console.log('Direct subdomain TXT lookup failed:', (subdomainError as Error).message)
+      }
+      
+      // Approach 2: Check root domain for subdomain-specific records
+      try {
+        const rootTxtRecords = await dns.resolveTxt(rootDomain)
+        console.log('Root domain TXT records found:', rootTxtRecords)
+        
+        const rootTxtValues = rootTxtRecords.flat()
+        const hasTokenInRoot = rootTxtValues.some(record => record.includes(token))
+        
+        if (hasTokenInRoot) {
+          console.log('✅ Found verification token in root domain TXT records')
+          return true
+        }
+      } catch (rootError) {
+        console.log('Root domain TXT lookup failed:', (rootError as Error).message)
+      }
+      
+      // Approach 3: Check for _subdomain.rootdomain pattern
+      try {
+        const specialTxtDomain = `${subdomainName}.${rootDomain}`
+        const specialTxtRecords = await dns.resolveTxt(specialTxtDomain)
+        console.log('Special subdomain TXT records found at', specialTxtDomain, ':', specialTxtRecords)
+        
+        const specialTxtValues = specialTxtRecords.flat()
+        const hasTokenInSpecial = specialTxtValues.some(record => record.includes(token))
+        
+        if (hasTokenInSpecial) {
+          console.log('✅ Found verification token in special subdomain TXT record')
+          return true
+        }
+      } catch (specialError) {
+        console.log('Special subdomain TXT lookup failed:', (specialError as Error).message)
       }
     } else {
       // For root domains like "heliosscale.com"
