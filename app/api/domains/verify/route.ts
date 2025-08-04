@@ -141,21 +141,67 @@ async function checkTXTRecord(domain: string, token: string): Promise<boolean> {
       
       // Approach 1: Check the verification subdomain (primary method)
       try {
+        console.log('🔍 Looking up TXT records at:', verificationDomain)
+        console.log('🎯 Looking for token:', token)
+        
         const txtRecords = await dns.resolveTxt(verificationDomain)
-        console.log('Verification subdomain TXT records found:', txtRecords)
+        console.log('✅ Verification subdomain TXT records found:', txtRecords)
         
         const allTxtValues = txtRecords.flat()
-        const hasExactToken = allTxtValues.some(record => record.includes(token))
+        console.log('📝 All TXT values:', allTxtValues)
+        
+        const hasExactToken = allTxtValues.some(record => {
+          const hasToken = record.includes(token)
+          console.log(`🔍 Checking record "${record}" for token "${token}": ${hasToken}`)
+          return hasToken
+        })
         
         if (hasExactToken) {
           console.log('✅ Found verification token in verification subdomain TXT record')
           return true
+        } else {
+          console.log('❌ Token not found in any TXT records')
         }
       } catch (verificationError) {
-        console.log('Verification subdomain TXT lookup failed:', (verificationError as Error).message)
+        console.log('❌ Verification subdomain TXT lookup failed:', (verificationError as Error).message)
+        console.log('🔍 DNS Error details:', verificationError)
       }
       
-      // Approach 2: Check root domain as fallback
+      // Approach 2: External DNS verification (bypass local cache)
+      try {
+        console.log('🌐 Trying external DNS verification via Google DNS...')
+        const response = await fetch(`https://dns.google/resolve?name=${verificationDomain}&type=TXT`, {
+          headers: { 'Accept': 'application/dns-json' }
+        })
+        
+        if (response.ok) {
+          const dnsData = await response.json()
+          console.log('🌐 Google DNS response:', dnsData)
+          
+          if (dnsData.Answer) {
+            const txtRecords = dnsData.Answer
+              .filter((record: any) => record.type === 16) // TXT records
+              .map((record: any) => record.data.replace(/"/g, '')) // Remove quotes
+            
+            console.log('🌐 External TXT records found:', txtRecords)
+            
+            const hasExternalToken = txtRecords.some((record: string) => {
+              const hasToken = record.includes(token)
+              console.log(`🌐 External check "${record}" for token "${token}": ${hasToken}`)
+              return hasToken
+            })
+            
+            if (hasExternalToken) {
+              console.log('✅ Found verification token via external DNS lookup!')
+              return true
+            }
+          }
+        }
+      } catch (externalError) {
+        console.log('🌐 External DNS lookup failed:', (externalError as Error).message)
+      }
+
+      // Approach 3: Check root domain as fallback
       try {
         const rootTxtRecords = await dns.resolveTxt(rootDomain)
         console.log('Root domain TXT records found:', rootTxtRecords)
