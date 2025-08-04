@@ -304,14 +304,22 @@ export function DomainSetupGuide({
                     </div>
                     <div>
                       <span className="text-tier-500">Name:</span>
-                      <p className="text-tier-100 font-mono">@</p>
+                      <p className="text-tier-100 font-mono">{domainData.dnsRecords?.cname?.name || '@'}</p>
                     </div>
                     <div>
                       <span className="text-tier-500">Value:</span>
                       <p className="text-tier-100 font-mono break-all">
-                        {domainData.dnsRecords?.cname?.value || 'N/A'}
+                        {domainData.dnsRecords?.cname?.value || 'ascension-ai-sm36.vercel.app'}
                       </p>
                     </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 text-sm mt-2">
+                    <div></div>
+                    <div>
+                      <span className="text-tier-500">TTL:</span>
+                      <p className="text-tier-100 font-mono">{domainData.dnsRecords?.cname?.ttl || '3600'}</p>
+                    </div>
+                    <div></div>
                   </div>
                 </div>
 
@@ -336,15 +344,23 @@ export function DomainSetupGuide({
                     <div>
                       <span className="text-tier-500">Name:</span>
                       <p className="text-tier-100 font-mono break-all">
-                        _ascension-verify
+                        {domainData.dnsRecords?.txt?.name || '_ascension-verify'}
                       </p>
                     </div>
                     <div>
                       <span className="text-tier-500">Value:</span>
                       <p className="text-tier-100 font-mono break-all">
-                        {domainData.verificationToken}
+                        {domainData.dnsRecords?.txt?.value || domainData.verificationToken || 'Loading...'}
                       </p>
                     </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 text-sm mt-2">
+                    <div></div>
+                    <div>
+                      <span className="text-tier-500">TTL:</span>
+                      <p className="text-tier-100 font-mono">{domainData.dnsRecords?.txt?.ttl || '3600'}</p>
+                    </div>
+                    <div></div>
                   </div>
                 </div>
               </div>

@@ -313,7 +313,7 @@ export function DomainManager({
                           <div className="text-sm text-tier-400 space-y-1">
                             <div><strong>Name:</strong> {domain.domain}</div>
                             <div><strong>Value:</strong> {domain.dnsRecords.cname.value}</div>
-                            <div><strong>TTL:</strong> 3600 (or Auto)</div>
+                            <div><strong>TTL:</strong> {domain.dnsRecords?.cname?.ttl || '3600'} (or Auto)</div>
                           </div>
                         </div>
 
@@ -331,9 +331,9 @@ export function DomainManager({
                             </Button>
                           </div>
                           <div className="text-sm text-tier-400 space-y-1">
-                            <div><strong>Name:</strong> _ascension-verify.{domain.domain}</div>
-                            <div><strong>Value:</strong> {domain.verificationToken}</div>
-                            <div><strong>TTL:</strong> 3600 (or Auto)</div>
+                            <div><strong>Name:</strong> {domain.dnsRecords?.txt?.name || '_ascension-verify'}</div>
+                            <div><strong>Value:</strong> {domain.dnsRecords?.txt?.value || domain.verificationToken}</div>
+                            <div><strong>TTL:</strong> {domain.dnsRecords?.txt?.ttl || '3600'} (or Auto)</div>
                           </div>
                         </div>
                       </div>

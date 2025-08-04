@@ -123,16 +123,23 @@ export async function POST(request: NextRequest) {
     const verificationToken = `ascension-verify-${Math.random().toString(36).substring(2)}${Date.now().toString(36)}`
 
     // Create DNS records instructions
+    // For production, this should point to your actual deployment URL
+    const productionDomain = process.env.NEXT_PUBLIC_VERCEL_DOMAIN || 
+                            process.env.VERCEL_URL || 
+                            'ascension-ai-sm36.vercel.app'
+    
     const dnsRecords = {
       cname: {
-        name: domain,
-        value: process.env.NEXT_PUBLIC_VERCEL_DOMAIN || 'your-app.vercel.app',
-        type: 'CNAME'
+        name: '@', // Root domain or subdomain name
+        value: productionDomain,
+        type: 'CNAME',
+        ttl: 3600
       },
       txt: {
-        name: `_ascension-verify.${domain}`,
+        name: '_ascension-verify',
         value: verificationToken,
-        type: 'TXT'
+        type: 'TXT',
+        ttl: 3600
       }
     }
 
@@ -169,20 +176,27 @@ export async function POST(request: NextRequest) {
       domain: newDomain,
       message: 'Domain added successfully! Please configure DNS records to verify.',
       dnsInstructions: {
-        message: 'Add these DNS records to your domain:',
+        message: 'Add these DNS records to your domain provider:',
         records: [
           {
             type: 'CNAME',
-            name: domain,
-            value: process.env.NEXT_PUBLIC_VERCEL_DOMAIN || 'your-app.vercel.app',
-            description: 'Points your domain to our servers'
+            name: '@',
+            value: productionDomain,
+            description: 'Points your domain to our servers',
+            ttl: 3600
           },
           {
             type: 'TXT',
-            name: `_ascension-verify.${domain}`,
+            name: '_ascension-verify',
             value: verificationToken,
-            description: 'Verifies domain ownership'
+            description: 'Verifies domain ownership',
+            ttl: 3600
           }
+        ],
+        notes: [
+          'If your provider does not support @ for the root domain, use your domain name instead',
+          'TTL can be set to Auto if your provider supports it',
+          'DNS changes may take up to 24 hours to propagate globally'
         ]
       }
     })
