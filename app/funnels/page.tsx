@@ -51,19 +51,76 @@ export default function FunnelsPage() {
     }
   }, [user, loading])
 
-  const loadFunnels = async () => {
+  const loadFunnels = async (retryCount = 0) => {
+    const maxRetries = 3
+    const timeout = 10000 // 10 seconds
+    
     try {
       const userId = user?.id || '00000000-0000-0000-0000-000000000000'
-      const response = await fetch(`/api/funnels/save?userId=${userId}`)
+      
+      // Create AbortController for timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), timeout)
+      
+      console.log(`Loading funnels for user ${userId} (attempt ${retryCount + 1}/${maxRetries + 1})`)
+      
+      const response = await fetch(`/api/funnels/save?userId=${userId}`, {
+        signal: controller.signal,
+        headers: {
+          'Cache-Control': 'no-cache',
+        }
+      })
+      
+      clearTimeout(timeoutId)
+      
       if (response.ok) {
         const data = await response.json()
         setFunnels(data.funnels || [])
+        console.log(`Successfully loaded ${data.funnels?.length || 0} funnels`)
       } else {
         console.error('Failed to load funnels:', response.status, response.statusText)
+        
+        // If it's a server error and we have retries left, try again
+        if (response.status >= 500 && retryCount < maxRetries) {
+          console.log(`Server error, retrying in ${(retryCount + 1) * 1000}ms...`)
+          setTimeout(() => loadFunnels(retryCount + 1), (retryCount + 1) * 1000)
+          return
+        }
+        
+        // Show user-friendly error for non-server errors
+        if (response.status === 404) {
+          setFunnels([]) // No funnels found, that's okay
+        }
       }
     } catch (error) {
       console.error('Error loading funnels:', error)
+      
+      // Handle different types of errors
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          console.error('Request timed out after', timeout, 'ms')
+        } else if (error.message.includes('NetworkError') || error.message.includes('fetch')) {
+          console.error('Network error detected')
+        }
+        
+        // Retry on network errors if we have retries left
+        if (retryCount < maxRetries && 
+            (error.name === 'AbortError' || 
+             error.message.includes('NetworkError') || 
+             error.message.includes('fetch'))) {
+          console.log(`Network error, retrying in ${(retryCount + 1) * 2000}ms...`)
+          setTimeout(() => loadFunnels(retryCount + 1), (retryCount + 1) * 2000)
+          return
+        }
+      }
+      
+      // If all retries failed, show empty state but don't crash
+      if (retryCount >= maxRetries) {
+        console.error('All retry attempts failed. Showing empty state.')
+        setFunnels([])
+      }
     }
+    
     setIsLoading(false)
   }
 

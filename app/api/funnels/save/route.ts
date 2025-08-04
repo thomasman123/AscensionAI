@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic'
+
 export interface SavedFunnel {
   id: string
   name: string
@@ -231,6 +234,8 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get('userId') || '00000000-0000-0000-0000-000000000000'
     const funnelId = searchParams.get('funnelId')
     
+    console.log(`Loading funnels for user: ${userId}${funnelId ? ` (specific funnel: ${funnelId})` : ''}`)
+    
     if (funnelId) {
       // Get specific funnel with case studies
       const { data: funnel, error } = await supabaseAdmin
@@ -243,7 +248,15 @@ export async function GET(request: NextRequest) {
         .eq('user_id', userId)
         .single()
       
-      if (error || !funnel) {
+      if (error) {
+        console.error('Supabase error for specific funnel:', error)
+        if (error.code === 'PGRST116') {
+          return NextResponse.json({ error: 'Funnel not found' }, { status: 404 })
+        }
+        return NextResponse.json({ error: 'Database error', details: error.message }, { status: 500 })
+      }
+      
+      if (!funnel) {
         return NextResponse.json({ error: 'Funnel not found' }, { status: 404 })
       }
       
@@ -287,8 +300,8 @@ export async function GET(request: NextRequest) {
       
       return NextResponse.json({ funnel: transformedFunnel })
     } else {
-      // Get all funnels for user
-      const { data: funnels, error } = await supabaseAdmin
+      // Get all funnels for user with timeout protection
+      const queryPromise = supabaseAdmin
         .from('saved_funnels')
         .select(`
           *,
@@ -301,11 +314,23 @@ export async function GET(request: NextRequest) {
         `)
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
+      
+      // Add timeout protection
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Database query timeout')), 15000)
+      )
+      
+      const { data: funnels, error } = await Promise.race([queryPromise, timeoutPromise]) as any
         
       if (error) {
-        console.error('Supabase error:', error)
-        return NextResponse.json({ error: 'Failed to retrieve funnels' }, { status: 500 })
+        console.error('Supabase error for all funnels:', error)
+        if (error.message === 'Database query timeout') {
+          return NextResponse.json({ error: 'Request timeout', details: 'Database query took too long' }, { status: 504 })
+        }
+        return NextResponse.json({ error: 'Database error', details: error.message }, { status: 500 })
       }
+      
+      console.log(`Found ${funnels?.length || 0} funnels for user ${userId}`)
       
       // Transform to interface format
       const transformedFunnels = funnels?.map((funnel: any) => ({
@@ -345,11 +370,28 @@ export async function GET(request: NextRequest) {
         }
       })) || []
       
-      return NextResponse.json({ funnels: transformedFunnels })
+      return NextResponse.json({ 
+        funnels: transformedFunnels,
+        count: transformedFunnels.length 
+      })
     }
   } catch (error) {
     console.error('Error retrieving funnels:', error)
-    return NextResponse.json({ error: 'Failed to retrieve funnels' }, { status: 500 })
+    
+    // Handle different types of errors
+    if (error instanceof Error) {
+      if (error.message === 'Database query timeout') {
+        return NextResponse.json({ error: 'Request timeout' }, { status: 504 })
+      }
+      if (error.message.includes('network') || error.message.includes('connection')) {
+        return NextResponse.json({ error: 'Database connection error' }, { status: 503 })
+      }
+    }
+    
+    return NextResponse.json({ 
+      error: 'Failed to retrieve funnels', 
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
   }
 }
 
