@@ -349,30 +349,23 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       ? 'w-[375px] mx-auto border-8 border-gray-800 rounded-[2.5rem] bg-gray-800 shadow-xl overflow-hidden'
       : 'w-full max-w-6xl mx-auto border border-gray-200 rounded-lg shadow-sm overflow-hidden'
 
-    // Apply theme-specific styling
+    // Apply theme-specific styling - match live funnel exactly
     const getThemeStyles = () => {
-      // Base styles with funnel theme consideration
       const isDarkTheme = customization.funnelTheme === 'dark'
       
-      const baseStyles = {
-        backgroundColor: isDarkTheme ? '#0F172A' : '#FFFFFF',
-        color: isDarkTheme ? '#F1F5F9' : '#1F2937',
-        fontFamily: customization.font === 'inter' ? 'Inter, sans-serif' : 
-                   customization.font === 'serif' ? 'Times New Roman, serif' :
-                   customization.font === 'mono' ? 'Courier New, monospace' : 'system-ui',
-        height: currentView === 'mobile' ? '812px' : 'auto'
+      return {
+        background: isDarkTheme ? '#0f172a' : '#ffffff',
+        textPrimary: isDarkTheme ? '#f8fafc' : '#1e293b',
+        textSecondary: isDarkTheme ? '#cbd5e1' : '#475569',
+        accent: customization.colors.primary || '#3b82f6',
+        ctaGradient: `linear-gradient(135deg, ${customization.colors.primary || '#3b82f6'}, ${customization.colors.secondary || '#1d4ed8'})`,
+        sectionBg: isDarkTheme ? 'rgba(30, 41, 59, 0.5)' : 'rgba(248, 250, 252, 0.5)',
+        cardBg: isDarkTheme ? 'rgba(51, 65, 85, 0.8)' : 'rgba(255, 255, 255, 0.9)',
+        borderColor: isDarkTheme ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.3)'
       }
-
-      // Override with custom colors if they differ from default theme colors
-      if (customization.colors.background !== (isDarkTheme ? '#0F172A' : '#FFFFFF')) {
-        baseStyles.backgroundColor = customization.colors.background
-      }
-      if (customization.colors.text !== (isDarkTheme ? '#F1F5F9' : '#1F2937')) {
-        baseStyles.color = customization.colors.text
-      }
-
-      return baseStyles
     }
+
+    const themeStyles = getThemeStyles()
 
     return (
       <div className={containerClass}>
@@ -382,188 +375,162 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           </div>
         )}
         <div 
-          className="min-h-screen overflow-auto"
-          style={getThemeStyles()}
+          className="min-h-screen transition-all duration-300"
+          style={{ 
+            backgroundColor: themeStyles.background
+          }}
         >
-          {/* Pixel Codes */}
-          {customization.pixelCodes.facebook && (
-            <div dangerouslySetInnerHTML={{ __html: customization.pixelCodes.facebook }} />
-          )}
-          {customization.pixelCodes.google && (
-            <div dangerouslySetInnerHTML={{ __html: customization.pixelCodes.google }} />
-          )}
-          {customization.pixelCodes.custom && (
-            <div dangerouslySetInnerHTML={{ __html: customization.pixelCodes.custom }} />
-          )}
-
-          {/* Header */}
-          <header 
-            className="py-4 px-6 border-b"
-            style={{ 
-              backgroundColor: customization.funnelTheme === 'dark' ? '#1E293B' : '#FFFFFF',
-              borderColor: customization.funnelTheme === 'dark' ? '#334155' : '#E5E7EB'
-            }}
-          >
-            <div className="flex items-center justify-between">
-              {customization.logoUrl ? (
-                <img 
-                  src={customization.logoUrl} 
-                  alt="Logo" 
-                  className="h-8 w-auto cursor-pointer"
-                  onClick={() => setActiveEdit('logo')}
-                />
-              ) : (
-                <div 
-                  className="h-8 w-24 rounded flex items-center justify-center cursor-pointer text-sm border-2 border-dashed transition-colors hover:bg-blue-50"
-                  style={{ 
-                    borderColor: (customization.colors.text || '#1F2937') + '30',
-                    color: (customization.colors.text || '#1F2937') + '60'
-                  }}
-                  onClick={() => setActiveEdit('logo')}
-                >
-                  + Logo
-                </div>
-              )}
-              <nav className="hidden md:flex space-x-6">
-                <a 
-                  href="#" 
-                  className="text-sm font-medium hover:opacity-80 transition-opacity"
-                  style={{ 
-                    color: customization.funnelTheme === 'dark' ? '#94A3B8' : '#6B7280'
-                  }}
-                >
-                  About
-                </a>
-                <a 
-                  href="#" 
-                  className="text-sm font-medium hover:opacity-80 transition-opacity"
-                  style={{ 
-                    color: customization.funnelTheme === 'dark' ? '#94A3B8' : '#6B7280'
-                  }}
-                >
-                  Contact
-                </a>
-              </nav>
-            </div>
+          {/* 1. Logo at top (centered) */}
+          <header className="py-6 px-6 text-center">
+            {customization.logoUrl ? (
+              <img 
+                src={customization.logoUrl} 
+                alt="Logo" 
+                className="h-12 max-w-xs object-contain mx-auto cursor-pointer"
+                onClick={() => setActiveEdit('logo')}
+              />
+            ) : (
+              <div 
+                className="text-xl font-bold mx-auto inline-block cursor-pointer"
+                style={{ color: themeStyles.textPrimary }}
+                onClick={() => setActiveEdit('logo')}
+              >
+                Your Logo
+              </div>
+            )}
           </header>
 
-          {/* Hero Section */}
-          <section 
-            className="py-20 px-6"
-            style={{ 
-              backgroundColor: customization.funnelTheme === 'dark' ? '#0F172A' : '#FFFFFF'
-            }}
-          >
-            <div className="max-w-4xl mx-auto text-center">
+          {/* Main Content Container */}
+          <div className="container mx-auto px-6 max-w-4xl">
+            
+            {/* 2. Headline (centered) */}
+            <section className="text-center py-8">
               <h1 
-                className="text-4xl md:text-6xl font-bold mb-6"
-                style={{ 
-                  color: customization.funnelTheme === 'dark' ? '#F1F5F9' : '#1F2937'
-                }}
+                className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 cursor-pointer"
+                style={{ color: themeStyles.textPrimary }}
+                onClick={() => setActiveEdit('headline')}
               >
-                {renderEditableText(editableFields.find(f => f.id === 'headline')!)}
+                {customization.headline || 'Your Compelling Headline Here'}
               </h1>
+            </section>
+
+            {/* 3. Sub heading (centered) */}
+            <section className="text-center py-4">
               <p 
-                className="text-xl md:text-2xl mb-8 opacity-80"
-                style={{ 
-                  color: customization.theme === 'clean' ? '#6B7280' : (customization.colors.text || '#1F2937')
-                }}
+                className="text-xl md:text-2xl font-medium max-w-3xl mx-auto cursor-pointer"
+                style={{ color: themeStyles.textSecondary }}
+                onClick={() => setActiveEdit('subheadline')}
               >
-                {renderEditableText(editableFields.find(f => f.id === 'subheadline')!)}
+                {customization.subheadline || 'Your powerful subheadline that explains the value'}
               </p>
-              <div 
-                className="mb-12 text-lg leading-relaxed"
-                style={{ 
-                  color: customization.theme === 'clean' ? '#374151' : (customization.colors.text || '#1F2937')
-                }}
-              >
-                {renderEditableText(editableFields.find(f => f.id === 'heroText')!)}
+            </section>
+
+            {/* 4. VSL (centered) */}
+            <section className="py-12 text-center">
+              <div className="max-w-4xl mx-auto">
+                <div className="relative aspect-video rounded-lg overflow-hidden shadow-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-8 h-8 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <p className="text-gray-500 dark:text-gray-400">VSL Video Player</p>
+                  </div>
+                </div>
               </div>
-              <button 
-                className={`px-8 py-4 rounded-lg text-white text-lg font-semibold hover:opacity-90 transition-all ${
-                  customization.theme === 'clean' ? 'shadow-md hover:shadow-lg' : 'shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
-                }`}
+            </section>
+
+            {/* 5. CTA Button (centered) */}
+            <section className="py-8 text-center">
+              <button
+                className="px-12 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 text-white cursor-pointer"
                 style={{ 
-                  backgroundColor: customization.theme === 'clean' ? '#3B82F6' : (customization.colors.primary || '#3B82F6'),
-                  color: '#FFFFFF'
+                  background: themeStyles.ctaGradient,
+                  border: 'none'
                 }}
+                onClick={() => setActiveEdit('ctaText')}
               >
-                {renderEditableText(editableFields.find(f => f.id === 'ctaText')!)}
+                {customization.ctaText || 'Get Started Now'}
               </button>
-            </div>
-          </section>
+            </section>
 
-          {/* Offer Section */}
-          <section 
-            className="py-16 px-6"
-            style={{ 
-              backgroundColor: customization.theme === 'clean' ? '#F9FAFB' : 
-                (customization.colors.background === '#FFFFFF' ? '#F9FAFB' : customization.colors.background + '80')
-            }}
-          >
-            <div className="max-w-4xl mx-auto">
-              <h2 
-                className="text-3xl font-bold mb-8 text-center"
-                style={{ 
-                  color: customization.theme === 'clean' ? '#1F2937' : (customization.colors.text || '#1F2937')
-                }}
-              >
-                What You'll Get
-              </h2>
-              <div 
-                className="prose prose-lg max-w-none"
-                style={{ 
-                  color: customization.theme === 'clean' ? '#374151' : (customization.colors.text || '#1F2937')
-                }}
-              >
-                {renderEditableText(editableFields.find(f => f.id === 'offerDescription')!)}
+            {/* 6. Case Studies */}
+            <section className="py-16">
+              <div className="text-center mb-12">
+                <h2 
+                  className="text-3xl md:text-4xl font-bold mb-4"
+                  style={{ color: themeStyles.textPrimary }}
+                >
+                  Success Stories
+                </h2>
+                <p 
+                  className="text-lg"
+                  style={{ color: themeStyles.textSecondary }}
+                >
+                  See what others have achieved
+                </p>
               </div>
-            </div>
-          </section>
-
-          {/* Guarantee Section */}
-          <section 
-            className="py-16 px-6"
-            style={{ 
-              backgroundColor: customization.theme === 'clean' ? '#EFF6FF' : 
-                (customization.colors.accent ? 
-                  `${customization.colors.accent}15` : 
-                  '#FEF3C7')
-            }}
-          >
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 
-                className="text-2xl font-bold mb-6"
-                style={{ 
-                  color: customization.theme === 'clean' ? '#1F2937' : (customization.colors.text || '#1F2937')
-                }}
-              >
-                Our Guarantee
-              </h2>
-              <div 
-                className="text-lg"
-                style={{ 
-                  color: customization.theme === 'clean' ? '#374151' : (customization.colors.text || '#1F2937')
-                }}
-              >
-                {renderEditableText(editableFields.find(f => f.id === 'guaranteeText')!)}
+              
+              {/* Case Studies Grid */}
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {/* Sample case study preview */}
+                <div 
+                  className="p-6 rounded-lg shadow-lg"
+                  style={{ backgroundColor: themeStyles.cardBg }}
+                >
+                  <div className="text-center">
+                    <h3 
+                      className="text-xl font-semibold mb-3"
+                      style={{ color: themeStyles.textPrimary }}
+                    >
+                      Case Study 1
+                    </h3>
+                    <p 
+                      className="mb-4"
+                      style={{ color: themeStyles.textSecondary }}
+                    >
+                      Customer success story description will appear here.
+                    </p>
+                    <div 
+                      className="text-lg font-bold"
+                      style={{ color: themeStyles.accent }}
+                    >
+                      Amazing Result
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          {/* Footer */}
+            {/* 7. CTA Button (centered) */}
+            <section className="py-8 text-center">
+              <button
+                className="px-12 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 text-white"
+                style={{ 
+                  background: themeStyles.ctaGradient,
+                  border: 'none'
+                }}
+              >
+                {customization.ctaText || 'Get Started Now'}
+              </button>
+            </section>
+          </div>
+
+          {/* 8. Footer */}
           <footer 
-            className="py-8 px-6 border-t"
+            className="py-8 px-6 text-center border-t"
             style={{ 
-              backgroundColor: customization.theme === 'clean' ? '#FFFFFF' : (customization.colors.background || '#FFFFFF'),
-              borderColor: customization.theme === 'clean' ? '#E5E7EB' : ((customization.colors.text || '#1F2937') + '20')
+              backgroundColor: themeStyles.sectionBg,
+              borderColor: themeStyles.borderColor
             }}
           >
-            <div className="max-w-4xl mx-auto text-center text-sm opacity-70">
-              <p style={{ 
-                color: customization.theme === 'clean' ? '#6B7280' : (customization.colors.text || '#1F2937')
-              }}>
-                &copy; 2024 {funnel?.name || 'Your Business'}. All rights reserved.
+            <div className="container mx-auto">
+              <p 
+                className="text-sm"
+                style={{ color: themeStyles.textSecondary }}
+              >
+                © 2024 {funnel?.name || 'Your Business'}. All rights reserved.
               </p>
             </div>
           </footer>
