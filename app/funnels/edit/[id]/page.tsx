@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { DashboardNav } from '@/components/dashboard-nav'
 import { useAuth } from '@/lib/auth-context'
+import { renderFunnelTemplate } from '@/lib/funnel-templates'
 import { 
   ArrowLeft, 
   Save, 
@@ -399,165 +400,22 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             )}
           </header>
 
-          {/* Main Content Container */}
-          <div className="container mx-auto px-6 max-w-4xl">
-            
-            {/* 2. Headline (centered) */}
-            <section className="text-center py-8">
-              <h1 
-                className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6"
-                style={{ color: themeStyles.textPrimary }}
-              >
-                {renderEditableText(editableFields.find(f => f.id === 'headline')!)}
-              </h1>
-            </section>
-
-            {/* 3. Sub heading (centered) */}
-            <section className="text-center py-4">
-              <p 
-                className="text-xl md:text-2xl font-medium max-w-3xl mx-auto"
-                style={{ color: themeStyles.textSecondary }}
-              >
-                {renderEditableText(editableFields.find(f => f.id === 'subheadline')!)}
-              </p>
-            </section>
-
-            {/* Hero Text (centered) */}
-            <section className="text-center py-4">
-              <div 
-                className="max-w-3xl mx-auto text-lg leading-relaxed"
-                style={{ color: themeStyles.textSecondary }}
-              >
-                {renderEditableText(editableFields.find(f => f.id === 'heroText')!)}
-              </div>
-            </section>
-
-            {/* 4. VSL (centered) */}
-            <section className="py-12 text-center">
-              <div className="max-w-4xl mx-auto">
-                <div className="relative aspect-video rounded-lg overflow-hidden shadow-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-8 h-8 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <p className="text-gray-500 dark:text-gray-400">VSL Video Player</p>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* 5. CTA Button (centered) */}
-            <section className="py-8 text-center">
-              <button
-                className="px-12 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 text-white"
-                style={{ 
-                  background: themeStyles.ctaGradient,
-                  border: 'none'
-                }}
-              >
-                {renderEditableText(editableFields.find(f => f.id === 'ctaText')!)}
-              </button>
-            </section>
-
-            {/* 6. Case Studies */}
-            <section className="py-16">
-              <div className="text-center mb-12">
-                <h2 
-                  className="text-3xl md:text-4xl font-bold mb-4"
-                  style={{ color: themeStyles.textPrimary }}
-                >
-                  Success Stories
-                </h2>
-                <p 
-                  className="text-lg"
-                  style={{ color: themeStyles.textSecondary }}
-                >
-                  See what others have achieved
-                </p>
-              </div>
-              
-              {/* Case Studies Grid */}
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {/* Sample case study preview */}
-                <div 
-                  className="p-6 rounded-lg shadow-lg"
-                  style={{ backgroundColor: themeStyles.cardBg }}
-                >
-                  <div className="text-center">
-                    <h3 
-                      className="text-xl font-semibold mb-3"
-                      style={{ color: themeStyles.textPrimary }}
-                    >
-                      Case Study 1
-                    </h3>
-                    <p 
-                      className="mb-4"
-                      style={{ color: themeStyles.textSecondary }}
-                    >
-                      Customer success story description will appear here.
-                    </p>
-                    <div 
-                      className="text-lg font-bold"
-                      style={{ color: themeStyles.accent }}
-                    >
-                      Amazing Result
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Offer Description */}
-            <section className="py-12 text-center">
-              <div className="max-w-4xl mx-auto">
-                <h2 
-                  className="text-3xl md:text-4xl font-bold mb-8"
-                  style={{ color: themeStyles.textPrimary }}
-                >
-                  What You'll Get
-                </h2>
-                <div 
-                  className="text-lg leading-relaxed"
-                  style={{ color: themeStyles.textSecondary }}
-                >
-                  {renderEditableText(editableFields.find(f => f.id === 'offerDescription')!)}
-                </div>
-              </div>
-            </section>
-
-            {/* Guarantee */}
-            <section className="py-12 text-center">
-              <div className="max-w-4xl mx-auto">
-                <h2 
-                  className="text-2xl md:text-3xl font-bold mb-6"
-                  style={{ color: themeStyles.textPrimary }}
-                >
-                  Our Guarantee
-                </h2>
-                <div 
-                  className="text-lg leading-relaxed"
-                  style={{ color: themeStyles.textSecondary }}
-                >
-                  {renderEditableText(editableFields.find(f => f.id === 'guaranteeText')!)}
-                </div>
-              </div>
-            </section>
-
-            {/* 7. CTA Button (centered) */}
-            <section className="py-8 text-center">
-              <button
-                className="px-12 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 text-white"
-                style={{ 
-                  background: themeStyles.ctaGradient,
-                  border: 'none'
-                }}
-              >
-                {renderEditableText(editableFields.find(f => f.id === 'ctaText')!)}
-              </button>
-            </section>
-          </div>
+                    {/* Render Template Content */}
+                     {renderFunnelTemplate(funnel?.template_id || 'trigger-template-1', {
+             funnelData: {
+               headline: customization.headline,
+               subheadline: customization.subheadline,
+               cta_text: customization.ctaText,
+               vsl_url: null, // No VSL in editor preview
+               vsl_title: null,
+               template_id: funnel?.template_id || 'trigger-template-1'
+             },
+             themeStyles,
+             isEditor: true,
+             renderEditableText,
+             editableFields,
+             caseStudies: [] // TODO: Load case studies for preview
+           })}
 
           {/* 8. Footer */}
           <footer 

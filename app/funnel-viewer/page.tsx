@@ -399,8 +399,14 @@ function FunnelViewerContent() {
             )}
           </header>
 
-          {/* Main Content Container */}
-          <div className="container mx-auto px-6 max-w-4xl">
+          {/* Render Template Content */}
+          {renderFunnelTemplate(funnelData.template_id || 'trigger-template-1', {
+            funnelData,
+            themeStyles,
+            isEditor: false,
+            caseStudies,
+            goToNextPage
+          })}
             
             {/* 2. Headline (centered) */}
             <section className="text-center py-8">
