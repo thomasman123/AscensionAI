@@ -61,13 +61,22 @@ export function MediaUpload({
 
     setIsLoading(true)
     try {
-      // Create object URL for preview
-      const url = URL.createObjectURL(file)
-      onChange(url, file)
+      // Convert to base64 data URL for persistence
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string
+        onChange(dataUrl, file)
+        setIsLoading(false)
+      }
+      reader.onerror = (e) => {
+        setError('Failed to process file')
+        console.error('File processing error:', e)
+        setIsLoading(false)
+      }
+      reader.readAsDataURL(file)
     } catch (err) {
       setError('Failed to process file')
       console.error('File processing error:', err)
-    } finally {
       setIsLoading(false)
     }
 

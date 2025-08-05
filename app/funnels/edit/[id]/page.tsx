@@ -317,11 +317,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   }
 
   const handleLogoUpload = (url: string, file?: File) => {
-    // Clear any existing blob URLs to prevent security errors
-    if (customization.logoUrl?.startsWith('blob:')) {
-      URL.revokeObjectURL(customization.logoUrl)
-    }
-    
     setCustomization(prev => ({
       ...prev,
       logoUrl: url
@@ -969,11 +964,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                         placeholder="Upload Logo"
                         preview={true}
                       />
-                      {customization.logoUrl && customization.logoUrl.startsWith('blob:') && (
-                        <span className="text-xs text-yellow-400 mt-2 block">
-                          ⚠️ Logo uploaded (save to persist)
-                        </span>
-                      )}
+
                       <p className="text-xs text-tier-400 mt-1">
                         Recommended: PNG or JPG, max 5MB. Logo appears on all pages.
                       </p>

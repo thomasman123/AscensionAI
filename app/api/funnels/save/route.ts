@@ -530,7 +530,6 @@ export async function PUT(request: NextRequest) {
       updates.accent_color = '#059669'
       updates.background_color = '#FFFFFF'
       updates.text_color = '#1F2937'
-      updates.logo_url = customization.logoUrl
       
       // Only add new fields if they exist (check if migration was run)
       try {
