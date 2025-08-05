@@ -36,7 +36,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Handle custom domains AND subdomains of our Vercel app (but not the main domain)
+  // Handle custom domains AND old-style subdomains (but not the main domain)
   const isCustomDomain = hostname && !hostname.includes('vercel.app')
   const isSubdomain = hostname && hostname.endsWith('.ascension-ai-sm36.vercel.app') && hostname !== 'ascension-ai-sm36.vercel.app'
   

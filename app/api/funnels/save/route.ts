@@ -82,8 +82,8 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Generate domain if not provided - make it URL-safe
-    const generateUrlSafeDomain = (name: string): string => {
+    // Generate domain if not provided - use path-based routing for default domains
+    const generateUrlSafePath = (name: string): string => {
       return name
         .toLowerCase()
         .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
@@ -93,13 +93,35 @@ export async function POST(request: NextRequest) {
         .substring(0, 50)             // Limit length for DNS compatibility
     }
     
-    const funnelDomain = domain || `${generateUrlSafeDomain(name)}.ascension-ai-sm36.vercel.app`
+    // Use path-based routing for default domains instead of subdomains
+    const defaultPath = generateUrlSafePath(name)
+    const funnelDomain = domain || `ascension-ai-sm36.vercel.app/funnel/${defaultPath}`
     
     console.log('🔧 Funnel Creation:', {
       originalName: name,
       generatedDomain: funnelDomain,
-      providedDomain: domain
+      providedDomain: domain,
+      isDefaultPath: !domain
     })
+
+    // Check for duplicate domains/paths and auto-resolve conflicts
+    let finalDomain = funnelDomain
+    if (!domain) {
+      // For default domains, check if the path already exists
+      const { data: existingFunnel } = await supabaseAdmin
+        .from('saved_funnels')
+        .select('id, name')
+        .eq('domain', funnelDomain)
+        .single()
+
+      if (existingFunnel) {
+        // Generate a unique path by appending a random suffix
+        const uniqueSuffix = Math.random().toString(36).substring(2, 8)
+        finalDomain = `ascension-ai-sm36.vercel.app/funnel/${defaultPath}-${uniqueSuffix}`
+        
+        console.log('🔄 Domain conflict detected, using unique domain:', finalDomain)
+      }
+    }
 
     // Prepare data for database
     const dbData = {
@@ -107,7 +129,7 @@ export async function POST(request: NextRequest) {
       name,
       type,
       status,
-      domain: funnelDomain,
+      domain: finalDomain,
       template_id: templateId,
       
       // Media fields
