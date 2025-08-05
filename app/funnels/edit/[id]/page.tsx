@@ -55,6 +55,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   const [editorMode, setEditorMode] = useState<'preview' | 'settings'>('preview')
   const [activeEdit, setActiveEdit] = useState<string | null>(null)
   const [justActivated, setJustActivated] = useState<string | null>(null)
+  const [currentEditPage, setCurrentEditPage] = useState<number>(1)
 
   const [customization, setCustomization] = useState({
     heading: '',
@@ -82,50 +83,74 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   // Use font groups from styling service
   const fontGroups = FONT_GROUPS
 
-  const editableFields: EditableField[] = [
-    {
-      id: 'heading',
-      type: 'text',
-      value: customization.heading,
-      placeholder: 'Your Compelling Headline Here',
-      label: 'Main Heading'
-    },
-    {
-      id: 'subheading',
-      type: 'text',
-      value: customization.subheading,
-      placeholder: 'Your powerful subheadline that explains the value',
-      label: 'Subheading'
-    },
-    {
-      id: 'ctaText',
-      type: 'text',
-      value: customization.ctaText,
-      placeholder: 'Get Started Now',
-      label: 'CTA Button Text'
-    },
-    {
-      id: 'caseStudiesHeading',
-      type: 'text',
-      value: customization.caseStudiesHeading,
-      placeholder: 'Success Stories',
-      label: 'Case Studies Heading'
-    },
-    {
-      id: 'caseStudiesSubtext',
-      type: 'text',
-      value: customization.caseStudiesSubtext,
-      placeholder: 'See what others have achieved',
-      label: 'Case Studies Subtext'
-    },
-    {
-      id: 'bookingHeading',
-      type: 'text',
-      value: customization.bookingHeading,
-      placeholder: 'Book Your Strategy Call',
-      label: 'Booking Page Heading'
+  // Get page count based on template type
+  const getTemplatePageCount = (templateId: string): number => {
+    switch (templateId) {
+      case 'trigger-template-1':
+        return 2 // Page 1: trigger content, Page 2: booking
+      default:
+        return 1
     }
-  ]
+  }
+
+  const totalPages = getTemplatePageCount(funnel?.template_id || 'trigger-template-1')
+
+  // Get editable fields based on current editing page
+  const getEditableFieldsForPage = (page: number): EditableField[] => {
+    if (page === 2) {
+      // Page 2: Booking page fields
+      return [
+        {
+          id: 'bookingHeading',
+          type: 'text',
+          value: customization.bookingHeading,
+          placeholder: 'Book Your Strategy Call',
+          label: 'Booking Page Heading'
+        }
+      ]
+    }
+    
+    // Page 1: Trigger page fields (default)
+    return [
+      {
+        id: 'heading',
+        type: 'text',
+        value: customization.heading,
+        placeholder: 'Your Compelling Headline Here',
+        label: 'Main Heading'
+      },
+      {
+        id: 'subheading',
+        type: 'text',
+        value: customization.subheading,
+        placeholder: 'Your powerful subheadline that explains the value',
+        label: 'Subheading'
+      },
+      {
+        id: 'ctaText',
+        type: 'text',
+        value: customization.ctaText,
+        placeholder: 'Get Started Now',
+        label: 'CTA Button Text'
+      },
+      {
+        id: 'caseStudiesHeading',
+        type: 'text',
+        value: customization.caseStudiesHeading,
+        placeholder: 'Success Stories',
+        label: 'Case Studies Heading'
+      },
+      {
+        id: 'caseStudiesSubtext',
+        type: 'text',
+        value: customization.caseStudiesSubtext,
+        placeholder: 'See what others have achieved',
+        label: 'Case Studies Subtext'
+      }
+    ]
+  }
+
+  const editableFields = getEditableFieldsForPage(currentEditPage)
 
   useEffect(() => {
     if (!user) {
@@ -150,6 +175,12 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       return () => clearTimeout(timer)
     }
   }, [justActivated])
+
+  // Clear active edit when switching pages
+  useEffect(() => {
+    setActiveEdit(null)
+    setJustActivated(null)
+  }, [currentEditPage])
 
   const loadFunnel = async () => {
     try {
@@ -286,6 +317,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   const renderEditableText = (field: EditableField) => {
     const isActive = activeEdit === field.id
     const isCta = field.id === 'ctaText'
+    const isBookingHeading = field.id === 'bookingHeading'
     
     // console.log('renderEditableText called:', {
     //   fieldId: field.id,
@@ -345,7 +377,9 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           autoFocus
           className={isCta 
             ? "bg-white border-2 border-accent-500 rounded-lg px-12 py-4 text-lg font-semibold text-gray-900 text-center"
-            : "w-full bg-white border-2 border-accent-500 rounded px-3 py-2 text-gray-900"
+            : isBookingHeading
+              ? "bg-white border-2 border-accent-500 rounded-lg px-6 py-3 text-3xl font-bold text-gray-900 text-center w-full"
+              : "w-full bg-white border-2 border-accent-500 rounded px-3 py-2 text-gray-900"
           }
           placeholder={field.placeholder}
         />
@@ -397,6 +431,35 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
               <Edit3 className="w-5 h-5 text-blue-500 bg-white rounded-full p-1 shadow-lg" />
             </div>
           </div>
+        </div>
+      )
+    }
+
+    // Special styling for booking heading (large headline)
+    if (isBookingHeading) {
+      return (
+        <div
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            // Set grace period immediately before setting activeEdit
+            setJustActivated(field.id)
+            setActiveEdit(field.id)
+          }}
+          className="relative group cursor-pointer text-center"
+        >
+          <h1
+            className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 hover:bg-blue-50 rounded p-2 transition-colors"
+            style={{
+              color: isPlaceholder ? '#9CA3AF' : 'inherit',
+              fontStyle: isPlaceholder ? 'italic' : 'normal'
+            }}
+          >
+            {renderText()}
+            <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Edit3 className="w-5 h-5 text-blue-500 bg-white rounded-full p-1 shadow-lg" />
+            </div>
+          </h1>
         </div>
       )
     }
@@ -499,7 +562,8 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
               vsl_url: null, // No VSL in editor preview
               vsl_title: null,
               template_id: funnel?.template_id || 'trigger-template-1',
-              name: funnel?.name || 'Your Business'
+              name: funnel?.name || 'Your Business',
+              calendar_embed_code: funnel?.calendar_embed_code
             },
             themeStyles,
             isEditor: true,
@@ -507,6 +571,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             editableFields,
             caseStudies: [], // TODO: Load case studies for preview
             goToNextPage: () => {}, // Provide empty function to prevent scrolling in editor
+            currentPage: currentEditPage, // Pass the current edit page
             customization: customization // Pass customization settings for font styling
           })}
         </div>
@@ -552,9 +617,16 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                   Back
                 </Button>
                 
-                <h1 className={`text-xl font-bold text-tier-50`}>
-                  Edit: {funnel?.name}
-                </h1>
+                <div className="flex flex-col">
+                  <h1 className={`text-xl font-bold text-tier-50`}>
+                    Edit: {funnel?.name}
+                  </h1>
+                  {totalPages > 1 && (
+                    <span className="text-sm text-tier-400">
+                      Currently editing: {currentEditPage === 1 ? 'Trigger Page' : currentEditPage === 2 ? 'Booking Page' : `Page ${currentEditPage}`}
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="flex items-center gap-3">
@@ -566,6 +638,24 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                 >
                   {customization.funnelTheme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
                 </button>
+
+                {/* Page Selection */}
+                {totalPages > 1 && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-tier-300 text-sm">Page:</span>
+                    <select
+                      value={currentEditPage}
+                      onChange={(e) => setCurrentEditPage(parseInt(e.target.value))}
+                      className="bg-tier-800 border border-tier-600 text-tier-50 rounded px-3 py-1 text-sm focus:outline-none focus:border-accent-500"
+                    >
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                        <option key={pageNum} value={pageNum}>
+                          {pageNum === 1 ? 'Page 1 (Trigger)' : pageNum === 2 ? 'Page 2 (Booking)' : `Page ${pageNum}`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 {/* View Toggle */}
                 <div className="flex rounded-lg p-1 bg-tier-800">
@@ -649,6 +739,53 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
               </div>
             ) : (
               <div className="max-w-4xl mx-auto space-y-8">
+                {/* Page Information */}
+                {totalPages > 1 && (
+                  <Card className={`bg-tier-900 border-tier-800`}>
+                    <CardHeader>
+                      <CardTitle className={`flex items-center gap-2 text-tier-50`}>
+                        <Edit3 className="w-5 h-5" />
+                        Page Editing
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-tier-50 font-medium">
+                            Currently editing: {currentEditPage === 1 ? 'Page 1 (Trigger)' : currentEditPage === 2 ? 'Page 2 (Booking)' : `Page ${currentEditPage}`}
+                          </p>
+                          <p className="text-sm text-tier-400 mt-1">
+                            {currentEditPage === 1 
+                              ? 'Headline, subheadline, CTAs, and case studies'
+                              : currentEditPage === 2 
+                                ? 'Booking headline and calendar section'
+                                : 'Page content'
+                            }
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                            <button
+                              key={pageNum}
+                              onClick={() => setCurrentEditPage(pageNum)}
+                              className={`px-3 py-1 rounded text-sm transition-colors ${
+                                currentEditPage === pageNum
+                                  ? 'bg-accent-500 text-white'
+                                  : 'bg-tier-800 text-tier-300 hover:bg-tier-700'
+                              }`}
+                            >
+                              {pageNum === 1 ? 'Trigger' : pageNum === 2 ? 'Booking' : `Page ${pageNum}`}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="text-sm text-tier-400">
+                        💡 <strong>Tip:</strong> Click elements in the preview above to edit them directly, or use the page buttons to switch between pages.
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
                 {/* Pixel Tracking */}
                 <Card className={`bg-tier-900 border-tier-800`}>
                   <CardHeader>
