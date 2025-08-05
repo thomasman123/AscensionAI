@@ -375,7 +375,7 @@ function FunnelViewerContent() {
           <meta name="twitter:card" content="summary_large_image" />
           <meta name="twitter:title" content={funnelData.meta_title || funnelData.headline} />
           <meta name="twitter:description" content={funnelData.meta_description || funnelData.subheadline} />
-          {funnelData.logo_url && <meta name="twitter:image" content={funnelData.logo_url} />}
+          {funnelData.logo_url && !funnelData.logo_url.startsWith('blob:') && <meta name="twitter:image" content={funnelData.logo_url} />}
           
           {/* Facebook Pixel */}
           {funnelData.facebook_pixel_id && (
@@ -405,11 +405,15 @@ function FunnelViewerContent() {
         >
           {/* 1. Logo at top (centered) */}
           <header className="py-6 px-6 text-center">
-            {funnelData.logo_url ? (
+            {funnelData.logo_url && !funnelData.logo_url.startsWith('blob:') ? (
               <img 
                 src={funnelData.logo_url} 
                 alt="Logo" 
                 className="h-12 max-w-xs object-contain mx-auto"
+                onError={(e) => {
+                  console.error('Logo display error in funnel viewer')
+                  e.currentTarget.style.display = 'none'
+                }}
               />
             ) : (
               <div 
@@ -453,7 +457,7 @@ function FunnelViewerContent() {
           <meta property="og:description" content={`Schedule your consultation for ${funnelData.name}`} />
           <meta property="og:type" content="website" />
           <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
-          {funnelData.logo_url && <meta property="og:image" content={funnelData.logo_url} />}
+          {funnelData.logo_url && !funnelData.logo_url.startsWith('blob:') && <meta property="og:image" content={funnelData.logo_url} />}
         </Head>
         
         <div 

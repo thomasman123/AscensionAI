@@ -885,7 +885,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                       </label>
                       <div className="flex items-center gap-4">
                         <div className="flex flex-col gap-3">
-                          {customization.logoUrl && (
+                          {customization.logoUrl && !customization.logoUrl.startsWith('blob:') && (
                             <div className="flex items-center gap-3">
                               <img 
                                 src={customization.logoUrl} 
@@ -906,18 +906,34 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                               </Button>
                             </div>
                           )}
-                          <label className="cursor-pointer inline-block">
+                          <div className="flex items-center gap-3">
                             <input
                               type="file"
                               accept="image/*"
                               onChange={handleLogoUpload}
                               className="hidden"
+                              id="logo-upload-input"
                             />
-                            <Button variant="outline" className={`border-tier-600 text-tier-300 hover:border-tier-500`}>
-                              <Upload className="w-4 h-4 mr-2" />
-                              {customization.logoUrl ? 'Change Logo' : 'Upload Logo'}
-                            </Button>
-                          </label>
+                            <label htmlFor="logo-upload-input" className="cursor-pointer">
+                              <Button 
+                                type="button"
+                                variant="outline" 
+                                className={`border-tier-600 text-tier-300 hover:border-tier-500`}
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  document.getElementById('logo-upload-input')?.click()
+                                }}
+                              >
+                                <Upload className="w-4 h-4 mr-2" />
+                                {customization.logoUrl ? 'Change Logo' : 'Upload Logo'}
+                              </Button>
+                            </label>
+                            {customization.logoUrl && customization.logoUrl.startsWith('blob:') && (
+                              <span className="text-xs text-yellow-400">
+                                ⚠️ Logo uploaded (save to persist)
+                              </span>
+                            )}
+                          </div>
                           <p className="text-xs text-tier-400">
                             Recommended: PNG or JPG, max 5MB. Logo appears on all pages.
                           </p>
