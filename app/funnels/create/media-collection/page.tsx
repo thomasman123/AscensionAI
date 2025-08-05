@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { DashboardNav } from '@/components/dashboard-nav'
 import { useAuth } from '@/lib/auth-context'
+import { MediaUpload } from '@/components/media-upload'
 import { 
   ArrowRight, 
   ArrowLeft, 
@@ -72,13 +73,8 @@ function MediaCollectionContent() {
     setMediaData(prev => ({ ...prev, [field]: value }))
   }
 
-  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-
-    // Create object URL for preview
-    const logoUrl = URL.createObjectURL(file)
-    setMediaData(prev => ({ ...prev, logoUrl }))
+  const handleLogoUpload = (url: string, file?: File) => {
+    setMediaData(prev => ({ ...prev, logoUrl: url }))
   }
 
   const handleGenerateAndLaunch = async () => {
@@ -401,41 +397,19 @@ function MediaCollectionContent() {
                     Logo Upload
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    {mediaData.logoUrl ? (
-                      <div className="w-20 h-20 bg-tier-800 rounded-lg flex items-center justify-center border border-tier-700">
-                        <img 
-                          src={mediaData.logoUrl} 
-                          alt="Logo" 
-                          className="max-w-full max-h-full object-contain"
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-20 h-20 bg-tier-800 rounded-lg flex items-center justify-center border border-tier-700">
-                        <Image className="w-6 h-6 text-tier-500" />
-                      </div>
-                    )}
-                    <div>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleLogoUpload}
-                        className="hidden"
-                        id="logo-upload"
-                      />
-                      <label
-                        htmlFor="logo-upload"
-                        className="inline-flex items-center px-4 py-2 bg-tier-800 hover:bg-tier-700 border border-tier-600 rounded-md text-tier-300 cursor-pointer transition-colors"
-                      >
-                        <Upload className="w-4 h-4 mr-2" />
-                        Upload Logo
-                      </label>
-                      <p className="text-tier-500 text-xs mt-1">
-                        PNG, JPG up to 2MB (optional)
-                      </p>
-                    </div>
-                  </div>
+                <CardContent>
+                  <MediaUpload
+                    value={mediaData.logoUrl}
+                    onChange={handleLogoUpload}
+                    accept="image/*"
+                    maxSize={2}
+                    label=""
+                    placeholder="Upload Logo"
+                    preview={true}
+                  />
+                  <p className="text-tier-500 text-xs mt-2">
+                    PNG, JPG up to 2MB (optional)
+                  </p>
                 </CardContent>
               </Card>
 

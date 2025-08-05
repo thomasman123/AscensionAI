@@ -34,6 +34,7 @@ import {
 } from 'lucide-react'
 
 import { CaseStudyForm, type CaseStudy } from '@/components/case-study-form'
+import { MediaUpload } from '@/components/media-upload'
 
 interface FunnelEditPageProps {
   params: {
@@ -315,41 +316,16 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     }))
   }
 
-  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file')
-      return
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Image must be smaller than 5MB')
-      return
-    }
-
+  const handleLogoUpload = (url: string, file?: File) => {
     // Clear any existing blob URLs to prevent security errors
     if (customization.logoUrl?.startsWith('blob:')) {
       URL.revokeObjectURL(customization.logoUrl)
     }
-
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      const logoUrl = e.target?.result as string
-      console.log('Logo uploaded successfully, data URL length:', logoUrl.length)
-      setCustomization(prev => ({
-        ...prev,
-        logoUrl
-      }))
-    }
-    reader.onerror = (e) => {
-      console.error('Error reading file:', e)
-      alert('Error reading file. Please try again.')
-    }
-    reader.readAsDataURL(file)
+    
+    setCustomization(prev => ({
+      ...prev,
+      logoUrl: url
+    }))
   }
 
   const renderEditableText = (field: EditableField) => {
@@ -984,65 +960,23 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div>
-                      <label className={`block text-sm font-medium mb-2 capitalize text-tier-300`}>
-                        Logo (All Pages)
-                      </label>
-                      <div className="flex items-center gap-4">
-                        <div className="flex flex-col gap-3">
-                          {customization.logoUrl && !customization.logoUrl.startsWith('blob:') && (
-                            <div className="flex items-center gap-3">
-                              <img 
-                                src={customization.logoUrl} 
-                                alt="Logo" 
-                                className="h-16 w-auto border rounded bg-white p-1"
-                                onError={(e) => {
-                                  console.error('Logo display error')
-                                  setCustomization(prev => ({ ...prev, logoUrl: '' }))
-                                }}
-                              />
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setCustomization(prev => ({ ...prev, logoUrl: '' }))}
-                                className="border-red-500 text-red-400 hover:bg-red-500/10"
-                              >
-                                Remove
-                              </Button>
-                            </div>
-                          )}
-                          <div className="flex items-center gap-3">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleLogoUpload}
-                              className="hidden"
-                              id="logo-upload-input"
-                            />
-                            <label htmlFor="logo-upload-input" className="cursor-pointer">
-                              <Button 
-                                type="button"
-                                variant="outline" 
-                                className={`border-tier-600 text-tier-300 hover:border-tier-500`}
-                                onClick={(e) => {
-                                  e.preventDefault()
-                                  document.getElementById('logo-upload-input')?.click()
-                                }}
-                              >
-                                <Upload className="w-4 h-4 mr-2" />
-                                {customization.logoUrl ? 'Change Logo' : 'Upload Logo'}
-                              </Button>
-                            </label>
-                            {customization.logoUrl && customization.logoUrl.startsWith('blob:') && (
-                              <span className="text-xs text-yellow-400">
-                                ⚠️ Logo uploaded (save to persist)
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-xs text-tier-400">
-                            Recommended: PNG or JPG, max 5MB. Logo appears on all pages.
-                          </p>
-                        </div>
-                      </div>
+                      <MediaUpload
+                        value={customization.logoUrl}
+                        onChange={handleLogoUpload}
+                        accept="image/*"
+                        maxSize={5}
+                        label="Logo (All Pages)"
+                        placeholder="Upload Logo"
+                        preview={true}
+                      />
+                      {customization.logoUrl && customization.logoUrl.startsWith('blob:') && (
+                        <span className="text-xs text-yellow-400 mt-2 block">
+                          ⚠️ Logo uploaded (save to persist)
+                        </span>
+                      )}
+                      <p className="text-xs text-tier-400 mt-1">
+                        Recommended: PNG or JPG, max 5MB. Logo appears on all pages.
+                      </p>
                     </div>
 
                     {/* Font Groups Selection */}
