@@ -116,11 +116,11 @@ function FunnelSuccessContent() {
                   <CardTitle className="text-tier-50 text-xl mb-2">
                     {funnelData.customization?.headline || 'Your Funnel'}
                   </CardTitle>
-                  <Badge variant={funnelData.type === 'trigger' ? 'warning' : 'accent'} className="capitalize">
+                  <Badge variant={funnelData.type === 'trigger' ? 'secondary' : 'default'} className="capitalize">
                     {funnelData.type} Funnel
                   </Badge>
                 </div>
-                <Badge variant="success" className="bg-green-600 text-white">
+                <Badge variant="outline" className="border-green-500/50 text-green-500">
                   Live
                 </Badge>
               </div>
