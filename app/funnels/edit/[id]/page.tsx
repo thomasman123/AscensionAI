@@ -259,6 +259,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
 
   const renderEditableText = (field: EditableField) => {
     const isActive = activeEdit === field.id
+    const isCta = field.id === 'ctaText'
     
     if (isActive) {
       return field.type === 'textarea' ? (
@@ -292,7 +293,10 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             }
           }}
           autoFocus
-          className="w-full bg-white border-2 border-accent-500 rounded px-3 py-2 text-gray-900"
+          className={isCta 
+            ? "bg-white border-2 border-accent-500 rounded-lg px-12 py-4 text-lg font-semibold text-gray-900 text-center"
+            : "w-full bg-white border-2 border-accent-500 rounded px-3 py-2 text-gray-900"
+          }
           placeholder={field.placeholder}
         />
       )
@@ -313,6 +317,32 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       return displayText
     }
 
+    // Special styling for CTA buttons
+    if (isCta) {
+      return (
+        <div
+          onClick={() => setActiveEdit(field.id)}
+          className="relative group cursor-pointer inline-block"
+        >
+          <div
+            className="px-12 py-4 text-lg font-semibold rounded-lg shadow-lg text-white transition-all duration-200 hover:shadow-xl hover:scale-105"
+            style={{
+              background: 'linear-gradient(135deg, #3b82f6, #1e40af)',
+              border: '2px solid transparent',
+              color: isPlaceholder ? '#E5E7EB' : '#FFFFFF',
+              fontStyle: isPlaceholder ? 'italic' : 'normal'
+            }}
+          >
+            {renderText()}
+            <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Edit3 className="w-5 h-5 text-blue-500 bg-white rounded-full p-1 shadow-lg" />
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Regular text field styling
     return (
       <div
         onClick={() => setActiveEdit(field.id)}

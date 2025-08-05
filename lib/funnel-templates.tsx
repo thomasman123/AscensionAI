@@ -48,6 +48,35 @@ export const TriggerTemplate1 = ({
     return funnelData[dbField] || funnelData[fieldId] || fallback
   }
 
+  // Helper to render CTA buttons properly
+  const renderCtaButton = (fieldId: string = 'ctaText', fallback: string = 'Get Started Now') => {
+    if (isEditor && renderEditableText) {
+      const field = editableFields.find(f => f.id === fieldId)
+      if (field) {
+        return (
+          <div className="inline-block">
+            {renderEditableText(field)}
+          </div>
+        )
+      }
+    }
+    
+    // For non-editor mode, render actual clickable button
+    const ctaText = getFieldValue(fieldId, fallback)
+    return (
+      <button
+        onClick={goToNextPage}
+        className="px-12 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 text-white"
+        style={{ 
+          background: themeStyles.ctaGradient || 'linear-gradient(135deg, #3b82f6, #1e40af)',
+          border: 'none'
+        }}
+      >
+        {ctaText}
+      </button>
+    )
+  }
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeStyles.background }}>
       <div className="container mx-auto px-6 max-w-4xl">
@@ -104,19 +133,7 @@ export const TriggerTemplate1 = ({
 
         {/* 4. CTA 1 */}
         <section className="py-8 text-center">
-          {isEditor ? (
-            <div className="px-12 py-4 text-lg font-semibold rounded-lg shadow-lg text-white inline-block" style={{ background: themeStyles.ctaGradient }}>
-              {getFieldValue('ctaText', 'Get Started Now')}
-            </div>
-          ) : (
-            <button
-              onClick={goToNextPage}
-              className="px-12 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 text-white"
-              style={{ background: themeStyles.ctaGradient }}
-            >
-              {getFieldValue('ctaText', 'Get Started Now')}
-            </button>
-          )}
+          {renderCtaButton('ctaText', 'Get Started Now')}
         </section>
 
         {/* 5. CASE STUDIES */}
@@ -125,62 +142,104 @@ export const TriggerTemplate1 = ({
             <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: themeStyles.textPrimary }}>
               {getFieldValue('caseStudiesHeading', 'Success Stories')}
             </h2>
-            <p className="text-lg" style={{ color: themeStyles.textSecondary }}>
+            <p className="text-lg max-w-2xl mx-auto" style={{ color: themeStyles.textSecondary }}>
               {getFieldValue('caseStudiesSubtext', 'See what others have achieved')}
             </p>
           </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {caseStudies.length > 0 ? caseStudies.map((caseStudy, index) => (
-              <div 
-                key={index}
-                className="p-6 rounded-lg shadow-lg"
-                style={{ backgroundColor: themeStyles.cardBg }}
-              >
-                <div className="text-center">
-                  <h3 className="text-xl font-semibold mb-3" style={{ color: themeStyles.textPrimary }}>
-                    {caseStudy.name || `Case Study ${index + 1}`}
-                  </h3>
-                  <p className="mb-4" style={{ color: themeStyles.textSecondary }}>
-                    {caseStudy.description || 'Description not available.'}
+
+          {caseStudies && caseStudies.length > 0 ? (
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {caseStudies.map((study, index) => (
+                <div
+                  key={index}
+                  className="p-6 rounded-xl shadow-lg"
+                  style={{ 
+                    backgroundColor: themeStyles.cardBg,
+                    border: `1px solid ${themeStyles.borderColor}`
+                  }}
+                >
+                  <div className="text-center mb-4">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2" style={{ color: themeStyles.textPrimary }}>
+                      {study.title}
+                    </h3>
+                  </div>
+                  <p className="text-center mb-4" style={{ color: themeStyles.textSecondary }}>
+                    {study.description}
                   </p>
-                  <div className="text-lg font-bold" style={{ color: themeStyles.accent }}>
-                    {caseStudy.result || 'Amazing Result'}
+                  <div className="text-center">
+                    <div className="text-2xl font-bold" style={{ color: themeStyles.accent }}>
+                      {study.result}
+                    </div>
+                    <div className="text-sm" style={{ color: themeStyles.textSecondary }}>
+                      {study.metric}
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="text-gray-400 mb-4">
+                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
               </div>
-            )) : (
-              <div className="text-center py-8 col-span-full">
-                <p className="text-lg" style={{ color: themeStyles.textSecondary }}>
-                  {isEditor ? 'Case studies will appear here when added' : 'No case studies added yet.'}
-                </p>
+              <p style={{ color: themeStyles.textSecondary }}>
+                Case studies will appear here when added
+              </p>
+            </div>
+          )}
+        </section>
+
+        {/* 6. CTA 2 */}
+        <section className="py-8 text-center">
+          {renderCtaButton('ctaText', 'Get Started Now')}
+        </section>
+
+        {/* 7. BOOKING SECTION */}
+        <section className="py-16 text-center">
+          <div className="max-w-2xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6" style={{ color: themeStyles.textPrimary }}>
+              {getFieldValue('bookingHeading', 'Book Your Strategy Call')}
+            </h2>
+            
+            {funnelData.calendar_embed_code && !isEditor ? (
+              <div 
+                className="calendar-embed"
+                dangerouslySetInnerHTML={{ __html: funnelData.calendar_embed_code }}
+              />
+            ) : (
+              <div className="bg-gray-100 p-12 rounded-lg">
+                <div className="text-gray-500 mb-4">
+                  <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <p className="text-gray-600">Calendar booking widget will appear here</p>
               </div>
             )}
           </div>
         </section>
 
-        {/* 6. CTA 2 */}
-        <section className="py-8 text-center">
-          {isEditor ? (
-            <div className="px-12 py-4 text-lg font-semibold rounded-lg shadow-lg text-white inline-block" style={{ background: themeStyles.ctaGradient }}>
-              {getFieldValue('ctaText', 'Get Started Now')}
-            </div>
-          ) : (
-            <button
-              onClick={goToNextPage}
-              className="px-12 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 text-white"
-              style={{ background: themeStyles.ctaGradient }}
-            >
-              {getFieldValue('ctaText', 'Get Started Now')}
-            </button>
-          )}
-        </section>
-
       </div>
 
-      {/* 7. FOOTER */}
-      <footer className="py-8 px-6 text-center border-t" style={{ backgroundColor: themeStyles.sectionBg, borderColor: themeStyles.borderColor }}>
-        <p className="text-sm" style={{ color: themeStyles.textSecondary }}>
+      {/* FOOTER */}
+      <footer 
+        className="py-8 px-6 text-center border-t"
+        style={{ 
+          borderColor: themeStyles.borderColor,
+          backgroundColor: themeStyles.sectionBg 
+        }}
+      >
+        <p 
+          className="text-sm"
+          style={{ color: themeStyles.textSecondary }}
+        >
           © 2024 {funnelData.name || 'Your Business'}. All rights reserved.
         </p>
       </footer>
