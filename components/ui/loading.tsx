@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react"
 // Spinner component
 interface SpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: "sm" | "md" | "lg"
-  variant?: "default" | "accent" | "white"
+  variant?: "default" | "primary" | "white"
 }
 
 const Spinner = React.forwardRef<HTMLDivElement, SpinnerProps>(
@@ -17,8 +17,8 @@ const Spinner = React.forwardRef<HTMLDivElement, SpinnerProps>(
     }
 
     const variantClasses = {
-      default: "text-tier-400",
-      accent: "text-accent-500",
+      default: "text-muted-foreground",
+      primary: "text-primary",
       white: "text-white"
     }
 
@@ -49,39 +49,47 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
   className,
   text = "Loading..."
 }) => {
+  if (!isLoading) {
+    return <>{children}</>
+  }
+
   return (
-    <div className={cn("relative", className)}>
+    <div className="relative">
       {children}
-      {isLoading && (
-        <div className="absolute inset-0 bg-tier-950/80 backdrop-blur-sm flex-col-center z-50 rounded-lg">
-          <Spinner size="lg" variant="accent" />
-          {text && (
-            <p className="text-tier-300 text-sm mt-3 font-medium">{text}</p>
-          )}
-        </div>
-      )}
+      <div
+        className={cn(
+          "absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm",
+          className
+        )}
+      >
+        <Spinner size="lg" variant="primary" />
+        {text && (
+          <p className="mt-4 text-sm text-muted-foreground">{text}</p>
+        )}
+      </div>
     </div>
   )
 }
 
-// Skeleton component for loading states
+// Skeleton component
 interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "default" | "rounded" | "circle"
+  variant?: "default" | "card" | "text" | "avatar"
 }
 
 const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
   ({ className, variant = "default", ...props }, ref) => {
     const variantClasses = {
-      default: "rounded-md",
-      rounded: "rounded-lg", 
-      circle: "rounded-full"
+      default: "h-4 w-full",
+      card: "h-32 w-full",
+      text: "h-4 w-3/4",
+      avatar: "h-10 w-10 rounded-full"
     }
 
     return (
       <div
         ref={ref}
         className={cn(
-          "animate-pulse bg-tier-700",
+          "animate-pulse rounded-md bg-muted",
           variantClasses[variant],
           className
         )}
@@ -92,31 +100,20 @@ const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
 )
 Skeleton.displayName = "Skeleton"
 
-// Loading button component
-interface LoadingButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  isLoading?: boolean
-  children: React.ReactNode
+// Page loading component
+interface PageLoadingProps {
+  text?: string
 }
 
-const LoadingButton = React.forwardRef<HTMLButtonElement, LoadingButtonProps>(
-  ({ isLoading = false, children, className, disabled, ...props }, ref) => {
-    return (
-      <button
-        ref={ref}
-        disabled={disabled || isLoading}
-        className={cn(
-          "btn-base inline-flex items-center justify-center gap-2",
-          "disabled:opacity-50 disabled:cursor-not-allowed",
-          className
-        )}
-        {...props}
-      >
-        {isLoading && <Spinner size="sm" />}
-        {children}
-      </button>
-    )
-  }
-)
-LoadingButton.displayName = "LoadingButton"
+const PageLoading: React.FC<PageLoadingProps> = ({ text = "Loading..." }) => {
+  return (
+    <div className="flex h-screen w-full items-center justify-center">
+      <div className="flex flex-col items-center space-y-4">
+        <Spinner size="lg" variant="primary" />
+        <p className="text-sm text-muted-foreground">{text}</p>
+      </div>
+    </div>
+  )
+}
 
-export { Spinner, LoadingOverlay, Skeleton, LoadingButton } 
+export { Spinner, LoadingOverlay, Skeleton, PageLoading } 

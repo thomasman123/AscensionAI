@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DashboardNav } from '@/components/dashboard-nav'
 import { useAuth } from '@/lib/auth-context'
 import { User, Mail, Zap, Shuffle, Megaphone } from 'lucide-react'
+import { PageLoading } from '@/components/ui/loading'
 
 export default function DashboardPage() {
   const { user, loading } = useAuth()
@@ -19,14 +20,7 @@ export default function DashboardPage() {
   }, [user, loading, router])
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-tier-950 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-accent-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-tier-300">Loading...</p>
-        </div>
-      </div>
-    )
+    return <PageLoading text="Loading dashboard..." />
   }
 
   if (!user) {
@@ -35,145 +29,143 @@ export default function DashboardPage() {
 
   return (
     <DashboardNav>
-      <div className="h-full overflow-auto bg-tier-950">
+      <div className="h-full overflow-auto">
         {/* Main Content */}
         <div className="p-8">
           <div className="max-w-6xl mx-auto">
             {/* Welcome Section */}
             <div className="mb-8">
-              <h1 className="text-3xl font-bold text-tier-50 mb-2">
+              <h1 className="text-3xl font-bold mb-2">
                 Welcome back, {user.email?.split('@')[0]}
               </h1>
-              <p className="text-lg text-tier-300">
+              <p className="text-lg text-muted-foreground">
                 Your AI-powered marketing command center is ready.
               </p>
             </div>
 
             {/* Stats Cards */}
             <div className="grid gap-6 md:grid-cols-3 mb-8">
-              <Card className="bg-tier-900 border-tier-800">
+              <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-tier-50 text-sm font-medium">
-                    <Shuffle className="w-4 h-4 text-accent-400" />
+                  <CardTitle className="flex items-center gap-2 text-sm font-medium">
+                    <Shuffle className="w-4 h-4 text-primary" />
                     Active Funnels
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-tier-50">0</div>
-                  <p className="text-xs text-tier-400">No funnels created yet</p>
+                  <div className="text-2xl font-bold">0</div>
+                  <p className="text-xs text-muted-foreground">No funnels created yet</p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-tier-900 border-tier-800">
+              <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-tier-50 text-sm font-medium">
-                    <Megaphone className="w-4 h-4 text-accent-400" />
+                  <CardTitle className="flex items-center gap-2 text-sm font-medium">
+                    <Megaphone className="w-4 h-4 text-primary" />
                     Ad Campaigns
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-tier-50">0</div>
-                  <p className="text-xs text-tier-400">Coming soon</p>
+                  <div className="text-2xl font-bold">0</div>
+                  <p className="text-xs text-muted-foreground">Coming soon</p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-tier-900 border-tier-800">
+              <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-tier-50 text-sm font-medium">
-                    <Zap className="w-4 h-4 text-accent-400" />
+                  <CardTitle className="flex items-center gap-2 text-sm font-medium">
+                    <Zap className="w-4 h-4 text-primary" />
                     Total Conversions
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-tier-50">0</div>
-                  <p className="text-xs text-tier-400">Start building to track results</p>
+                  <div className="text-2xl font-bold">0</div>
+                  <p className="text-xs text-muted-foreground">Start building to track results</p>
                 </CardContent>
               </Card>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
               {/* Quick Actions */}
-              <Card className="bg-tier-900 border-tier-800">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-tier-50">Quick Actions</CardTitle>
+                  <CardTitle>Quick Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <Button 
-                    className="w-full bg-accent-500 hover:bg-accent-600 text-white" 
                     onClick={() => router.push('/funnels/create')}
+                    className="w-full justify-start"
+                    variant="default"
                   >
-                    <Shuffle className="w-4 h-4 mr-2" />
-                    Create Your First Funnel
+                    <Shuffle className="mr-2 h-4 w-4" />
+                    Create New Funnel
                   </Button>
                   <Button 
-                    variant="outline" 
-                    className="w-full border-tier-600 hover:border-tier-500 text-tier-300" 
-                    disabled
+                    onClick={() => router.push('/ads')}
+                    className="w-full justify-start"
+                    variant="outline"
                   >
-                    <Megaphone className="w-4 h-4 mr-2" />
-                    Launch Ad Campaign (Coming Soon)
+                    <Megaphone className="mr-2 h-4 w-4" />
+                    Generate Ad Copy
+                  </Button>
+                  <Button 
+                    onClick={() => router.push('/offer-profiles')}
+                    className="w-full justify-start"
+                    variant="outline"
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    Manage Offer Profiles
                   </Button>
                 </CardContent>
               </Card>
 
-              {/* Account Info */}
-              <Card className="bg-tier-900 border-tier-800">
+              {/* Recent Activity */}
+              <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-tier-50">
-                    <User className="w-5 h-5" />
-                    Account Information
-                  </CardTitle>
+                  <CardTitle>Recent Activity</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-2 text-tier-300">
-                    <Mail className="w-4 h-4" />
-                    <span>{user.email}</span>
-                  </div>
-                  <div className="text-sm text-tier-400 space-y-1">
-                    <p>Account created: {new Date(user.created_at).toLocaleDateString()}</p>
-                    <p>Plan: Free Tier</p>
+                <CardContent>
+                  <div className="text-center py-8">
+                    <Mail className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">No recent activity</p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Start by creating your first funnel
+                    </p>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Getting Started */}
-            <Card className="bg-tier-900 border-tier-800 mt-6">
-              <CardHeader>
-                <CardTitle className="text-xl text-tier-50">
-                  🚀 Getting Started
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-tier-300 mb-6">
-                  Build high-converting funnels with AI-powered personalization and optimization.
-                </p>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="p-4 bg-tier-800/50 rounded-lg border border-tier-700">
-                    <h3 className="font-semibold text-tier-50 mb-2">Ascension Funnels</h3>
-                    <p className="text-tier-400 text-sm mb-3">
-                      Create complete marketing funnels with AI-generated copy, case studies, and optimization.
-                    </p>
-                    <Button 
-                      size="sm" 
-                      className="bg-accent-500 hover:bg-accent-600"
-                      onClick={() => router.push('/funnels')}
-                    >
-                      Get Started
-                    </Button>
+            {/* Feature Preview */}
+            <div className="mt-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Coming Soon</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div className="space-y-2">
+                      <h3 className="font-semibold">Email Sequences</h3>
+                      <p className="text-sm text-muted-foreground">
+                        AI-powered email sequences that nurture leads automatically
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="font-semibold">Analytics Dashboard</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Track conversions, ROI, and campaign performance
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="font-semibold">A/B Testing</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Optimize your funnels with intelligent split testing
+                      </p>
+                    </div>
                   </div>
-                  <div className="p-4 bg-tier-800/30 rounded-lg border border-tier-700 opacity-60">
-                    <h3 className="font-semibold text-tier-50 mb-2">Ascension Ads</h3>
-                    <p className="text-tier-400 text-sm mb-3">
-                      Launch and optimize ad campaigns across multiple platforms with AI insights.
-                    </p>
-                    <Button size="sm" variant="outline" disabled>
-                      Coming Soon
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>

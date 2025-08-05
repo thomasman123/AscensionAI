@@ -1,6 +1,8 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { TrendingUp, TrendingDown, Minus, LucideIcon } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/loading'
 
 interface TrendData {
   direction: 'up' | 'down' | 'neutral'
@@ -46,25 +48,25 @@ const KPICard = React.forwardRef<HTMLDivElement, KPICardProps>(
     const getTrendColor = () => {
       switch (trend?.direction) {
         case 'up':
-          return 'text-green-400'
+          return 'text-green-500'
         case 'down':
-          return 'text-red-400'
+          return 'text-red-500'
         case 'neutral':
         default:
-          return 'text-tier-400'
+          return 'text-muted-foreground'
       }
     }
 
     const getVariantStyles = () => {
       switch (variant) {
         case 'highlight':
-          return 'bg-accent-500/5 border-accent-500/20'
+          return 'bg-primary/5 border-primary/20'
         case 'warning':
           return 'bg-orange-500/5 border-orange-500/20'
         case 'success':
           return 'bg-green-500/5 border-green-500/20'
         default:
-          return 'bg-tier-900 border-tier-800'
+          return ''
       }
     }
 
@@ -72,86 +74,76 @@ const KPICard = React.forwardRef<HTMLDivElement, KPICardProps>(
 
     if (loading) {
       return (
-        <div
+        <Card
           ref={ref}
-          className={cn(
-            "card-base p-6 space-y-4",
-            getVariantStyles(),
-            className
-          )}
+          className={cn(getVariantStyles(), className)}
           {...props}
         >
-          <div className="flex items-center justify-between">
-            <div className="h-4 bg-tier-700 rounded animate-pulse w-20"></div>
-            {Icon && (
-              <div className="h-5 w-5 bg-tier-700 rounded animate-pulse"></div>
-            )}
-          </div>
-          
-          <div className="space-y-2">
-            <div className="h-8 bg-tier-700 rounded animate-pulse w-24"></div>
-            {subtitle && (
-              <div className="h-3 bg-tier-700 rounded animate-pulse w-16"></div>
-            )}
-          </div>
-
-          {trend && (
-            <div className="flex items-center gap-1">
-              <div className="h-4 w-4 bg-tier-700 rounded animate-pulse"></div>
-              <div className="h-4 bg-tier-700 rounded animate-pulse w-12"></div>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-4 w-20" />
+              {Icon && <Skeleton className="h-5 w-5 rounded" />}
             </div>
-          )}
-        </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-24" />
+              {subtitle && <Skeleton className="h-3 w-16" />}
+            </div>
+            {trend && (
+              <div className="flex items-center gap-1 mt-4">
+                <Skeleton className="h-4 w-4 rounded" />
+                <Skeleton className="h-4 w-12" />
+              </div>
+            )}
+          </CardContent>
+        </Card>
       )
     }
 
     return (
-      <div
+      <Card
         ref={ref}
         className={cn(
-          "card-base p-6 space-y-4 hover:shadow-lg transition-all duration-300",
+          "transition-all duration-200 hover:shadow-lg",
           getVariantStyles(),
           className
         )}
         {...props}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h3 className="text-label-medium text-tier-300 font-medium">
-            {title}
-          </h3>
-          {Icon && (
-            <Icon className="h-5 w-5 text-tier-400" />
-          )}
-        </div>
-        
-        {/* Metric */}
-        <div className="space-y-1">
-          <div className="text-number-large text-tier-50">
-            {typeof metric === 'number' ? metric.toLocaleString() : metric}
-          </div>
-          {subtitle && (
-            <p className="text-caption text-tier-400">
-              {subtitle}
-            </p>
-          )}
-        </div>
-
-        {/* Trend */}
-        {trend && (
-          <div className="flex items-center gap-1">
-            <TrendIcon className={cn("h-4 w-4", getTrendColor())} />
-            <span className={cn("text-caption font-medium", getTrendColor())}>
-              {trend.value}
-            </span>
-            {trend.period && (
-              <span className="text-caption text-tier-500">
-                {trend.period}
-              </span>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center justify-between text-sm font-medium">
+            <span className="text-muted-foreground">{title}</span>
+            {Icon && <Icon className="h-5 w-5 text-muted-foreground" />}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-1">
+            <div className="text-2xl font-bold">
+              {typeof metric === 'number' ? metric.toLocaleString() : metric}
+            </div>
+            {subtitle && (
+              <p className="text-xs text-muted-foreground">
+                {subtitle}
+              </p>
             )}
           </div>
-        )}
-      </div>
+
+          {trend && (
+            <div className="flex items-center gap-1 mt-4">
+              <TrendIcon className={cn("h-4 w-4", getTrendColor())} />
+              <span className={cn("text-xs font-medium", getTrendColor())}>
+                {trend.value}
+              </span>
+              {trend.period && (
+                <span className="text-xs text-muted-foreground">
+                  {trend.period}
+                </span>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     )
   }
 )
