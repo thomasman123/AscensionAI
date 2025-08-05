@@ -1,6 +1,6 @@
 import React from 'react'
 import { TriggerTemplatePage1, TriggerTemplatePage2 } from './clean-trigger-template'
-import { TRIGGER_TEMPLATE_1_FIELDS, TemplateContent } from './funnel-template-middleware'
+import { TRIGGER_TEMPLATE_1_FIELDS } from './funnel-template-middleware'
 
 export interface FunnelTemplateProps {
   funnelData: any
