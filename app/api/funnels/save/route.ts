@@ -4,6 +4,16 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic'
 
+// Map font groups to database font family values
+function getFontFromGroup(fontGroup: string): string {
+  const fontMapping = {
+    professional: 'inter',
+    classic: 'serif', 
+    modern: 'system'
+  }
+  return fontMapping[fontGroup as keyof typeof fontMapping] || 'inter'
+}
+
 export interface SavedFunnel {
   id: string
   name: string
@@ -114,14 +124,15 @@ export async function POST(request: NextRequest) {
       cta_text: customization?.ctaText || 'Get Started Now',
       offer_description: customization?.offerDescription || '',
       guarantee_text: customization?.guaranteeText || '',
-      primary_color: customization?.colors?.primary || '#3B82F6',
-      secondary_color: customization?.colors?.secondary || '#1E40AF',
-      accent_color: customization?.colors?.accent || '#F59E0B',
-      background_color: customization?.colors?.background || '#FFFFFF',
-      text_color: customization?.colors?.text || '#1F2937',
+      // Colors are now hardcoded to defaults
+      primary_color: '#3b82f6',
+      secondary_color: '#1e40af',
+      accent_color: '#059669',
+      background_color: '#FFFFFF',
+      text_color: '#1F2937',
       logo_url: customization?.logoUrl || null,
-      font_family: customization?.font || 'inter',
-      theme_style: customization?.theme || 'modern',
+      font_family: getFontFromGroup(customization?.fontGroup || 'professional'),
+      theme_style: 'clean', // Always use clean theme
       theme_mode: customization?.themeMode || 'light',
       
       // Tracking fields
@@ -477,17 +488,18 @@ export async function PUT(request: NextRequest) {
       updates.cta_text = customization.ctaText
       updates.offer_description = customization.offerDescription
       updates.guarantee_text = customization.guaranteeText
-      updates.primary_color = customization.colors?.primary
-      updates.secondary_color = customization.colors?.secondary
-      updates.accent_color = customization.colors?.accent
+      // Colors are now hardcoded to defaults
+      updates.primary_color = '#3b82f6'
+      updates.secondary_color = '#1e40af'
+      updates.accent_color = '#059669'
+      updates.background_color = '#FFFFFF'
+      updates.text_color = '#1F2937'
       updates.logo_url = customization.logoUrl
       
       // Only add new fields if they exist (check if migration was run)
       try {
-        if (customization.colors?.background) updates.background_color = customization.colors.background
-        if (customization.colors?.text) updates.text_color = customization.colors.text
-        if (customization.font) updates.font_family = customization.font
-        if (customization.theme) updates.theme_style = customization.theme
+        if (customization.fontGroup) updates.font_family = getFontFromGroup(customization.fontGroup)
+        updates.theme_style = 'clean' // Always use clean theme
         if (customization.themeMode) updates.theme_mode = customization.themeMode
         if (customization.pixelIds?.facebook) updates.facebook_pixel_id = customization.pixelIds.facebook
         if (customization.pixelIds?.google) updates.google_analytics_id = customization.pixelIds.google

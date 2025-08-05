@@ -198,9 +198,9 @@ function MediaCollectionContent() {
         offerDescription: generatedCopy.offerDescription,
         guaranteeText: generatedCopy.guaranteeText,
         colors: {
-          primary: '#3B82F6',
-          secondary: '#1E40AF',
-          accent: '#F59E0B',
+              primary: '#3b82f6',
+    secondary: '#1e40af',
+    accent: '#059669',
           background: '#FFFFFF',
           text: '#1F2937'
         },

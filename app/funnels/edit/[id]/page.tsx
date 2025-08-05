@@ -60,13 +60,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     ctaText: 'Get Started Now',
     offerDescription: '',
     guaranteeText: '',
-    colors: {
-      primary: '#3B82F6',
-      secondary: '#1E40AF',
-      accent: '#F59E0B',
-      background: '#FFFFFF',
-      text: '#1F2937'
-    },
     logoUrl: '',
     domain: '',
     pixelCodes: {
@@ -74,8 +67,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       google: '',
       custom: ''
     },
-    font: 'inter',
-    theme: 'clean',
+    fontGroup: 'professional', // Font groups instead of individual fonts
     funnelTheme: 'light', // This controls only the funnel preview appearance
     // Metadata fields
     metaTitle: '',
@@ -83,6 +75,28 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     metaKeywords: '',
     themeMode: 'light' // This controls the live funnel theme
   })
+
+  // Define font groups
+  const fontGroups = {
+    professional: {
+      name: 'Professional',
+      description: 'Clean, readable fonts for business',
+      fonts: ['Inter', 'Roboto', 'Open Sans'],
+      primary: 'Inter'
+    },
+    classic: {
+      name: 'Classic',
+      description: 'Traditional, elegant typography',
+      fonts: ['Georgia', 'Times New Roman', 'Playfair Display'],
+      primary: 'Georgia'
+    },
+    modern: {
+      name: 'Modern',
+      description: 'Contemporary, stylish fonts',
+      fonts: ['Poppins', 'Montserrat', 'Nunito Sans'],
+      primary: 'Poppins'
+    }
+  }
 
   const editableFields: EditableField[] = [
     {
@@ -151,13 +165,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           ctaText: data.funnel.data?.customization?.ctaText || 'Get Started Now',
           offerDescription: data.funnel.data?.customization?.offerDescription || '',
           guaranteeText: data.funnel.data?.customization?.guaranteeText || '',
-          colors: data.funnel.data?.customization?.colors || {
-            primary: '#3B82F6',
-            secondary: '#1E40AF',
-            accent: '#F59E0B',
-            background: '#FFFFFF',
-            text: '#1F2937'
-          },
           logoUrl: data.funnel.data?.customization?.logoUrl || '',
           domain: data.funnel.custom_domain || '',
           pixelCodes: data.funnel.data?.customization?.pixelCodes || {
@@ -165,8 +172,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             google: '',
             custom: ''
           },
-          font: data.funnel.data?.customization?.font || 'inter',
-          theme: data.funnel.data?.customization?.theme || 'clean',
+          fontGroup: data.funnel.data?.customization?.fontGroup || 'professional',
           funnelTheme: data.funnel.data?.customization?.funnelTheme || 'light',
           // Metadata fields
           metaTitle: data.funnel.meta_title || '',
@@ -235,15 +241,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     }))
   }
 
-  const handleColorChange = (colorKey: string, value: string) => {
-    setCustomization(prev => ({
-      ...prev,
-      colors: {
-        ...prev.colors,
-        [colorKey]: value
-      }
-    }))
-  }
+  // Removed color editing - using default colors only
 
   const handlePixelCodeChange = (platform: string, value: string) => {
     setCustomization(prev => ({
@@ -358,8 +356,8 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         background: isDarkTheme ? '#0f172a' : '#ffffff',
         textPrimary: isDarkTheme ? '#f8fafc' : '#1e293b',
         textSecondary: isDarkTheme ? '#cbd5e1' : '#475569',
-        accent: customization.colors.primary || '#3b82f6',
-        ctaGradient: `linear-gradient(135deg, ${customization.colors.primary || '#3b82f6'}, ${customization.colors.secondary || '#1d4ed8'})`,
+        accent: '#3b82f6', // Using default primary color
+        ctaGradient: 'linear-gradient(135deg, #3b82f6, #1e40af)', // Using default gradient
         sectionBg: isDarkTheme ? 'rgba(30, 41, 59, 0.5)' : 'rgba(248, 250, 252, 0.5)',
         cardBg: isDarkTheme ? 'rgba(51, 65, 85, 0.8)' : 'rgba(255, 255, 255, 0.9)',
         borderColor: isDarkTheme ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.3)'
@@ -629,60 +627,34 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {Object.entries(customization.colors).map(([key, value]) => (
-                        <div key={key}>
-                          <label className={`block text-sm font-medium mb-2 capitalize text-tier-300`}>
-                            {key} Color
-                          </label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="color"
-                              value={value}
-                              onChange={(e) => handleColorChange(key, e.target.value)}
-                              className={`w-12 h-10 rounded border ${`border-tier-700`}`}
-                            />
-                            <Input
-                              value={value}
-                              onChange={(e) => handleColorChange(key, e.target.value)}
-                              className={`bg-tier-800 border-tier-700 text-tier-50`}
-                            />
+                    {/* Font Groups Selection */}
+                    <div>
+                      <label className={`block text-sm font-medium mb-2 text-tier-300`}>
+                        Font Style
+                      </label>
+                      <div className="grid gap-4">
+                        {Object.entries(fontGroups).map(([key, group]) => (
+                          <div
+                            key={key}
+                            onClick={() => setCustomization(prev => ({ ...prev, fontGroup: key }))}
+                            className={`p-4 rounded-lg border cursor-pointer transition-colors ${
+                              customization.fontGroup === key
+                                ? 'border-accent-500 bg-accent-500/10'
+                                : 'border-tier-700 bg-tier-800 hover:border-tier-600'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-medium text-tier-50">{group.name}</h4>
+                              {customization.fontGroup === key && (
+                                <div className="w-2 h-2 bg-accent-500 rounded-full"></div>
+                              )}
+                            </div>
+                            <p className="text-sm text-tier-300 mb-2">{group.description}</p>
+                            <div className="text-xs text-tier-400">
+                              Fonts: {group.fonts.join(', ')}
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className={`block text-sm font-medium mb-2 text-tier-300`}>
-                          Font Family
-                        </label>
-                        <select
-                          value={customization.font}
-                          onChange={(e) => setCustomization(prev => ({ ...prev, font: e.target.value }))}
-                          className={`w-full rounded px-3 py-2 bg-tier-800 border-tier-700 text-tier-50`}
-                        >
-                          <option value="inter">Inter</option>
-                          <option value="system">System UI</option>
-                          <option value="serif">Times New Roman</option>
-                          <option value="mono">Monospace</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className={`block text-sm font-medium mb-2 text-tier-300`}>
-                          Funnel Style
-                        </label>
-                        <select
-                          value={customization.theme}
-                          onChange={(e) => setCustomization(prev => ({ ...prev, theme: e.target.value }))}
-                          className={`w-full rounded px-3 py-2 bg-tier-800 border-tier-700 text-tier-50`}
-                        >
-                          <option value="clean">Clean</option>
-                          <option value="modern">Modern</option>
-                          <option value="classic">Classic</option>
-                          <option value="minimal">Minimal</option>
-                          <option value="bold">Bold</option>
-                        </select>
+                        ))}
                       </div>
                     </div>
 

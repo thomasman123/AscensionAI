@@ -38,9 +38,9 @@ export async function GET(request: NextRequest) {
           companyName: '',
           websiteUrl: '',
           defaultColors: {
-            primary: '#3B82F6',
-            secondary: '#1E40AF',
-            accent: '#F59E0B'
+            primary: '#3b82f6',
+            secondary: '#1e40af',
+            accent: '#059669'
           },
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
@@ -60,9 +60,9 @@ export async function GET(request: NextRequest) {
       companyName: settings.company_name || '',
       websiteUrl: settings.website_url || '',
       defaultColors: settings.default_colors || {
-        primary: '#3B82F6',
-        secondary: '#1E40AF',
-        accent: '#F59E0B'
+        primary: '#3b82f6',
+        secondary: '#1e40af',
+        accent: '#059669'
       },
       createdAt: settings.created_at,
       updatedAt: settings.updated_at
@@ -90,9 +90,9 @@ export async function POST(request: NextRequest) {
       company_name: companyName,
       website_url: websiteUrl,
       default_colors: defaultColors || {
-        primary: '#3B82F6',
-        secondary: '#1E40AF',
-        accent: '#F59E0B'
+        primary: '#3b82f6',
+        secondary: '#1e40af',
+        accent: '#059669'
       }
     }
 

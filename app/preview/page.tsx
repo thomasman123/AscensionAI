@@ -104,10 +104,11 @@ export default function PreviewPage() {
   }
 
   const { customization } = funnelData
-  const colors = customization.colors || {
-    primary: '#3B82F6',
-    secondary: '#1E40AF',
-    accent: '#F59E0B',
+  // Always use default colors (color editing removed)
+  const colors = {
+    primary: '#3b82f6',
+    secondary: '#1e40af',
+    accent: '#059669',
     background: '#FFFFFF',
     text: '#1F2937'
   }
@@ -164,9 +165,7 @@ export default function PreviewPage() {
       style={{
         backgroundColor: themeStyles.background,
         color: themeStyles.textPrimary,
-        fontFamily: customization.font === 'inter' ? 'Inter, sans-serif' : 
-                   customization.font === 'serif' ? 'Times New Roman, serif' :
-                   customization.font === 'mono' ? 'Courier New, monospace' : 'system-ui'
+        fontFamily: 'Inter, sans-serif' // Default to Inter font
       }}
     >
       {/* Pixel Codes */}
@@ -411,9 +410,7 @@ export default function PreviewPage() {
       style={{
         backgroundColor: colors.background,
         color: colors.text,
-        fontFamily: customization.font === 'inter' ? 'Inter, sans-serif' : 
-                   customization.font === 'serif' ? 'Times New Roman, serif' :
-                   customization.font === 'mono' ? 'Courier New, monospace' : 'system-ui'
+        fontFamily: 'Inter, sans-serif' // Default to Inter font
       }}
     >
       {/* Header */}
