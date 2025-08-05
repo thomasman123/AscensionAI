@@ -222,6 +222,12 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       ...prev,
       [fieldId]: value
     }))
+    
+    // Also update the editableFields array to keep them in sync
+    const fieldIndex = editableFields.findIndex(f => f.id === fieldId)
+    if (fieldIndex !== -1) {
+      editableFields[fieldIndex].value = value
+    }
   }
 
   // Removed color editing - using default colors only
