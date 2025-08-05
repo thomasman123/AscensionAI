@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { useAuth } from '@/lib/auth-context'
 import { Zap, Eye, EyeOff, AlertCircle } from 'lucide-react'
 
@@ -93,12 +94,12 @@ export default function LoginPage() {
                 <label htmlFor="email" className="text-sm font-medium text-tier-200">
                   Email
                 </label>
-                <input
+                <Input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-tier-800/50 border border-tier-600/50 rounded-lg text-tier-50 placeholder-tier-400 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-colors"
+                  className="bg-tier-800/50 border-tier-600/50 text-tier-50 placeholder-tier-400 focus:ring-purple-600 h-12"
                   placeholder="thomas@heliosscale.com"
                   required
                 />
@@ -109,12 +110,12 @@ export default function LoginPage() {
                   Password
                 </label>
                 <div className="relative">
-                  <input
+                  <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 pr-12 bg-tier-800/50 border border-tier-600/50 rounded-lg text-tier-50 placeholder-tier-400 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-colors"
+                    className="pr-12 bg-tier-800/50 border-tier-600/50 text-tier-50 placeholder-tier-400 focus:ring-purple-600 h-12"
                     placeholder="••••••••"
                     required
                   />
