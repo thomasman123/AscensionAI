@@ -405,24 +405,24 @@ function FunnelViewerContent() {
         >
           {/* 1. Logo at top (centered) */}
           <header className="py-6 px-6 text-center">
-            {funnelData.logo_url && !funnelData.logo_url.startsWith('blob:') ? (
-              <img 
-                src={funnelData.logo_url} 
-                alt="Logo" 
-                className="h-12 max-w-xs object-contain mx-auto"
-                onError={(e) => {
-                  console.error('Logo display error in funnel viewer')
-                  e.currentTarget.style.display = 'none'
-                }}
-              />
-            ) : (
-              <div 
-                className="text-xl font-bold mx-auto inline-block"
-                style={{ color: themeStyles.textPrimary }}
-              >
-                Your Logo
-              </div>
-            )}
+                      {funnelData.logo_url ? (
+            <img 
+              src={funnelData.logo_url} 
+              alt="Logo" 
+              className="h-12 max-w-xs object-contain mx-auto"
+              onError={(e) => {
+                console.error('Logo display error in funnel viewer')
+                e.currentTarget.style.display = 'none'
+              }}
+            />
+          ) : (
+            <div 
+              className="text-xl font-bold mx-auto inline-block"
+              style={{ color: themeStyles.textPrimary }}
+            >
+              Your Logo
+            </div>
+          )}
           </header>
 
           {/* Render Template Content */}
