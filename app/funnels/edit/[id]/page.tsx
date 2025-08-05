@@ -134,6 +134,11 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     loadFunnel()
   }, [user, params.id])
 
+  // Debug: Track activeEdit state changes
+  useEffect(() => {
+    console.log('activeEdit state changed to:', activeEdit)
+  }, [activeEdit])
+
   const loadFunnel = async () => {
     try {
       const response = await fetch(`/api/funnels/save?userId=${user?.id}&funnelId=${params.id}`)
@@ -246,13 +251,22 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     const file = event.target.files?.[0]
     if (!file) return
 
+    // Clear any existing blob URLs to prevent security errors
+    if (customization.logoUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(customization.logoUrl)
+    }
+
     const reader = new FileReader()
     reader.onload = (e) => {
       const logoUrl = e.target?.result as string
+      console.log('Setting logo URL:', logoUrl.substring(0, 50) + '...')
       setCustomization(prev => ({
         ...prev,
         logoUrl
       }))
+    }
+    reader.onerror = (e) => {
+      console.error('Error reading file:', e)
     }
     reader.readAsDataURL(file)
   }
@@ -261,7 +275,17 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     const isActive = activeEdit === field.id
     const isCta = field.id === 'ctaText'
     
+    console.log('renderEditableText called:', {
+      fieldId: field.id,
+      activeEdit,
+      isActive,
+      isCta,
+      fieldValue: field.value,
+      fieldType: field.type
+    })
+    
     if (isActive) {
+      console.log('Rendering active edit field:', field.id)
       return field.type === 'textarea' ? (
         <Textarea
           value={field.value}
@@ -325,7 +349,9 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             e.preventDefault()
             e.stopPropagation()
             console.log('CTA button clicked for editing:', field.id)
+            console.log('Setting activeEdit to:', field.id)
             setActiveEdit(field.id)
+            console.log('activeEdit state after click:', field.id)
           }}
           className="relative group cursor-pointer inline-block"
         >
@@ -409,19 +435,24 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         >
           {/* 1. Logo at top (centered) */}
           <header className="py-6 px-6 text-center">
-            {customization.logoUrl ? (
+            {customization.logoUrl && !customization.logoUrl.startsWith('blob:') ? (
               <img 
                 src={customization.logoUrl} 
                 alt="Logo" 
                 className="h-12 max-w-xs object-contain mx-auto cursor-pointer"
                 onClick={() => setActiveEdit('logo')}
+                onError={(e) => {
+                  console.log('Logo load error, clearing logoUrl')
+                  setCustomization(prev => ({ ...prev, logoUrl: '' }))
+                }}
               />
             ) : (
               <div 
-                className="text-xl font-bold mx-auto inline-block"
+                className="text-xl font-bold mx-auto inline-block cursor-pointer hover:bg-blue-50 p-2 rounded"
                 style={{ color: themeStyles.textPrimary }}
+                onClick={() => setActiveEdit('logo')}
               >
-                Your Logo
+                {customization.logoUrl ? 'Logo (Error)' : 'Your Logo'}
               </div>
             )}
           </header>
@@ -490,6 +521,18 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back
                 </Button>
+                
+                {/* Debug button to test CTA editing */}
+                <Button
+                  onClick={() => {
+                    console.log('Debug: Setting activeEdit to ctaText')
+                    setActiveEdit('ctaText')
+                  }}
+                  className="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1"
+                >
+                  Debug CTA
+                </Button>
+                
                 <h1 className={`text-xl font-bold text-tier-50`}>
                   Edit: {funnel?.name}
                 </h1>
