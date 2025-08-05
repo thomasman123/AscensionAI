@@ -423,11 +423,15 @@ export default function PreviewPage() {
         style={{ backgroundColor: colors.background, borderColor: colors.text + '20' }}
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          {customization.logoUrl ? (
+          {customization.logoUrl && !customization.logoUrl.startsWith('blob:') ? (
             <img 
               src={customization.logoUrl} 
               alt="Logo" 
               className="h-8 w-auto"
+              onError={(e) => {
+                console.error('Logo display error in preview')
+                e.currentTarget.style.display = 'none'
+              }}
             />
           ) : (
             <div className="text-xl font-bold" style={{ color: colors.primary }}>
