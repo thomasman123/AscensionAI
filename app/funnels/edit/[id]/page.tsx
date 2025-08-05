@@ -33,6 +33,8 @@ import {
   Trash2
 } from 'lucide-react'
 
+import { CaseStudyForm, type CaseStudy } from '@/components/case-study-form'
+
 interface FunnelEditPageProps {
   params: {
     id: string
@@ -526,27 +528,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     )
   }
 
-  // Case Studies Management Functions
-  const handleAddCaseStudy = () => {
-    const newCaseStudy = {
-      id: Date.now().toString(),
-      name: '',
-      description: '',
-      result: '',
-      metric: ''
-    }
-    setCaseStudies(prev => [...prev, newCaseStudy])
-  }
-
-  const handleRemoveCaseStudy = (id: string) => {
-    setCaseStudies(prev => prev.filter(cs => cs.id !== id))
-  }
-
-  const handleCaseStudyChange = (id: string, field: string, value: string) => {
-    setCaseStudies(prev => prev.map(cs => 
-      cs.id === id ? { ...cs, [field]: value } : cs
-    ))
-  }
+  // Case Studies Management Functions - handled by CaseStudyForm component
 
   const handleSaveCaseStudies = async () => {
     setIsSavingCaseStudies(true)
@@ -594,93 +576,15 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
 
           {/* Modal Content */}
           <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
-            <div className="space-y-6">
-              <div className="text-sm text-tier-400">
-                Add customer success stories and testimonials to build trust and credibility on your funnel.
-              </div>
-
-              {caseStudies.map((caseStudy, index) => (
-                <Card key={caseStudy.id} className="bg-tier-800 border-tier-700">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-                    <CardTitle className="text-lg text-tier-50">Case Study #{index + 1}</CardTitle>
-                    {caseStudies.length > 1 && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleRemoveCaseStudy(caseStudy.id)}
-                        className="border-red-500 text-red-400 hover:bg-red-500/10"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2 text-tier-300">
-                        Customer Name
-                      </label>
-                      <input
-                        type="text"
-                        value={caseStudy.name}
-                        onChange={(e) => handleCaseStudyChange(caseStudy.id, 'name', e.target.value)}
-                        placeholder="e.g., John Smith, CEO of ABC Corp"
-                        className="w-full px-3 py-2 bg-tier-700 border border-tier-600 rounded-lg text-tier-50 placeholder-tier-400 focus:outline-none focus:ring-2 focus:ring-accent-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-2 text-tier-300">
-                        Success Story
-                      </label>
-                      <textarea
-                        value={caseStudy.description}
-                        onChange={(e) => handleCaseStudyChange(caseStudy.id, 'description', e.target.value)}
-                        placeholder="Describe the challenge they faced and how your solution helped them..."
-                        rows={3}
-                        className="w-full px-3 py-2 bg-tier-700 border border-tier-600 rounded-lg text-tier-50 placeholder-tier-400 focus:outline-none focus:ring-2 focus:ring-accent-500"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-2 text-tier-300">
-                          Result/Outcome
-                        </label>
-                        <input
-                          type="text"
-                          value={caseStudy.result}
-                          onChange={(e) => handleCaseStudyChange(caseStudy.id, 'result', e.target.value)}
-                          placeholder="e.g., $50K increase, 300% growth"
-                          className="w-full px-3 py-2 bg-tier-700 border border-tier-600 rounded-lg text-tier-50 placeholder-tier-400 focus:outline-none focus:ring-2 focus:ring-accent-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium mb-2 text-tier-300">
-                          Metric/Timeframe
-                        </label>
-                        <input
-                          type="text"
-                          value={caseStudy.metric || ''}
-                          onChange={(e) => handleCaseStudyChange(caseStudy.id, 'metric', e.target.value)}
-                          placeholder="e.g., in 6 months, per year"
-                          className="w-full px-3 py-2 bg-tier-700 border border-tier-600 rounded-lg text-tier-50 placeholder-tier-400 focus:outline-none focus:ring-2 focus:ring-accent-500"
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-
-              <Button
-                onClick={handleAddCaseStudy}
-                variant="outline"
-                className="w-full border-tier-600 text-tier-300 hover:border-tier-500"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Another Case Study
-              </Button>
+            <div className="text-sm text-tier-400 mb-6">
+              Add customer success stories and testimonials to build trust and credibility on your funnel.
             </div>
+
+            <CaseStudyForm 
+              caseStudies={caseStudies}
+              onChange={setCaseStudies}
+              showMetric={true}
+            />
           </div>
 
           {/* Modal Footer */}
