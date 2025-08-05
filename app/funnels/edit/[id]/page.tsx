@@ -56,12 +56,12 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   const [activeEdit, setActiveEdit] = useState<string | null>(null)
 
   const [customization, setCustomization] = useState({
-    headline: '',
-    subheadline: '',
-    heroText: '',
+    heading: '',
+    subheading: '',
     ctaText: 'Get Started Now',
-    offerDescription: '',
-    guaranteeText: '',
+    caseStudiesHeading: 'Success Stories',
+    caseStudiesSubtext: 'See what others have achieved',
+    bookingHeading: 'Book Your Strategy Call',
     logoUrl: '',
     domain: '',
     pixelCodes: {
@@ -83,46 +83,46 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
 
   const editableFields: EditableField[] = [
     {
-      id: 'headline',
+      id: 'heading',
       type: 'text',
-      value: customization.headline,
-      placeholder: 'Enter your main headline...',
-      label: 'Main Headline'
+      value: customization.heading,
+      placeholder: 'Your Compelling Headline Here',
+      label: 'Main Heading'
     },
     {
-      id: 'subheadline',
+      id: 'subheading',
       type: 'text',
-      value: customization.subheadline,
-      placeholder: 'Enter your subheadline...',
-      label: 'Subheadline'
-    },
-    {
-      id: 'heroText',
-      type: 'textarea',
-      value: customization.heroText,
-      placeholder: 'Enter your hero text...',
-      label: 'Hero Text'
+      value: customization.subheading,
+      placeholder: 'Your powerful subheadline that explains the value',
+      label: 'Subheading'
     },
     {
       id: 'ctaText',
       type: 'text',
       value: customization.ctaText,
       placeholder: 'Get Started Now',
-      label: 'Call-to-Action Text'
+      label: 'CTA Button Text'
     },
     {
-      id: 'offerDescription',
-      type: 'textarea',
-      value: customization.offerDescription,
-      placeholder: 'Describe your offer...',
-      label: 'Offer Description'
+      id: 'caseStudiesHeading',
+      type: 'text',
+      value: customization.caseStudiesHeading,
+      placeholder: 'Success Stories',
+      label: 'Case Studies Heading'
     },
     {
-      id: 'guaranteeText',
-      type: 'textarea',
-      value: customization.guaranteeText,
-      placeholder: 'Enter your guarantee...',
-      label: 'Guarantee Text'
+      id: 'caseStudiesSubtext',
+      type: 'text',
+      value: customization.caseStudiesSubtext,
+      placeholder: 'See what others have achieved',
+      label: 'Case Studies Subtext'
+    },
+    {
+      id: 'bookingHeading',
+      type: 'text',
+      value: customization.bookingHeading,
+      placeholder: 'Book Your Strategy Call',
+      label: 'Booking Page Heading'
     }
   ]
 
@@ -142,12 +142,12 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         setFunnel(data.funnel)
         
         setCustomization({
-          headline: data.funnel.data?.customization?.headline || '',
-          subheadline: data.funnel.data?.customization?.subheadline || '',
-          heroText: data.funnel.data?.customization?.heroText || '',
-          ctaText: data.funnel.data?.customization?.ctaText || 'Get Started Now',
-          offerDescription: data.funnel.data?.customization?.offerDescription || '',
-          guaranteeText: data.funnel.data?.customization?.guaranteeText || '',
+          heading: data.funnel.data?.customization?.heading || data.funnel.headline || '',
+          subheading: data.funnel.data?.customization?.subheading || data.funnel.subheadline || '',
+          ctaText: data.funnel.data?.customization?.ctaText || data.funnel.cta_text || 'Get Started Now',
+          caseStudiesHeading: data.funnel.data?.customization?.caseStudiesHeading || 'Success Stories',
+          caseStudiesSubtext: data.funnel.data?.customization?.caseStudiesSubtext || 'See what others have achieved',
+          bookingHeading: data.funnel.data?.customization?.bookingHeading || 'Book Your Strategy Call',
           logoUrl: data.funnel.data?.customization?.logoUrl || '',
           domain: data.funnel.custom_domain || '',
           pixelCodes: data.funnel.data?.customization?.pixelCodes || {
@@ -384,9 +384,12 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                               {/* Render Template Content */}
           {renderFunnelTemplate(funnel?.template_id || 'trigger-template-1', {
             funnelData: {
-              headline: customization.headline,
-              subheadline: customization.subheadline,
+              headline: customization.heading,
+              subheadline: customization.subheading,
               cta_text: customization.ctaText,
+              case_studies_heading: customization.caseStudiesHeading,
+              case_studies_subtext: customization.caseStudiesSubtext,
+              booking_heading: customization.bookingHeading,
               vsl_url: null, // No VSL in editor preview
               vsl_title: null,
               template_id: funnel?.template_id || 'trigger-template-1',
@@ -397,7 +400,8 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             renderEditableText,
             editableFields,
             caseStudies: [], // TODO: Load case studies for preview
-            customization: customization // Pass customization settings for font styling
+            customization: customization, // Pass customization settings for font styling
+            currentPage: 1
           })}
         </div>
       </div>
