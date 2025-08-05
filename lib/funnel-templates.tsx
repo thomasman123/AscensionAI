@@ -1,4 +1,5 @@
 import React from 'react'
+import { generateFunnelStyles, getTextElementStyle, FunnelStyles } from './funnel-styling-service'
 
 export interface FunnelTemplateProps {
   funnelData: any
@@ -8,17 +9,34 @@ export interface FunnelTemplateProps {
   editableFields?: any[]
   caseStudies?: any[]
   goToNextPage?: () => void
+  customization?: any // User's customization settings
 }
 
 export const TriggerTemplate1 = ({ 
   funnelData, 
-  themeStyles, 
+  themeStyles,
   isEditor = false, 
   renderEditableText,
   editableFields = [],
   caseStudies = [],
-  goToNextPage
+  goToNextPage,
+  customization
 }: FunnelTemplateProps) => {
+  
+  // Generate funnel styles from customization
+  const funnelStyles: FunnelStyles = customization 
+    ? generateFunnelStyles(customization)
+    : {
+        colors: { primary: '#3b82f6', secondary: '#1e40af', accent: '#059669', background: '#ffffff', text: '#1e293b' },
+        fonts: { 
+          heading: '"Inter", sans-serif', 
+          subheading: '"Inter", sans-serif', 
+          body: '"Inter", sans-serif', 
+          cta: '"Inter", sans-serif' 
+        },
+        theme: 'light',
+        spacing: { section: '2rem', text: '1rem' }
+      }
   
   const getFieldValue = (fieldId: string, fallback: string = '') => {
     if (isEditor && renderEditableText) {
@@ -37,8 +55,8 @@ export const TriggerTemplate1 = ({
         {/* 2. Headline (centered) */}
         <section className="text-center py-8">
           <h1 
-            className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6"
-            style={{ color: themeStyles.textPrimary }}
+            className="text-4xl md:text-5xl lg:text-6xl leading-tight mb-6"
+            style={getTextElementStyle('heading', funnelStyles)}
           >
             {getFieldValue('headline', 'Your Compelling Headline Here')}
           </h1>
@@ -47,8 +65,8 @@ export const TriggerTemplate1 = ({
         {/* 3. Sub heading (centered) */}
         <section className="text-center py-4">
           <p 
-            className="text-xl md:text-2xl font-medium max-w-3xl mx-auto"
-            style={{ color: themeStyles.textSecondary }}
+            className="text-xl md:text-2xl max-w-3xl mx-auto"
+            style={getTextElementStyle('subheading', funnelStyles, { color: themeStyles.textSecondary })}
           >
             {getFieldValue('subheadline', 'Your powerful subheadline that explains the value')}
           </p>
@@ -103,10 +121,11 @@ export const TriggerTemplate1 = ({
         <section className="py-8 text-center">
           {isEditor ? (
             <div
-              className="px-12 py-4 text-lg font-semibold rounded-lg shadow-lg transition-all duration-200 text-white inline-block"
+              className="px-12 py-4 text-lg rounded-lg shadow-lg transition-all duration-200 text-white inline-block"
               style={{ 
                 background: themeStyles.ctaGradient,
-                border: 'none'
+                border: 'none',
+                ...getTextElementStyle('cta', funnelStyles, { color: '#ffffff' })
               }}
             >
               {getFieldValue('cta_text', 'Get Started Now')}
@@ -114,10 +133,11 @@ export const TriggerTemplate1 = ({
           ) : (
             <button
               onClick={goToNextPage}
-              className="px-12 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 text-white"
+              className="px-12 py-4 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 text-white"
               style={{ 
                 background: themeStyles.ctaGradient,
-                border: 'none'
+                border: 'none',
+                ...getTextElementStyle('cta', funnelStyles, { color: '#ffffff' })
               }}
             >
               {getFieldValue('cta_text', 'Get Started Now')}
@@ -129,14 +149,17 @@ export const TriggerTemplate1 = ({
         <section className="py-16">
           <div className="text-center mb-12">
             <h2 
-              className="text-3xl md:text-4xl font-bold mb-4"
-              style={{ color: themeStyles.textPrimary }}
+              className="text-3xl md:text-4xl mb-4"
+              style={getTextElementStyle('heading', funnelStyles, { 
+                color: themeStyles.textPrimary,
+                fontSize: '2.25rem' // Override to slightly smaller than main heading
+              })}
             >
               Success Stories
             </h2>
             <p 
               className="text-lg"
-              style={{ color: themeStyles.textSecondary }}
+              style={getTextElementStyle('body', funnelStyles, { color: themeStyles.textSecondary })}
             >
               See what others have achieved
             </p>
@@ -152,20 +175,26 @@ export const TriggerTemplate1 = ({
               >
                 <div className="text-center">
                   <h3 
-                    className="text-xl font-semibold mb-3"
-                    style={{ color: themeStyles.textPrimary }}
+                    className="text-xl mb-3"
+                    style={getTextElementStyle('subheading', funnelStyles, { 
+                      color: themeStyles.textPrimary,
+                      fontSize: '1.25rem'
+                    })}
                   >
                     {caseStudy.name || `Case Study ${index + 1}`}
                   </h3>
                   <p 
                     className="mb-4"
-                    style={{ color: themeStyles.textSecondary }}
+                    style={getTextElementStyle('body', funnelStyles, { color: themeStyles.textSecondary })}
                   >
                     {caseStudy.description || 'Description not available.'}
                   </p>
                   <div 
-                    className="text-lg font-bold"
-                    style={{ color: themeStyles.accent }}
+                    className="text-lg"
+                    style={getTextElementStyle('subheading', funnelStyles, { 
+                      color: themeStyles.accent,
+                      fontWeight: '700'
+                    })}
                   >
                     {caseStudy.result || 'Amazing Result'}
                   </div>

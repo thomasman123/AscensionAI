@@ -9,6 +9,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { DashboardNav } from '@/components/dashboard-nav'
 import { useAuth } from '@/lib/auth-context'
 import { renderFunnelTemplate } from '@/lib/funnel-templates'
+import { FONT_GROUPS, getGoogleFontsUrl } from '@/lib/funnel-styling-service'
+import Head from 'next/head'
 import { 
   ArrowLeft, 
   Save, 
@@ -76,27 +78,8 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     themeMode: 'light' // This controls the live funnel theme
   })
 
-  // Define font groups
-  const fontGroups = {
-    professional: {
-      name: 'Professional',
-      description: 'Clean, readable fonts for business',
-      fonts: ['Inter', 'Roboto', 'Open Sans'],
-      primary: 'Inter'
-    },
-    classic: {
-      name: 'Classic',
-      description: 'Traditional, elegant typography',
-      fonts: ['Georgia', 'Times New Roman', 'Playfair Display'],
-      primary: 'Georgia'
-    },
-    modern: {
-      name: 'Modern',
-      description: 'Contemporary, stylish fonts',
-      fonts: ['Poppins', 'Montserrat', 'Nunito Sans'],
-      primary: 'Poppins'
-    }
-  }
+  // Use font groups from styling service
+  const fontGroups = FONT_GROUPS
 
   const editableFields: EditableField[] = [
     {
@@ -413,7 +396,8 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             isEditor: true,
             renderEditableText,
             editableFields,
-            caseStudies: [] // TODO: Load case studies for preview
+            caseStudies: [], // TODO: Load case studies for preview
+            customization: customization // Pass customization settings for font styling
           })}
         </div>
       </div>
@@ -434,8 +418,16 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   }
 
   return (
-    <DashboardNav>
-      <div className={`h-full flex flex-col bg-tier-950`}>
+    <>
+      <Head>
+        {/* Google Fonts */}
+        <link
+          href={getGoogleFontsUrl(customization.fontGroup)}
+          rel="stylesheet"
+        />
+      </Head>
+      <DashboardNav>
+        <div className={`h-full flex flex-col bg-tier-950`}>
         {/* Top Bar */}
         <div className={`border-b border-tier-800 bg-tier-900`}>
           <div className="px-6 py-4">
@@ -633,7 +625,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                         Font Style
                       </label>
                       <div className="grid gap-4">
-                        {Object.entries(fontGroups).map(([key, group]) => (
+                        {Object.entries(fontGroups).map(([key, group]: [string, any]) => (
                           <div
                             key={key}
                             onClick={() => setCustomization(prev => ({ ...prev, fontGroup: key }))}
@@ -838,5 +830,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         </div>
       </div>
     </DashboardNav>
+    </>
   )
 } 
