@@ -616,31 +616,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             backgroundColor: themeStyles.background
           }}
         >
-          {/* 1. Logo at top (centered) */}
-          <header className="py-6 px-6 text-center">
-                      {customization.logoUrl ? (
-            <img 
-              src={customization.logoUrl} 
-              alt="Logo" 
-              className="h-12 max-w-xs object-contain mx-auto cursor-pointer"
-              onClick={() => setActiveEdit('logo')}
-              onError={(e) => {
-                console.log('Logo load error, clearing logoUrl')
-                setCustomization(prev => ({ ...prev, logoUrl: '' }))
-              }}
-            />
-          ) : (
-            <div 
-              className="text-xl font-bold mx-auto inline-block cursor-pointer hover:bg-blue-50 p-2 rounded"
-              style={{ color: themeStyles.textPrimary }}
-              onClick={() => setActiveEdit('logo')}
-            >
-              Your Logo
-            </div>
-          )}
-          </header>
-
-                              {/* Render Template Content */}
+          {/* Render Template Content - Logo is handled by the template itself */}
           {renderFunnelTemplate(funnel?.template_id || 'trigger-template-1', {
             funnelData: {
               heading: customization.heading,
