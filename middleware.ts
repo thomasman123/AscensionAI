@@ -44,12 +44,22 @@ export async function middleware(request: NextRequest) {
     console.log('✅ Funnel domain detected:', hostname, 'type:', isCustomDomain ? 'custom' : 'subdomain')
     
     // Rewrite to the funnel viewer with the domain as a parameter
+    // Preserve all existing query parameters (like ?page=2)
+    const originalParams = request.nextUrl.searchParams
     url.pathname = `/funnel-viewer`
     url.searchParams.set('domain', hostname.toLowerCase()) // Ensure lowercase for consistency
     url.searchParams.set('path', request.nextUrl.pathname)
     
+    // Preserve all original query parameters
+    originalParams.forEach((value, key) => {
+      if (key !== 'domain' && key !== 'path') { // Don't override our domain/path params
+        url.searchParams.set(key, value)
+      }
+    })
+    
     console.log('✅ Rewriting to:', url.pathname + url.search)
     console.log('✅ Final domain parameter:', hostname.toLowerCase())
+    console.log('✅ Preserved query params:', Array.from(originalParams.entries()))
     return NextResponse.rewrite(url)
   }
 
