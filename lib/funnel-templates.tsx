@@ -94,10 +94,11 @@ export const TriggerTemplate1 = ({
 
           {/* CALENDAR EMBED */}
           <section className="py-12 text-center">
-            <div className="max-w-2xl mx-auto">
+            <div className="max-w-4xl mx-auto px-4">
               {funnelData.calendar_embed_code && !isEditor ? (
                 <div 
-                  className="calendar-embed"
+                  className="calendar-embed w-full"
+                  style={{ minHeight: '650px', position: 'relative' }}
                   dangerouslySetInnerHTML={{ __html: funnelData.calendar_embed_code }}
                 />
               ) : (

@@ -732,4 +732,26 @@ html {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Calendar Embed Styling */
+.calendar-embed {
+  width: 100%;
+  min-height: 650px;
+  position: relative;
+}
+
+.calendar-embed iframe {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 650px !important;
+  border: none;
+  border-radius: var(--radius);
+}
+
+/* Calendly specific styling */
+.calendly-inline-widget {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 650px !important;
 } 

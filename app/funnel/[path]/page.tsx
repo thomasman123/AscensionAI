@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { renderFunnelTemplate } from '@/lib/funnel-templates'
 import { getGoogleFontsUrl } from '@/lib/funnel-styling-service'
+import { PremiumSpinner } from '@/components/ui/loading'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -96,14 +97,7 @@ export default function FunnelPathPage() {
   }, [params.path])
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading funnel...</p>
-        </div>
-      </div>
-    )
+    return <PremiumSpinner text="Loading your experience..." />
   }
 
   if (error || !funnel) {

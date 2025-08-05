@@ -7,6 +7,58 @@ import React from 'react'
 import { TemplateProps, getFieldValue, TRIGGER_TEMPLATE_1_FIELDS } from './funnel-template-middleware'
 import { generateFunnelStyles, getTextElementStyle } from './funnel-styling-service'
 
+// Helper function to render case study card
+const renderCaseStudyCard = (caseStudy: any, index: number, themeStyles: any, funnelStyles: any) => {
+  return (
+    <div className="text-center">
+      {/* Case Study Image */}
+      {(caseStudy.mediaUrl || caseStudy.media_url) && (
+        <div className="mb-4">
+          {(caseStudy.mediaType === 'image' || caseStudy.media_type === 'image') ? (
+            <img 
+              src={caseStudy.mediaUrl || caseStudy.media_url} 
+              alt={caseStudy.name}
+              className="w-full h-48 object-cover rounded-lg"
+              style={{ border: `1px solid ${themeStyles.borderColor}` }}
+            />
+          ) : (
+            <video 
+              src={caseStudy.mediaUrl || caseStudy.media_url}
+              className="w-full h-48 object-cover rounded-lg"
+              style={{ border: `1px solid ${themeStyles.borderColor}` }}
+              controls
+            />
+          )}
+        </div>
+      )}
+      <h3 
+        className="text-xl mb-3"
+        style={getTextElementStyle('subheading', funnelStyles, { 
+          color: themeStyles.textPrimary,
+          fontSize: '1.25rem'
+        })}
+      >
+        {caseStudy.name || `Case Study ${index + 1}`}
+      </h3>
+      <p 
+        className="mb-4"
+        style={getTextElementStyle('body', funnelStyles, { color: themeStyles.textSecondary })}
+      >
+        {caseStudy.description || 'Description not available.'}
+      </p>
+      <div 
+        className="text-lg"
+        style={getTextElementStyle('subheading', funnelStyles, { 
+          color: themeStyles.accent,
+          fontWeight: '700'
+        })}
+      >
+        {caseStudy.result || 'Amazing Result'}
+      </div>
+    </div>
+  )
+}
+
 export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
   content,
   customization,
@@ -61,6 +113,27 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeStyles.background }}>
+      {/* HEADER WITH LOGO */}
+      <header className="py-6 px-6 border-b" style={{ borderColor: themeStyles.borderColor }}>
+        <div className="container mx-auto max-w-4xl">
+          <div className="flex justify-center">
+            {customization?.logoUrl ? (
+              <img 
+                src={customization.logoUrl} 
+                alt="Logo" 
+                className="h-12 object-contain"
+              />
+            ) : (
+              <div className="h-12 flex items-center">
+                <span className="text-2xl font-bold" style={{ color: themeStyles.textPrimary }}>
+                  {customization?.companyName || 'Your Business'}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
       <div className="container mx-auto px-6 max-w-4xl">
         
         {/* 1. HEADING */}
@@ -180,32 +253,7 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
                 className="p-6 rounded-lg shadow-lg"
                 style={{ backgroundColor: themeStyles.cardBg }}
               >
-                <div className="text-center">
-                  <h3 
-                    className="text-xl mb-3"
-                    style={getTextElementStyle('subheading', funnelStyles, { 
-                      color: themeStyles.textPrimary,
-                      fontSize: '1.25rem'
-                    })}
-                  >
-                    {caseStudy.name || `Case Study ${index + 1}`}
-                  </h3>
-                  <p 
-                    className="mb-4"
-                    style={getTextElementStyle('body', funnelStyles, { color: themeStyles.textSecondary })}
-                  >
-                    {caseStudy.description || 'Description not available.'}
-                  </p>
-                  <div 
-                    className="text-lg"
-                    style={getTextElementStyle('subheading', funnelStyles, { 
-                      color: themeStyles.accent,
-                      fontWeight: '700'
-                    })}
-                  >
-                    {caseStudy.result || 'Amazing Result'}
-                  </div>
-                </div>
+                {renderCaseStudyCard(caseStudy, index, themeStyles, funnelStyles)}
               </div>
             )) : (
               <div className="text-center py-8 col-span-full">
@@ -321,6 +369,27 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeStyles.background }}>
+      {/* HEADER WITH LOGO */}
+      <header className="py-6 px-6 border-b" style={{ borderColor: themeStyles.borderColor }}>
+        <div className="container mx-auto max-w-4xl">
+          <div className="flex justify-center">
+            {customization?.logoUrl ? (
+              <img 
+                src={customization.logoUrl} 
+                alt="Logo" 
+                className="h-12 object-contain"
+              />
+            ) : (
+              <div className="h-12 flex items-center">
+                <span className="text-2xl font-bold" style={{ color: themeStyles.textPrimary }}>
+                  {customization?.companyName || 'Your Business'}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
       <div className="container mx-auto px-6 max-w-4xl">
         
         {/* 1. HEADING 2 */}
@@ -375,32 +444,7 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
                 className="p-6 rounded-lg shadow-lg"
                 style={{ backgroundColor: themeStyles.cardBg }}
               >
-                <div className="text-center">
-                  <h3 
-                    className="text-xl mb-3"
-                    style={getTextElementStyle('subheading', funnelStyles, { 
-                      color: themeStyles.textPrimary,
-                      fontSize: '1.25rem'
-                    })}
-                  >
-                    {caseStudy.name || `Case Study ${index + 1}`}
-                  </h3>
-                  <p 
-                    className="mb-4"
-                    style={getTextElementStyle('body', funnelStyles, { color: themeStyles.textSecondary })}
-                  >
-                    {caseStudy.description || 'Description not available.'}
-                  </p>
-                  <div 
-                    className="text-lg"
-                    style={getTextElementStyle('subheading', funnelStyles, { 
-                      color: themeStyles.accent,
-                      fontWeight: '700'
-                    })}
-                  >
-                    {caseStudy.result || 'Amazing Result'}
-                  </div>
-                </div>
+                {renderCaseStudyCard(caseStudy, index, themeStyles, funnelStyles)}
               </div>
             )) : (
               <div className="text-center py-8 col-span-full">
