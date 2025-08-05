@@ -62,6 +62,7 @@ const renderCaseStudyCard = (caseStudy: any, index: number, themeStyles: any, fu
 export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
   content,
   customization,
+  funnelData,
   isEditor = false,
   caseStudies = [],
   vslData,
@@ -117,9 +118,9 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
       <header className="py-6 px-6 border-b" style={{ borderColor: themeStyles.borderColor }}>
         <div className="container mx-auto max-w-4xl">
           <div className="flex justify-center">
-            {customization?.logoUrl ? (
+            {(customization?.logoUrl || funnelData?.logo_url) ? (
               <img 
-                src={customization.logoUrl} 
+                src={customization?.logoUrl || funnelData?.logo_url} 
                 alt="Logo" 
                 className="h-12 object-contain"
               />
@@ -321,6 +322,7 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
 export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
   content,
   customization,
+  funnelData,
   isEditor = false,
   caseStudies = [],
   onFieldEdit
@@ -373,9 +375,9 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
       <header className="py-6 px-6 border-b" style={{ borderColor: themeStyles.borderColor }}>
         <div className="container mx-auto max-w-4xl">
           <div className="flex justify-center">
-            {customization?.logoUrl ? (
+            {(customization?.logoUrl || funnelData?.logo_url) ? (
               <img 
-                src={customization.logoUrl} 
+                src={customization?.logoUrl || funnelData?.logo_url} 
                 alt="Logo" 
                 className="h-12 object-contain"
               />

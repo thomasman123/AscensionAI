@@ -83,6 +83,27 @@ export const TriggerTemplate1 = ({
   if (currentPage === 2) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: themeStyles.background }}>
+        {/* HEADER WITH LOGO */}
+        <header className="py-6 px-6 border-b" style={{ borderColor: themeStyles.borderColor }}>
+          <div className="container mx-auto max-w-4xl">
+            <div className="flex justify-center">
+              {(customization?.logoUrl || funnelData?.logo_url) ? (
+                <img 
+                  src={customization?.logoUrl || funnelData?.logo_url} 
+                  alt="Logo" 
+                  className="h-12 object-contain"
+                />
+              ) : (
+                <div className="h-12 flex items-center">
+                  <span className="text-2xl font-bold" style={{ color: themeStyles.textPrimary }}>
+                    {funnelData?.name || 'Your Business'}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </header>
+
         <div className="container mx-auto px-6 max-w-4xl">
           
           {/* BOOKING HEADING */}
@@ -139,6 +160,27 @@ export const TriggerTemplate1 = ({
   // Page 1: Main trigger page
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeStyles.background }}>
+      {/* HEADER WITH LOGO */}
+      <header className="py-6 px-6 border-b" style={{ borderColor: themeStyles.borderColor }}>
+        <div className="container mx-auto max-w-4xl">
+          <div className="flex justify-center">
+            {(customization?.logoUrl || funnelData?.logo_url) ? (
+              <img 
+                src={customization?.logoUrl || funnelData?.logo_url} 
+                alt="Logo" 
+                className="h-12 object-contain"
+              />
+            ) : (
+              <div className="h-12 flex items-center">
+                <span className="text-2xl font-bold" style={{ color: themeStyles.textPrimary }}>
+                  {funnelData?.name || 'Your Business'}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
       <div className="container mx-auto px-6 max-w-4xl">
         
         {/* 1. HEADING */}

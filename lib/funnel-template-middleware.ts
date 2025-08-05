@@ -89,6 +89,7 @@ export function getDefaultContent(fields: TemplateField[]): TemplateContent {
 export interface TemplateProps {
   content: TemplateContent
   customization?: any
+  funnelData?: any
   isEditor?: boolean
   caseStudies?: any[]
   vslData?: {

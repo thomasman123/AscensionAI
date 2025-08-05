@@ -125,22 +125,10 @@ interface PremiumSpinnerProps {
 const PremiumSpinner: React.FC<PremiumSpinnerProps> = ({ text = "Loading...", className }) => {
   return (
     <div className={cn("flex min-h-screen items-center justify-center bg-background", className)}>
-      <div className="relative">
-        {/* Outer ring */}
-        <div className="h-16 w-16 animate-spin rounded-full border-4 border-primary/20" />
-        
-        {/* Inner spinning gradient */}
-        <div className="absolute inset-0 h-16 w-16 animate-spin rounded-full border-4 border-transparent border-t-primary" 
-             style={{ animationDuration: '1s', animationTimingFunction: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)' }} />
-        
-        {/* Center dot */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-        </div>
-        
-        {/* Text below */}
+      <div className="flex flex-col items-center space-y-4">
+        <div className="loader" />
         {text && (
-          <p className="mt-6 text-center text-sm text-muted-foreground animate-fade-in">
+          <p className="text-sm text-muted-foreground animate-fade-in">
             {text}
           </p>
         )}
