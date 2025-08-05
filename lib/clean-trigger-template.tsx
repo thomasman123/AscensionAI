@@ -113,7 +113,7 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: themeStyles.background }}>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: themeStyles.background }}>
       {/* HEADER WITH LOGO */}
       <header className="py-6 px-6 border-b" style={{ borderColor: themeStyles.borderColor }}>
         <div className="container mx-auto max-w-4xl">
@@ -135,7 +135,7 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
         </div>
       </header>
 
-      <div className="container mx-auto px-6 max-w-4xl">
+      <div className="container mx-auto px-6 max-w-4xl flex-1">
         
         {/* 1. HEADING */}
         <section className="text-center py-12">
@@ -300,20 +300,22 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
 
       </div>
 
-      {/* 7. FOOTER */}
+      {/* 7. FOOTER - Full width and sticky */}
       <footer 
-        className="py-8 px-6 text-center border-t"
+        className="py-8 px-6 text-center border-t mt-auto"
         style={{ 
           borderColor: themeStyles.borderColor,
           backgroundColor: themeStyles.sectionBg 
         }}
       >
-        <p 
-          className="text-sm"
-          style={{ color: themeStyles.textSecondary }}
-        >
-          © 2024 Electrical Business. All rights reserved.
-        </p>
+        <div className="container mx-auto max-w-4xl">
+          <p 
+            className="text-sm"
+            style={{ color: themeStyles.textSecondary }}
+          >
+            © 2024 Electrical Business. All rights reserved.
+          </p>
+        </div>
       </footer>
     </div>
   )
@@ -370,7 +372,7 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: themeStyles.background }}>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: themeStyles.background }}>
       {/* HEADER WITH LOGO */}
       <header className="py-6 px-6 border-b" style={{ borderColor: themeStyles.borderColor }}>
         <div className="container mx-auto max-w-4xl">
@@ -392,7 +394,7 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
         </div>
       </header>
 
-      <div className="container mx-auto px-6 max-w-4xl">
+      <div className="container mx-auto px-6 max-w-4xl flex-1">
         
         {/* 1. HEADING 2 */}
         <section className="text-center py-12">
@@ -463,20 +465,22 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
 
       </div>
 
-      {/* 4. FOOTER */}
+      {/* 4. FOOTER - Full width and sticky */}
       <footer 
-        className="py-8 px-6 text-center border-t"
+        className="py-8 px-6 text-center border-t mt-auto"
         style={{ 
           borderColor: themeStyles.borderColor,
           backgroundColor: themeStyles.sectionBg 
         }}
       >
-        <p 
-          className="text-sm"
-          style={{ color: themeStyles.textSecondary }}
-        >
-          © 2024 Electrical Business. All rights reserved.
-        </p>
+        <div className="container mx-auto max-w-4xl">
+          <p 
+            className="text-sm"
+            style={{ color: themeStyles.textSecondary }}
+          >
+            © 2024 Electrical Business. All rights reserved.
+          </p>
+        </div>
       </footer>
     </div>
   )

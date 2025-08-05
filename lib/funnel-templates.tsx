@@ -82,7 +82,7 @@ export const TriggerTemplate1 = ({
   // Page 2: Booking page  
   if (currentPage === 2) {
     return (
-      <div className="min-h-screen" style={{ backgroundColor: themeStyles.background }}>
+      <div className="min-h-screen flex flex-col" style={{ backgroundColor: themeStyles.background }}>
         {/* HEADER WITH LOGO */}
         <header className="py-6 px-6 border-b" style={{ borderColor: themeStyles.borderColor }}>
           <div className="container mx-auto max-w-4xl">
@@ -104,7 +104,7 @@ export const TriggerTemplate1 = ({
           </div>
         </header>
 
-        <div className="container mx-auto px-6 max-w-4xl">
+        <div className="container mx-auto px-6 max-w-4xl flex-1">
           
           {/* BOOKING HEADING */}
           <section className="text-center py-12">
@@ -136,30 +136,32 @@ export const TriggerTemplate1 = ({
               )}
             </div>
           </section>
+        </div>
 
-          {/* FOOTER */}
-          <footer 
-            className="py-8 px-6 text-center border-t"
-            style={{ 
-              borderColor: themeStyles.borderColor,
-              backgroundColor: themeStyles.sectionBg 
-            }}
-          >
+        {/* FOOTER - Full width and sticky */}
+        <footer 
+          className="py-8 px-6 text-center border-t mt-auto"
+          style={{ 
+            borderColor: themeStyles.borderColor,
+            backgroundColor: themeStyles.sectionBg 
+          }}
+        >
+          <div className="container mx-auto max-w-4xl">
             <p 
               className="text-sm"
               style={{ color: themeStyles.textSecondary }}
             >
               © 2024 {funnelData.name || 'Your Business'}. All rights reserved.
             </p>
-          </footer>
-        </div>
+          </div>
+        </footer>
       </div>
     )
   }
 
   // Page 1: Main trigger page
   return (
-    <div className="min-h-screen" style={{ backgroundColor: themeStyles.background }}>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: themeStyles.background }}>
       {/* HEADER WITH LOGO */}
       <header className="py-6 px-6 border-b" style={{ borderColor: themeStyles.borderColor }}>
         <div className="container mx-auto max-w-4xl">
@@ -181,7 +183,7 @@ export const TriggerTemplate1 = ({
         </div>
       </header>
 
-      <div className="container mx-auto px-6 max-w-4xl">
+      <div className="container mx-auto px-6 max-w-4xl flex-1">
         
         {/* 1. HEADING */}
         <section className="text-center py-12">
@@ -305,20 +307,22 @@ export const TriggerTemplate1 = ({
 
       </div>
 
-      {/* FOOTER */}
+      {/* FOOTER - Full width and sticky */}
       <footer 
-        className="py-8 px-6 text-center border-t"
+        className="py-8 px-6 text-center border-t mt-auto"
         style={{ 
           borderColor: themeStyles.borderColor,
           backgroundColor: themeStyles.sectionBg 
         }}
       >
-        <p 
-          className="text-sm"
-          style={{ color: themeStyles.textSecondary }}
-        >
-          © 2024 {funnelData.name || 'Your Business'}. All rights reserved.
-        </p>
+        <div className="container mx-auto max-w-4xl">
+          <p 
+            className="text-sm"
+            style={{ color: themeStyles.textSecondary }}
+          >
+            © 2024 {funnelData.name || 'Your Business'}. All rights reserved.
+          </p>
+        </div>
       </footer>
     </div>
   )
