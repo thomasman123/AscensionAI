@@ -118,10 +118,10 @@ export async function POST(request: NextRequest) {
       calendar_title: media?.calendarTitle || 'Book Your Call',
       
       // Customization fields
-      headline: customization?.headline || '',
-      subheadline: customization?.subheadline || '',
+      headline: customization?.heading || customization?.headline || '',
+      subheadline: customization?.subheading || customization?.subheadline || '',
       hero_text: customization?.heroText || '',
-      cta_text: customization?.ctaText || 'Get Started Now',
+      cta_text: customization?.ctaText || customization?.cta_text || 'Get Started Now',
       offer_description: customization?.offerDescription || '',
       guarantee_text: customization?.guaranteeText || '',
       // Colors are now hardcoded to defaults
@@ -482,10 +482,10 @@ export async function PUT(request: NextRequest) {
 
     if (customization) {
       // Basic customization fields that definitely exist
-      updates.headline = customization.headline
-      updates.subheadline = customization.subheadline
+      updates.headline = customization.heading || customization.headline
+      updates.subheadline = customization.subheading || customization.subheadline
       updates.hero_text = customization.heroText
-      updates.cta_text = customization.ctaText
+      updates.cta_text = customization.ctaText || customization.cta_text
       updates.offer_description = customization.offerDescription
       updates.guarantee_text = customization.guaranteeText
       // Colors are now hardcoded to defaults
