@@ -54,6 +54,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   const [currentView, setCurrentView] = useState<'desktop' | 'mobile'>('desktop')
   const [editorMode, setEditorMode] = useState<'preview' | 'settings'>('preview')
   const [activeEdit, setActiveEdit] = useState<string | null>(null)
+  const [justActivated, setJustActivated] = useState<string | null>(null)
 
   const [customization, setCustomization] = useState({
     heading: '',
@@ -137,6 +138,17 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   // Debug: Track activeEdit state changes
   useEffect(() => {
     console.log('activeEdit state changed to:', activeEdit)
+  }, [activeEdit])
+
+  // Prevent immediate onBlur after setting activeEdit
+  useEffect(() => {
+    if (activeEdit) {
+      setJustActivated(activeEdit)
+      const timer = setTimeout(() => {
+        setJustActivated(null)
+      }, 500) // 500ms grace period
+      return () => clearTimeout(timer)
+    }
   }, [activeEdit])
 
   const loadFunnel = async () => {
@@ -275,22 +287,29 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     const isActive = activeEdit === field.id
     const isCta = field.id === 'ctaText'
     
-    console.log('renderEditableText called:', {
-      fieldId: field.id,
-      activeEdit,
-      isActive,
-      isCta,
-      fieldValue: field.value,
-      fieldType: field.type
-    })
+    // console.log('renderEditableText called:', {
+    //   fieldId: field.id,
+    //   activeEdit,
+    //   isActive,
+    //   isCta,
+    //   fieldValue: field.value,
+    //   fieldType: field.type
+    // })
     
     if (isActive) {
-      console.log('Rendering active edit field:', field.id)
+      // console.log('Rendering active edit field:', field.id)
       return field.type === 'textarea' ? (
         <Textarea
           value={field.value}
           onChange={(e) => handleFieldUpdate(field.id, e.target.value)}
-          onBlur={() => setActiveEdit(null)}
+          onBlur={() => {
+            if (justActivated === field.id) {
+              console.log('Ignoring onBlur during grace period for:', field.id)
+              return
+            }
+            console.log('onBlur clearing activeEdit for:', field.id)
+            setActiveEdit(null)
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && e.shiftKey === false && field.type === 'text') {
               setActiveEdit(null)
@@ -307,7 +326,14 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         <Input
           value={field.value}
           onChange={(e) => handleFieldUpdate(field.id, e.target.value)}
-          onBlur={() => setActiveEdit(null)}
+          onBlur={() => {
+            if (justActivated === field.id) {
+              console.log('Ignoring onBlur during grace period for:', field.id)
+              return
+            }
+            console.log('onBlur clearing activeEdit for:', field.id)
+            setActiveEdit(null)
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               setActiveEdit(null)
@@ -520,17 +546,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back
-                </Button>
-                
-                {/* Debug button to test CTA editing */}
-                <Button
-                  onClick={() => {
-                    console.log('Debug: Setting activeEdit to ctaText')
-                    setActiveEdit('ctaText')
-                  }}
-                  className="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1"
-                >
-                  Debug CTA
                 </Button>
                 
                 <h1 className={`text-xl font-bold text-tier-50`}>

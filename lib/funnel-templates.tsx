@@ -53,7 +53,7 @@ export const TriggerTemplate1 = ({
     if (isEditor && renderEditableText) {
       const field = editableFields.find(f => f.id === fieldId)
       if (field) {
-        console.log('Rendering CTA in editor mode for field:', fieldId)
+        // console.log('Rendering CTA in editor mode for field:', fieldId)
         return (
           <div className="inline-block">
             {renderEditableText(field)}
