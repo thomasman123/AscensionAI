@@ -428,6 +428,7 @@ function FunnelViewerContent() {
             isEditor: false,
             caseStudies,
             goToNextPage,
+            currentPage,
             customization: {
               fontGroup: getFontGroupFromDatabase((funnelData as any).font_family),
               themeMode: (funnelData as any).theme_mode || 'light'

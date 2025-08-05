@@ -22,7 +22,8 @@ export const TriggerTemplate1 = ({
   editableFields = [],
   caseStudies = [],
   goToNextPage,
-  customization
+  customization,
+  currentPage = 1
 }: FunnelTemplateProps) => {
   
   // Simple helper to get field value for editing or display
@@ -78,6 +79,63 @@ export const TriggerTemplate1 = ({
     )
   }
 
+  // Page 2: Booking page  
+  if (currentPage === 2) {
+    return (
+      <div className="min-h-screen" style={{ backgroundColor: themeStyles.background }}>
+        <div className="container mx-auto px-6 max-w-4xl">
+          
+          {/* BOOKING HEADING */}
+          <section className="text-center py-12">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6" style={{ color: themeStyles.textPrimary }}>
+              {getFieldValue('bookingHeading', 'Book Your Strategy Call')}
+            </h1>
+          </section>
+
+          {/* CALENDAR EMBED */}
+          <section className="py-12 text-center">
+            <div className="max-w-2xl mx-auto">
+              {funnelData.calendar_embed_code && !isEditor ? (
+                <div 
+                  className="calendar-embed"
+                  dangerouslySetInnerHTML={{ __html: funnelData.calendar_embed_code }}
+                />
+              ) : (
+                <div className="bg-gray-100 p-12 rounded-lg min-h-[600px] flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-gray-500 mb-4">
+                      <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <p className="text-gray-600">Calendar booking widget will appear here</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* FOOTER */}
+          <footer 
+            className="py-8 px-6 text-center border-t"
+            style={{ 
+              borderColor: themeStyles.borderColor,
+              backgroundColor: themeStyles.sectionBg 
+            }}
+          >
+            <p 
+              className="text-sm"
+              style={{ color: themeStyles.textSecondary }}
+            >
+              © 2024 {funnelData.name || 'Your Business'}. All rights reserved.
+            </p>
+          </footer>
+        </div>
+      </div>
+    )
+  }
+
+  // Page 1: Main trigger page
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeStyles.background }}>
       <div className="container mx-auto px-6 max-w-4xl">
@@ -197,34 +255,9 @@ export const TriggerTemplate1 = ({
           )}
         </section>
 
-        {/* 6. CTA 2 */}
+        {/* 6. CTA 2 - Goes to next page */}
         <section className="py-8 text-center">
           {renderCtaButton('ctaText', 'Get Started Now')}
-        </section>
-
-        {/* 7. BOOKING SECTION */}
-        <section className="py-16 text-center">
-          <div className="max-w-2xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6" style={{ color: themeStyles.textPrimary }}>
-              {getFieldValue('bookingHeading', 'Book Your Strategy Call')}
-            </h2>
-            
-            {funnelData.calendar_embed_code && !isEditor ? (
-              <div 
-                className="calendar-embed"
-                dangerouslySetInnerHTML={{ __html: funnelData.calendar_embed_code }}
-              />
-            ) : (
-              <div className="bg-gray-100 p-12 rounded-lg">
-                <div className="text-gray-500 mb-4">
-                  <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <p className="text-gray-600">Calendar booking widget will appear here</p>
-              </div>
-            )}
-          </div>
         </section>
 
       </div>

@@ -140,16 +140,16 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     console.log('activeEdit state changed to:', activeEdit)
   }, [activeEdit])
 
-  // Prevent immediate onBlur after setting activeEdit
+  // Clear grace period after timeout
   useEffect(() => {
-    if (activeEdit) {
-      setJustActivated(activeEdit)
+    if (justActivated) {
       const timer = setTimeout(() => {
+        console.log('Grace period ending for:', justActivated)
         setJustActivated(null)
       }, 500) // 500ms grace period
       return () => clearTimeout(timer)
     }
-  }, [activeEdit])
+  }, [justActivated])
 
   const loadFunnel = async () => {
     try {
@@ -376,6 +376,8 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             e.stopPropagation()
             console.log('CTA button clicked for editing:', field.id)
             console.log('Setting activeEdit to:', field.id)
+            // Set grace period immediately before setting activeEdit
+            setJustActivated(field.id)
             setActiveEdit(field.id)
             console.log('activeEdit state after click:', field.id)
           }}
@@ -405,6 +407,8 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         onClick={(e) => {
           e.preventDefault()
           e.stopPropagation()
+          // Set grace period immediately before setting activeEdit
+          setJustActivated(field.id)
           setActiveEdit(field.id)
         }}
         className="relative group cursor-pointer hover:bg-blue-50 rounded p-2 transition-colors min-h-[2rem] flex items-start"

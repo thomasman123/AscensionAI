@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { renderFunnelTemplate } from '@/lib/funnel-templates'
 import { getGoogleFontsUrl } from '@/lib/funnel-styling-service'
 
@@ -47,9 +47,17 @@ interface FunnelData {
 export default function FunnelPathPage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [funnel, setFunnel] = useState<FunnelData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState<number>(1)
+
+  useEffect(() => {
+    // Get page from URL params
+    const pageParam = parseInt(searchParams.get('page') || '1')
+    setCurrentPage(pageParam)
+  }, [searchParams])
 
   useEffect(() => {
     const loadFunnel = async () => {
@@ -180,6 +188,13 @@ export default function FunnelPathPage() {
 
   const themeStyles = getThemeStyles()
 
+  // Navigate to next page
+  const goToNextPage = () => {
+    const currentUrl = new URL(window.location.href)
+    currentUrl.searchParams.set('page', '2')
+    window.location.href = currentUrl.toString()
+  }
+
   return (
     <>
       <head>
@@ -210,7 +225,8 @@ export default function FunnelPathPage() {
           themeStyles,
           isEditor: false,
           caseStudies: funnel.case_studies || [],
-          goToNextPage: () => {}
+          goToNextPage,
+          currentPage
         })}
       </div>
     </>
