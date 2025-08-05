@@ -33,7 +33,19 @@ export const TriggerTemplate1 = ({
         return renderEditableText(field)
       }
     }
-    return funnelData[fieldId] || fallback
+    
+    // Map field IDs to actual database column names
+    const fieldMapping: Record<string, string> = {
+      'heading': 'headline',
+      'subheading': 'subheadline', 
+      'ctaText': 'cta_text',
+      'caseStudiesHeading': 'case_studies_heading',
+      'caseStudiesSubtext': 'case_studies_subtext',
+      'bookingHeading': 'booking_heading'
+    }
+    
+    const dbField = fieldMapping[fieldId] || fieldId
+    return funnelData[dbField] || funnelData[fieldId] || fallback
   }
 
   return (

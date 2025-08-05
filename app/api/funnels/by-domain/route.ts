@@ -37,12 +37,15 @@ export async function GET(request: NextRequest) {
       const transformedFunnel = {
         ...funnel,
         // Map new customization fields to expected fields
-        headline: funnel.headline || 'Your Headline Here',
-        subheadline: funnel.subheadline || 'Your subheadline here',
-        hero_text: funnel.hero_text || 'Your hero text here',
+        headline: funnel.headline || 'Your Compelling Headline Here',
+        subheadline: funnel.subheadline || 'Your powerful subheadline that explains the value',
+        hero_text: funnel.hero_text || '',
         cta_text: funnel.cta_text || 'Get Started Now',
-        offer_description: funnel.offer_description || 'Your offer description',
-        guarantee_text: funnel.guarantee_text || 'Your guarantee',
+        case_studies_heading: funnel.case_studies_heading || 'Success Stories',
+        case_studies_subtext: funnel.case_studies_subtext || 'See what others have achieved',
+        booking_heading: funnel.booking_heading || 'Book Your Strategy Call',
+        offer_description: funnel.offer_description || '',
+        guarantee_text: funnel.guarantee_text || '',
         primary_color: '#3b82f6', // Always use default colors
         secondary_color: '#1e40af',
         accent_color: '#059669',
@@ -77,12 +80,15 @@ export async function GET(request: NextRequest) {
       const transformedFunnel = {
         ...funnel,
         // Map new customization fields to expected fields
-        headline: funnel.headline || 'Your Headline Here',
-        subheadline: funnel.subheadline || 'Your subheadline here',
-        hero_text: funnel.hero_text || 'Your hero text here',
+        headline: funnel.headline || 'Your Compelling Headline Here',
+        subheadline: funnel.subheadline || 'Your powerful subheadline that explains the value',
+        hero_text: funnel.hero_text || '',
         cta_text: funnel.cta_text || 'Get Started Now',
-        offer_description: funnel.offer_description || 'Your offer description',
-        guarantee_text: funnel.guarantee_text || 'Your guarantee',
+        case_studies_heading: funnel.case_studies_heading || 'Success Stories',
+        case_studies_subtext: funnel.case_studies_subtext || 'See what others have achieved',
+        booking_heading: funnel.booking_heading || 'Book Your Strategy Call',
+        offer_description: funnel.offer_description || '',
+        guarantee_text: funnel.guarantee_text || '',
         primary_color: '#3b82f6', // Always use default colors
         secondary_color: '#1e40af',
         accent_color: '#059669',
