@@ -400,40 +400,23 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             )}
           </header>
 
-                    {/* Render Template Content */}
-                     {renderFunnelTemplate(funnel?.template_id || 'trigger-template-1', {
-             funnelData: {
-               headline: customization.headline,
-               subheadline: customization.subheadline,
-               cta_text: customization.ctaText,
-               vsl_url: null, // No VSL in editor preview
-               vsl_title: null,
-               template_id: funnel?.template_id || 'trigger-template-1'
-             },
-             themeStyles,
-             isEditor: true,
-             renderEditableText,
-             editableFields,
-             caseStudies: [] // TODO: Load case studies for preview
-           })}
-
-          {/* 8. Footer */}
-          <footer 
-            className="py-8 px-6 text-center border-t"
-            style={{ 
-              backgroundColor: themeStyles.sectionBg,
-              borderColor: themeStyles.borderColor
-            }}
-          >
-            <div className="container mx-auto">
-              <p 
-                className="text-sm"
-                style={{ color: themeStyles.textSecondary }}
-              >
-                © 2024 {funnel?.name || 'Your Business'}. All rights reserved.
-              </p>
-            </div>
-          </footer>
+                              {/* Render Template Content */}
+          {renderFunnelTemplate(funnel?.template_id || 'trigger-template-1', {
+            funnelData: {
+              headline: customization.headline,
+              subheadline: customization.subheadline,
+              cta_text: customization.ctaText,
+              vsl_url: null, // No VSL in editor preview
+              vsl_title: null,
+              template_id: funnel?.template_id || 'trigger-template-1',
+              name: funnel?.name || 'Your Business'
+            },
+            themeStyles,
+            isEditor: true,
+            renderEditableText,
+            editableFields,
+            caseStudies: [] // TODO: Load case studies for preview
+          })}
         </div>
       </div>
     )

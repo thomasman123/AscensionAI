@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { CheckCircle, Star, Clock, Users, ArrowRight, Play, ArrowLeft, Sun, Moon, Shield, Zap, Target } from 'lucide-react'
 import Head from 'next/head'
+import { renderFunnelTemplate } from '@/lib/funnel-templates'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -33,6 +34,7 @@ interface FunnelData {
   facebook_pixel_id?: string
   google_analytics_id?: string
   theme_mode?: 'light' | 'dark'
+  template_id?: string
   // Metadata fields
   meta_title?: string
   meta_description?: string
@@ -407,167 +409,6 @@ function FunnelViewerContent() {
             caseStudies,
             goToNextPage
           })}
-            
-            {/* 2. Headline (centered) */}
-            <section className="text-center py-8">
-              <h1 
-                className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6"
-                style={{ color: themeStyles.textPrimary }}
-              >
-                {funnelData.headline}
-              </h1>
-            </section>
-
-            {/* 3. Sub heading (centered) */}
-            <section className="text-center py-4">
-              <p 
-                className="text-xl md:text-2xl font-medium max-w-3xl mx-auto"
-                style={{ color: themeStyles.textSecondary }}
-              >
-                {funnelData.subheadline}
-              </p>
-            </section>
-
-            {/* 4. VSL (centered) */}
-            {funnelData.vsl_url && (
-              <section className="py-12 text-center">
-                <div className="max-w-4xl mx-auto">
-                  {funnelData.vsl_type === 'youtube' ? (
-                    <div className="relative aspect-video rounded-lg overflow-hidden shadow-xl">
-                      <iframe
-                        src={funnelData.vsl_url}
-                        className="w-full h-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                    </div>
-                  ) : (
-                    <video
-                      src={funnelData.vsl_url}
-                      controls
-                      className="w-full max-w-4xl rounded-lg shadow-xl"
-                      style={{ maxHeight: '70vh' }}
-                    />
-                  )}
-                  {funnelData.vsl_title && (
-                    <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-                      {funnelData.vsl_title}
-                    </p>
-                  )}
-                </div>
-              </section>
-            )}
-
-            {/* 5. CTA Button (centered) */}
-            <section className="py-8 text-center">
-              <Button
-                onClick={goToNextPage}
-                size="lg"
-                className="px-12 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-                style={{ 
-                  background: themeStyles.ctaGradient,
-                  border: 'none',
-                  color: 'white'
-                }}
-              >
-                {funnelData.cta_text || 'Get Started Now'}
-              </Button>
-            </section>
-
-            {/* 6. Case Studies */}
-            <section className="py-16">
-              <div className="text-center mb-12">
-                <h2 
-                  className="text-3xl md:text-4xl font-bold mb-4"
-                  style={{ color: themeStyles.textPrimary }}
-                >
-                  Success Stories
-                </h2>
-                <p 
-                  className="text-lg"
-                  style={{ color: themeStyles.textSecondary }}
-                >
-                  See what others have achieved
-                </p>
-              </div>
-              
-              {/* Case Studies Grid - Will be populated dynamically */}
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {/* Case studies will be rendered here from funnel data */}
-                {caseStudies.length > 0 ? caseStudies.map((caseStudy, index) => (
-                  <div 
-                    key={index}
-                    className="p-6 rounded-lg shadow-lg"
-                    style={{ backgroundColor: themeStyles.cardBg }}
-                  >
-                    <div className="text-center">
-                                              <h3 
-                          className="text-xl font-semibold mb-3"
-                          style={{ color: themeStyles.textPrimary }}
-                        >
-                          {caseStudy.name || `Case Study ${index + 1}`}
-                        </h3>
-                      <p 
-                        className="mb-4"
-                        style={{ color: themeStyles.textSecondary }}
-                      >
-                        {caseStudy.description || 'Description not available.'}
-                      </p>
-                      <div 
-                        className="text-lg font-bold"
-                        style={{ color: themeStyles.accent }}
-                      >
-                        {caseStudy.result || 'Amazing Result'}
-                      </div>
-                    </div>
-                  </div>
-                )) : (
-                   <div className="text-center py-8">
-                     <p 
-                       className="text-lg"
-                       style={{ color: themeStyles.textSecondary }}
-                     >
-                       No case studies added yet.
-                     </p>
-                   </div>
-                 )}
-              </div>
-            </section>
-
-            {/* 7. CTA Button (centered) */}
-            <section className="py-8 text-center">
-              <Button
-                onClick={goToNextPage}
-                size="lg"
-                className="px-12 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-                style={{ 
-                  background: themeStyles.ctaGradient,
-                  border: 'none',
-                  color: 'white'
-                }}
-              >
-                {funnelData.cta_text || 'Get Started Now'}
-              </Button>
-            </section>
-          </div>
-
-          {/* 8. Footer */}
-          <footer 
-            className="py-8 px-6 text-center border-t"
-            style={{ 
-              backgroundColor: themeStyles.sectionBg,
-              borderColor: themeStyles.borderColor
-            }}
-          >
-            <div className="container mx-auto">
-              <p 
-                className="text-sm"
-                style={{ color: themeStyles.textSecondary }}
-              >
-                © 2024 {funnelData.name}. All rights reserved.
-              </p>
-            </div>
-          </footer>
         </div>
       </div>
     )
