@@ -518,6 +518,11 @@ export async function PUT(request: NextRequest) {
       updates.case_studies_subtext = customization.caseStudiesSubtext
       updates.booking_heading = customization.bookingHeading
       updates.offer_description = customization.offerDescription
+      
+      // Logo handling
+      if (customization.logoUrl !== undefined) {
+        updates.logo_url = customization.logoUrl
+      }
       updates.guarantee_text = customization.guaranteeText
       // Colors are now hardcoded to defaults
       updates.primary_color = '#3b82f6'

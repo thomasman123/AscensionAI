@@ -235,7 +235,9 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         caseStudies: funnel.data?.caseStudies,
         media: funnel.data?.media,
         templateId: funnel.data?.templateId,
-        customization
+        customization,
+        // Ensure logo is included in the save data
+        logoUrl: customization.logoUrl
       }
 
       console.log('Saving funnel with data:', saveData)
@@ -294,6 +296,18 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     const file = event.target.files?.[0]
     if (!file) return
 
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image must be smaller than 5MB')
+      return
+    }
+
     // Clear any existing blob URLs to prevent security errors
     if (customization.logoUrl?.startsWith('blob:')) {
       URL.revokeObjectURL(customization.logoUrl)
@@ -302,7 +316,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     const reader = new FileReader()
     reader.onload = (e) => {
       const logoUrl = e.target?.result as string
-      console.log('Setting logo URL:', logoUrl.substring(0, 50) + '...')
+      console.log('Logo uploaded successfully, data URL length:', logoUrl.length)
       setCustomization(prev => ({
         ...prev,
         logoUrl
@@ -310,6 +324,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     }
     reader.onerror = (e) => {
       console.error('Error reading file:', e)
+      alert('Error reading file. Please try again.')
     }
     reader.readAsDataURL(file)
   }
@@ -739,13 +754,13 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
               </div>
             ) : (
               <div className="max-w-4xl mx-auto space-y-8">
-                {/* Page Information */}
+                {/* Page Content Editing */}
                 {totalPages > 1 && (
                   <Card className={`bg-tier-900 border-tier-800`}>
                     <CardHeader>
                       <CardTitle className={`flex items-center gap-2 text-tier-50`}>
                         <Edit3 className="w-5 h-5" />
-                        Page Editing
+                        Page Content Editing
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -780,19 +795,40 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                         </div>
                       </div>
                       <div className="text-sm text-tier-400">
-                        💡 <strong>Tip:</strong> Click elements in the preview above to edit them directly, or use the page buttons to switch between pages.
+                        💡 <strong>Tip:</strong> Click elements in the preview above to edit them directly. The settings below apply to ALL pages of this funnel.
                       </div>
                     </CardContent>
                   </Card>
                 )}
+
+                {/* Global Funnel Settings Notice */}
+                <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="text-blue-400 mt-0.5">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-blue-400 font-medium mb-1">Global Settings</h4>
+                      <p className="text-blue-300/80 text-sm">
+                        All settings below (logo, fonts, colors, tracking, etc.) apply to the entire funnel across all pages. 
+                        Only text content is editable per page.
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Pixel Tracking */}
                 <Card className={`bg-tier-900 border-tier-800`}>
                   <CardHeader>
                     <CardTitle className={`flex items-center gap-2 text-tier-50`}>
                       <Code className="w-5 h-5" />
-                      Pixel Tracking
+                      Global Tracking & Analytics
                     </CardTitle>
+                    <p className="text-sm text-tier-400 mt-1">
+                      These tracking codes apply to all pages of your funnel
+                    </p>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
@@ -836,41 +872,63 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                   <CardHeader>
                     <CardTitle className={`flex items-center gap-2 text-tier-50`}>
                       <Palette className="w-5 h-5" />
-                      Colors & Branding
+                      Global Branding & Design
                     </CardTitle>
+                    <p className="text-sm text-tier-400 mt-1">
+                      These settings apply to all pages of your funnel
+                    </p>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div>
                       <label className={`block text-sm font-medium mb-2 capitalize text-tier-300`}>
-                        Logo
+                        Logo (All Pages)
                       </label>
                       <div className="flex items-center gap-4">
-                        {customization.logoUrl && (
-                          <img 
-                            src={customization.logoUrl} 
-                            alt="Logo" 
-                            className="h-12 w-auto border rounded"
-                          />
-                        )}
-                        <label className="cursor-pointer">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleLogoUpload}
-                            className="hidden"
-                          />
-                          <Button variant="outline" className={`border-tier-600 text-tier-300`}>
-                            <Upload className="w-4 h-4 mr-2" />
-                            {customization.logoUrl ? 'Change Logo' : 'Upload Logo'}
-                          </Button>
-                        </label>
+                        <div className="flex flex-col gap-3">
+                          {customization.logoUrl && (
+                            <div className="flex items-center gap-3">
+                              <img 
+                                src={customization.logoUrl} 
+                                alt="Logo" 
+                                className="h-16 w-auto border rounded bg-white p-1"
+                                onError={(e) => {
+                                  console.error('Logo display error')
+                                  setCustomization(prev => ({ ...prev, logoUrl: '' }))
+                                }}
+                              />
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setCustomization(prev => ({ ...prev, logoUrl: '' }))}
+                                className="border-red-500 text-red-400 hover:bg-red-500/10"
+                              >
+                                Remove
+                              </Button>
+                            </div>
+                          )}
+                          <label className="cursor-pointer inline-block">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleLogoUpload}
+                              className="hidden"
+                            />
+                            <Button variant="outline" className={`border-tier-600 text-tier-300 hover:border-tier-500`}>
+                              <Upload className="w-4 h-4 mr-2" />
+                              {customization.logoUrl ? 'Change Logo' : 'Upload Logo'}
+                            </Button>
+                          </label>
+                          <p className="text-xs text-tier-400">
+                            Recommended: PNG or JPG, max 5MB. Logo appears on all pages.
+                          </p>
+                        </div>
                       </div>
                     </div>
 
                     {/* Font Groups Selection */}
                     <div>
                       <label className={`block text-sm font-medium mb-2 text-tier-300`}>
-                        Font Style
+                        Font Style (All Pages)
                       </label>
                       <div className="grid gap-4">
                         {Object.entries(fontGroups).map(([key, group]: [string, any]) => (
@@ -973,8 +1031,11 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                   <CardHeader>
                     <CardTitle className={`flex items-center gap-2 text-tier-50`}>
                       <Globe className="w-5 h-5" />
-                      SEO & Metadata
+                      Global SEO & Metadata
                     </CardTitle>
+                    <p className="text-sm text-tier-400 mt-1">
+                      These SEO settings apply to all pages of your funnel
+                    </p>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
