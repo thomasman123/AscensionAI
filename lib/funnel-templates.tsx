@@ -72,6 +72,18 @@ export const TriggerTemplate1 = ({
           </p>
         </section>
 
+        {/* 3.5. Hero Text (centered) */}
+        <section className="text-center py-6">
+          <div className="max-w-4xl mx-auto">
+            <p 
+              className="text-lg md:text-xl leading-relaxed"
+              style={getTextElementStyle('body', funnelStyles, { color: themeStyles.textSecondary })}
+            >
+              {getFieldValue('heroText', 'Stop trading hours for dollars and start building a profitable business that runs like a well-oiled machine... even when you\'re not on the tools')}
+            </p>
+          </div>
+        </section>
+
         {/* 4. VSL (centered) */}
         {(funnelData.vsl_url || isEditor) && (
           <section className="py-12 text-center">
@@ -117,6 +129,18 @@ export const TriggerTemplate1 = ({
           </section>
         )}
 
+        {/* 4.5. Offer Description */}
+        <section className="py-8 text-center">
+          <div className="max-w-3xl mx-auto">
+            <p 
+              className="text-lg leading-relaxed"
+              style={getTextElementStyle('body', funnelStyles, { color: themeStyles.textSecondary })}
+            >
+              {getFieldValue('offerDescription', 'Discover the proven strategies that successful electrical business owners use to scale their operations and increase profitability.')}
+            </p>
+          </div>
+        </section>
+
         {/* 5. CTA Button (centered) */}
         <section className="py-8 text-center">
           {isEditor ? (
@@ -128,7 +152,7 @@ export const TriggerTemplate1 = ({
                 ...getTextElementStyle('cta', funnelStyles, { color: '#ffffff' })
               }}
             >
-              {getFieldValue('cta_text', 'Get Started Now')}
+              {getFieldValue('ctaText', 'Get Started Now')}
             </div>
           ) : (
             <button
@@ -140,7 +164,7 @@ export const TriggerTemplate1 = ({
                 ...getTextElementStyle('cta', funnelStyles, { color: '#ffffff' })
               }}
             >
-              {getFieldValue('cta_text', 'Get Started Now')}
+              {getFieldValue('ctaText', 'Get Started Now')}
             </button>
           )}
         </section>
@@ -213,6 +237,29 @@ export const TriggerTemplate1 = ({
           </div>
         </section>
 
+        {/* 6.5. Guarantee Text */}
+        <section className="py-8 text-center">
+          <div className="max-w-3xl mx-auto">
+            <div 
+              className="p-6 rounded-lg border-2 border-dashed"
+              style={{ 
+                borderColor: themeStyles.accent + '40',
+                backgroundColor: themeStyles.sectionBg 
+              }}
+            >
+              <p 
+                className="text-lg font-medium"
+                style={getTextElementStyle('body', funnelStyles, { 
+                  color: themeStyles.textPrimary,
+                  fontWeight: '600'
+                })}
+              >
+                {getFieldValue('guaranteeText', '100% Satisfaction Guarantee - If you\'re not completely satisfied with the results, we\'ll work with you until you are or provide a full refund.')}
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* 7. CTA Button (centered) */}
         <section className="py-8 text-center">
           {isEditor ? (
@@ -223,7 +270,7 @@ export const TriggerTemplate1 = ({
                 border: 'none'
               }}
             >
-              {getFieldValue('cta_text', 'Get Started Now')}
+              {getFieldValue('ctaText', 'Get Started Now')}
             </div>
           ) : (
             <button
@@ -234,7 +281,7 @@ export const TriggerTemplate1 = ({
                 border: 'none'
               }}
             >
-              {getFieldValue('cta_text', 'Get Started Now')}
+              {getFieldValue('ctaText', 'Get Started Now')}
             </button>
           )}
         </section>
