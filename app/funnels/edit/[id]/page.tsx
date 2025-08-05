@@ -390,12 +390,12 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                               {/* Render Template Content */}
           {renderFunnelTemplate(funnel?.template_id || 'trigger-template-1', {
             funnelData: {
-              headline: customization.heading,
-              subheadline: customization.subheading,
-              cta_text: customization.ctaText,
-              case_studies_heading: customization.caseStudiesHeading,
-              case_studies_subtext: customization.caseStudiesSubtext,
-              booking_heading: customization.bookingHeading,
+              heading: customization.heading,
+              subheading: customization.subheading,
+              ctaText: customization.ctaText,
+              caseStudiesHeading: customization.caseStudiesHeading,
+              caseStudiesSubtext: customization.caseStudiesSubtext,
+              bookingHeading: customization.bookingHeading,
               vsl_url: null, // No VSL in editor preview
               vsl_title: null,
               template_id: funnel?.template_id || 'trigger-template-1',
@@ -406,8 +406,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             renderEditableText,
             editableFields,
             caseStudies: [], // TODO: Load case studies for preview
-            customization: customization, // Pass customization settings for font styling
-            currentPage: 1
+            customization: customization // Pass customization settings for font styling
           })}
         </div>
       </div>
