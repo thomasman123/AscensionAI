@@ -122,6 +122,9 @@ export async function POST(request: NextRequest) {
       subheadline: customization?.subheading || customization?.subheadline || '',
       hero_text: customization?.heroText || '',
       cta_text: customization?.ctaText || customization?.cta_text || 'Get Started Now',
+      case_studies_heading: customization?.caseStudiesHeading || 'Success Stories',
+      case_studies_subtext: customization?.caseStudiesSubtext || 'See what others have achieved',
+      booking_heading: customization?.bookingHeading || 'Book Your Strategy Call',
       offer_description: customization?.offerDescription || '',
       guarantee_text: customization?.guaranteeText || '',
       // Colors are now hardcoded to defaults
@@ -320,10 +323,13 @@ export async function GET(request: NextRequest) {
           },
           templateId: funnel.template_id,
           customization: {
-            headline: funnel.headline,
-            subheadline: funnel.subheadline,
+            heading: funnel.headline,
+            subheading: funnel.subheadline,
             heroText: funnel.hero_text,
             ctaText: funnel.cta_text,
+            caseStudiesHeading: funnel.case_studies_heading,
+            caseStudiesSubtext: funnel.case_studies_subtext,
+            bookingHeading: funnel.booking_heading,
             offerDescription: funnel.offer_description,
             guaranteeText: funnel.guarantee_text,
             colors: {
@@ -486,6 +492,9 @@ export async function PUT(request: NextRequest) {
       updates.subheadline = customization.subheading || customization.subheadline
       updates.hero_text = customization.heroText
       updates.cta_text = customization.ctaText || customization.cta_text
+      updates.case_studies_heading = customization.caseStudiesHeading
+      updates.case_studies_subtext = customization.caseStudiesSubtext
+      updates.booking_heading = customization.bookingHeading
       updates.offer_description = customization.offerDescription
       updates.guarantee_text = customization.guaranteeText
       // Colors are now hardcoded to defaults
