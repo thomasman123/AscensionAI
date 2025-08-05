@@ -321,7 +321,12 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     if (isCta) {
       return (
         <div
-          onClick={() => setActiveEdit(field.id)}
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            console.log('CTA button clicked for editing:', field.id)
+            setActiveEdit(field.id)
+          }}
           className="relative group cursor-pointer inline-block"
         >
           <div
@@ -345,7 +350,11 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     // Regular text field styling
     return (
       <div
-        onClick={() => setActiveEdit(field.id)}
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          setActiveEdit(field.id)
+        }}
         className="relative group cursor-pointer hover:bg-blue-50 rounded p-2 transition-colors min-h-[2rem] flex items-start"
         style={{
           color: isPlaceholder ? '#9CA3AF' : 'inherit',
@@ -436,6 +445,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             renderEditableText,
             editableFields,
             caseStudies: [], // TODO: Load case studies for preview
+            goToNextPage: () => {}, // Provide empty function to prevent scrolling in editor
             customization: customization // Pass customization settings for font styling
           })}
         </div>

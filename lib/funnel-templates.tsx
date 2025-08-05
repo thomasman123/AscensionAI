@@ -53,6 +53,7 @@ export const TriggerTemplate1 = ({
     if (isEditor && renderEditableText) {
       const field = editableFields.find(f => f.id === fieldId)
       if (field) {
+        console.log('Rendering CTA in editor mode for field:', fieldId)
         return (
           <div className="inline-block">
             {renderEditableText(field)}
@@ -65,7 +66,7 @@ export const TriggerTemplate1 = ({
     const ctaText = getFieldValue(fieldId, fallback)
     return (
       <button
-        onClick={goToNextPage}
+        onClick={goToNextPage || (() => {})}
         className="px-12 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 text-white"
         style={{ 
           background: themeStyles.ctaGradient || 'linear-gradient(135deg, #3b82f6, #1e40af)',
