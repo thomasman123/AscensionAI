@@ -18,6 +18,9 @@ const LogoResizer: React.FC<{
   const containerRef = useRef<HTMLDivElement>(null)
   const startX = useRef(0)
   const startSize = useRef(size)
+  
+  // Debug log
+  console.log('LogoResizer rendered, isHovered:', isHovered)
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -53,21 +56,38 @@ const LogoResizer: React.FC<{
     <div 
       ref={containerRef}
       className="relative inline-block"
+      style={{ padding: '10px' }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <img 
         src={src} 
         alt="Logo" 
-        className={`object-contain transition-all ${isHovered || isResizing ? 'outline outline-2 outline-blue-400 outline-offset-2' : ''}`}
-        style={{ height: `${size}px` }}
+        className="object-contain transition-all"
+        style={{ 
+          height: `${size}px`,
+          outline: (isHovered || isResizing) ? '2px solid #3b82f6' : 'none',
+          outlineOffset: '2px'
+        }}
       />
       {(isHovered || isResizing) && (
-        <div
-          className="absolute -bottom-1 -right-1 w-3 h-3 bg-blue-500 rounded-full cursor-se-resize hover:bg-blue-600 transition-colors"
-          onMouseDown={handleMouseDown}
-          style={{ cursor: 'se-resize' }}
-        />
+        <>
+          <div
+            className="absolute w-6 h-6 bg-blue-500 rounded cursor-se-resize hover:bg-blue-600 transition-colors shadow-lg border-2 border-white"
+            onMouseDown={handleMouseDown}
+            style={{ 
+              bottom: '-8px',
+              right: '-8px',
+              cursor: 'se-resize',
+              zIndex: 50
+            }}
+          />
+          {isHovered && !isResizing && (
+            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+              Drag corner to resize
+            </div>
+          )}
+        </>
       )}
     </div>
   )
