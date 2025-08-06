@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { DashboardNav } from '@/components/dashboard-nav'
 import { useAuth } from '@/lib/auth-context'
 import { renderFunnelTemplate } from '@/lib/funnel-templates'
+import { SpacerData } from '@/lib/universal-spacer'
 import { 
   ArrowLeft, 
   Save, 
@@ -158,7 +159,9 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         afterCaseStudies: 32,
         beforeFooter: 48
       }
-    }
+    },
+    // Universal spacers for flexible spacing between any components
+    universalSpacers: {} as SpacerData
   })
 
   // Get page count based on template type
@@ -388,7 +391,8 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
               afterCaseStudies: 32,
               beforeFooter: 48
             }
-          }
+          },
+          universalSpacers: data.funnel.data?.customization?.universalSpacers || {}
         })
       } else {
         console.error('Failed to load funnel')
@@ -562,6 +566,19 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         [currentView]: {
           ...prev.sectionSpacing[currentView],
           [key]: value
+        }
+      }
+    }))
+  }
+
+  const handleUniversalSpacerChange = (spacerId: string, value: number) => {
+    setCustomization(prev => ({
+      ...prev,
+      universalSpacers: {
+        ...prev.universalSpacers,
+        [spacerId]: {
+          ...prev.universalSpacers[spacerId],
+          [currentView]: value
         }
       }
     }))
@@ -1582,7 +1599,9 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             buttonSizes: customization.buttonSizes, // Pass button sizes to the template
             onFieldEdit: handleFieldUpdate, // Pass field update handler for text editing
             sectionSpacing: customization.sectionSpacing, // Pass section spacing
-            onSectionSpacingChange: handleSectionSpacingChange // Pass spacing change handler
+            onSectionSpacingChange: handleSectionSpacingChange, // Pass spacing change handler
+            universalSpacers: customization.universalSpacers, // Pass universal spacers
+            onUniversalSpacerChange: handleUniversalSpacerChange // Pass universal spacer handler
           })}
         </div>
       </div>

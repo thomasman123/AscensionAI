@@ -1,5 +1,6 @@
 import React from 'react'
 import { TriggerTemplatePage1, TriggerTemplatePage2 } from './clean-trigger-template'
+import { SpacerData } from './universal-spacer'
 
 export interface FunnelTemplateProps {
   funnelData: any
@@ -46,6 +47,8 @@ export interface FunnelTemplateProps {
     }
   }
   onSectionSpacingChange?: (key: string, value: number) => void
+  universalSpacers?: SpacerData
+  onUniversalSpacerChange?: (spacerId: string, value: number) => void
 }
 
 export const TriggerTemplate1 = ({ 
@@ -68,7 +71,9 @@ export const TriggerTemplate1 = ({
   buttonSizes,
   onFieldEdit,
   sectionSpacing,
-  onSectionSpacingChange
+  onSectionSpacingChange,
+  universalSpacers,
+  onUniversalSpacerChange
 }: FunnelTemplateProps) => {
   // Use content if provided, otherwise fall back to funnelData
   const templateContent = content || funnelData
@@ -90,6 +95,8 @@ export const TriggerTemplate1 = ({
       buttonSizes={buttonSizes}
       sectionSpacing={sectionSpacing}
       onSectionSpacingChange={onSectionSpacingChange}
+      universalSpacers={universalSpacers}
+      onUniversalSpacerChange={onUniversalSpacerChange}
       onFieldEdit={onFieldEdit || ((fieldId, value) => {
         if (isEditor && renderEditableText) {
           const field = editableFields.find((f: any) => f.id === fieldId)
@@ -116,6 +123,8 @@ export const TriggerTemplate1 = ({
     buttonSizes={buttonSizes}
     sectionSpacing={sectionSpacing}
     onSectionSpacingChange={onSectionSpacingChange}
+    universalSpacers={universalSpacers}
+    onUniversalSpacerChange={onUniversalSpacerChange}
     vslData={{
       url: funnelData.vsl_url,
       type: funnelData.vsl_type

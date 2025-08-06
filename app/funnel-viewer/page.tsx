@@ -417,8 +417,11 @@ function FunnelViewerContent() {
             goToNextPage,
             currentPage,
             customization: {
-              themeMode: (funnelData as any).theme_mode || 'light'
-            }
+              themeMode: (funnelData as any).theme_mode || 'light',
+              ...(funnelData as any).data?.customization
+            },
+            universalSpacers: (funnelData as any).data?.customization?.universalSpacers || {},
+            currentView: typeof window !== 'undefined' && window.innerWidth < 768 ? 'mobile' : 'desktop'
           })}
         </div>
       </div>

@@ -5,120 +5,9 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import { TemplateProps, getFieldValue, TRIGGER_TEMPLATE_1_FIELDS } from './funnel-template-middleware'
+import { UniversalSpacer, generateSpacerId } from './universal-spacer'
 
-// Spacing Editor Component for adjustable spacing between sections
-interface SpacingEditorProps {
-  spacingKey: string
-  currentSpacing: number
-  onSpacingChange: (key: string, value: number) => void
-  isVisible?: boolean
-}
-
-const SpacingEditor: React.FC<SpacingEditorProps> = ({ 
-  spacingKey, 
-  currentSpacing, 
-  onSpacingChange,
-  isVisible = true
-}) => {
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragStartY, setDragStartY] = useState(0)
-  const [dragStartSpacing, setDragStartSpacing] = useState(currentSpacing)
-  const [isHovered, setIsHovered] = useState(false)
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging) return
-      
-      const deltaY = e.clientY - dragStartY
-      const newSpacing = Math.max(0, Math.min(300, dragStartSpacing + deltaY))
-      onSpacingChange(spacingKey, newSpacing)
-    }
-
-    const handleMouseUp = () => {
-      setIsDragging(false)
-    }
-
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove)
-      document.addEventListener('mouseup', handleMouseUp)
-      document.body.style.cursor = 'ns-resize'
-      
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove)
-        document.removeEventListener('mouseup', handleMouseUp)
-        document.body.style.cursor = 'auto'
-      }
-    }
-  }, [isDragging, dragStartY, dragStartSpacing, spacingKey, onSpacingChange])
-
-  if (!isVisible) return <div style={{ height: `${currentSpacing}px` }} />
-
-  return (
-    <div 
-      className="relative group"
-      style={{ height: `${currentSpacing}px` }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Always visible spacing indicator lines */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent opacity-50" />
-      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent opacity-50" />
-      
-      {/* Draggable area */}
-      <div 
-        className={`absolute inset-x-0 top-1/2 -translate-y-1/2 h-8 flex items-center justify-center cursor-ns-resize transition-all ${
-          isHovered || isDragging ? 'opacity-100' : 'opacity-40'
-        }`}
-        onMouseDown={(e) => {
-          e.preventDefault()
-          setIsDragging(true)
-          setDragStartY(e.clientY)
-          setDragStartSpacing(currentSpacing)
-        }}
-      >
-        {/* Main divider line */}
-        <div className={`absolute inset-x-4 h-0.5 transition-all ${
-          isDragging ? 'bg-blue-500' : isHovered ? 'bg-blue-400' : 'bg-gray-300'
-        }`}>
-          {/* Draggable handle */}
-          <div className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 px-3 py-1 rounded-full transition-all ${
-            isDragging ? 'bg-blue-500' : isHovered ? 'bg-blue-400' : 'bg-gray-300'
-          }`}>
-            {/* Handle dots */}
-            <div className="flex gap-0.5">
-              <div className="w-1 h-3 bg-white rounded-full opacity-60" />
-              <div className="w-1 h-3 bg-white rounded-full opacity-60" />
-              <div className="w-1 h-3 bg-white rounded-full opacity-60" />
-            </div>
-            
-            {/* Spacing value display */}
-            {(isHovered || isDragging) && (
-              <div className="text-xs font-medium text-white whitespace-nowrap">
-                {currentSpacing}px
-              </div>
-            )}
-          </div>
-        </div>
-        
-        {/* Visual feedback arrows */}
-        {isDragging && (
-          <>
-            <div className="absolute left-1/2 -translate-x-1/2 -top-6 text-blue-500 animate-bounce">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a1 1 0 01-.707-.293l-7-7a1 1 0 011.414-1.414L10 15.586l6.293-6.293a1 1 0 011.414 1.414l-7 7A1 1 0 0110 18z" clipRule="evenodd" transform="rotate(180 10 10)" />
-              </svg>
-            </div>
-            <div className="absolute left-1/2 -translate-x-1/2 -bottom-6 text-blue-500 animate-bounce">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a1 1 0 01-.707-.293l-7-7a1 1 0 011.414-1.414L10 15.586l6.293-6.293a1 1 0 011.414 1.414l-7 7A1 1 0 0110 18z" clipRule="evenodd" />
-              </svg>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  )
-}
+// Old SpacingEditor component removed - now using UniversalSpacer
 
 // Logo Resizer Component for Editor
 const LogoResizer: React.FC<{
@@ -283,7 +172,9 @@ export const TriggerTemplatePage1: React.FC<TemplateProps & {
   buttonSizes,
   onFieldEdit,
   sectionSpacing,
-  onSectionSpacingChange
+  onSectionSpacingChange,
+  universalSpacers,
+  onUniversalSpacerChange
 }) => {
   // Get theme styles from the parent funnel template
   const themeStyles = funnelData?.themeStyles || {
@@ -400,18 +291,19 @@ export const TriggerTemplatePage1: React.FC<TemplateProps & {
       </header>
 
       {/* Spacing after header */}
-      {isEditor && (
-        <SpacingEditor
-          spacingKey="afterHeader"
-          currentSpacing={getSpacing('afterHeader')}
-          onSpacingChange={handleSpacingChange}
-        />
-      )}
+      <UniversalSpacer
+        spacerId={generateSpacerId('trigger-template-1', 1, 'header')}
+        currentView={currentView}
+        spacerData={universalSpacers}
+        onSpacingChange={onUniversalSpacerChange}
+        isEditor={isEditor}
+        defaultSpacing={{ desktop: 48, mobile: 32 }}
+      />
 
       <div className="container mx-auto px-6 max-w-4xl flex-1">
         
         {/* 1. HEADING */}
-        <section className="text-center" style={{ paddingTop: !isEditor ? `${getSpacing('afterHeader')}px` : 0 }}>
+        <section className="text-center">
           <EditableText
             fieldId="heading"
             className="text-4xl md:text-5xl lg:text-6xl leading-tight font-bold"
@@ -422,16 +314,17 @@ export const TriggerTemplatePage1: React.FC<TemplateProps & {
         </section>
 
         {/* Spacing after heading */}
-        {isEditor && (
-          <SpacingEditor
-            spacingKey="afterHeading"
-            currentSpacing={getSpacing('afterHeading')}
-            onSpacingChange={handleSpacingChange}
-          />
-        )}
+        <UniversalSpacer
+          spacerId={generateSpacerId('trigger-template-1', 1, 'heading')}
+          currentView={currentView}
+          spacerData={universalSpacers}
+          onSpacingChange={onUniversalSpacerChange}
+          isEditor={isEditor}
+          defaultSpacing={{ desktop: 24, mobile: 16 }}
+        />
 
         {/* 2. SUBHEADING */}
-        <section className="text-center" style={{ paddingTop: !isEditor ? `${getSpacing('afterHeading')}px` : 0 }}>
+        <section className="text-center">
           <EditableText
             fieldId="subheading"
             className="text-xl md:text-2xl max-w-3xl mx-auto"
@@ -442,16 +335,17 @@ export const TriggerTemplatePage1: React.FC<TemplateProps & {
         </section>
 
         {/* Spacing after subheading */}
-        {isEditor && (
-          <SpacingEditor
-            spacingKey="afterSubheading"
-            currentSpacing={getSpacing('afterSubheading')}
-            onSpacingChange={handleSpacingChange}
-          />
-        )}
+        <UniversalSpacer
+          spacerId={generateSpacerId('trigger-template-1', 1, 'subheading')}
+          currentView={currentView}
+          spacerData={universalSpacers}
+          onSpacingChange={onUniversalSpacerChange}
+          isEditor={isEditor}
+          defaultSpacing={{ desktop: 48, mobile: 32 }}
+        />
 
         {/* 3. VSL */}
-        <section className="text-center" style={{ paddingTop: !isEditor ? `${getSpacing('afterSubheading')}px` : 0 }}>
+        <section className="text-center">
           <div className="max-w-4xl mx-auto">
             {vslData?.url ? (
               vslData.type === 'youtube' ? (
@@ -487,16 +381,17 @@ export const TriggerTemplatePage1: React.FC<TemplateProps & {
         </section>
 
         {/* Spacing after VSL */}
-        {isEditor && (
-          <SpacingEditor
-            spacingKey="afterVsl"
-            currentSpacing={getSpacing('afterVsl')}
-            onSpacingChange={handleSpacingChange}
-          />
-        )}
+        <UniversalSpacer
+          spacerId={generateSpacerId('trigger-template-1', 1, 'vsl')}
+          currentView={currentView}
+          spacerData={universalSpacers}
+          onSpacingChange={onUniversalSpacerChange}
+          isEditor={isEditor}
+          defaultSpacing={{ desktop: 48, mobile: 32 }}
+        />
 
         {/* 4. CTA 1 */}
-        <section className="text-center" style={{ paddingTop: !isEditor ? `${getSpacing('afterVsl')}px` : 0 }}>
+        <section className="text-center">
           {isEditor ? (
             <EditableText
               fieldId="ctaText"
@@ -526,16 +421,17 @@ export const TriggerTemplatePage1: React.FC<TemplateProps & {
         </section>
 
         {/* Spacing after first CTA */}
-        {isEditor && (
-          <SpacingEditor
-            spacingKey="afterFirstCta"
-            currentSpacing={getSpacing('afterFirstCta')}
-            onSpacingChange={handleSpacingChange}
-          />
-        )}
+        <UniversalSpacer
+          spacerId={generateSpacerId('trigger-template-1', 1, 'first-cta')}
+          currentView={currentView}
+          spacerData={universalSpacers}
+          onSpacingChange={onUniversalSpacerChange}
+          isEditor={isEditor}
+          defaultSpacing={{ desktop: 64, mobile: 48 }}
+        />
 
         {/* 5. CASE STUDIES */}
-        <section className="py-16" style={{ paddingTop: !isEditor ? `${getSpacing('afterFirstCta')}px` : 0 }}>
+        <section className="py-16">
           <div className="text-center mb-12">
             <EditableText
               fieldId="caseStudiesHeading"
@@ -580,16 +476,17 @@ export const TriggerTemplatePage1: React.FC<TemplateProps & {
         </section>
 
         {/* Spacing after case studies */}
-        {isEditor && (
-          <SpacingEditor
-            spacingKey="afterCaseStudies"
-            currentSpacing={getSpacing('afterCaseStudies')}
-            onSpacingChange={handleSpacingChange}
-          />
-        )}
+        <UniversalSpacer
+          spacerId={generateSpacerId('trigger-template-1', 1, 'case-studies')}
+          currentView={currentView}
+          spacerData={universalSpacers}
+          onSpacingChange={onUniversalSpacerChange}
+          isEditor={isEditor}
+          defaultSpacing={{ desktop: 48, mobile: 32 }}
+        />
 
         {/* 6. CTA 2 */}
-        <section className="text-center" style={{ paddingTop: !isEditor ? `${getSpacing('afterCaseStudies')}px` : 0 }}>
+        <section className="text-center">
           {isEditor ? (
             <EditableText
               fieldId="ctaText"
@@ -621,22 +518,21 @@ export const TriggerTemplatePage1: React.FC<TemplateProps & {
       </div>
 
       {/* Spacing before footer */}
-      {isEditor && (
-        <SpacingEditor
-          spacingKey="beforeFooter"
-          currentSpacing={getSpacing('beforeFooter')}
-          onSpacingChange={handleSpacingChange}
-        />
-      )}
+      <UniversalSpacer
+        spacerId={generateSpacerId('trigger-template-1', 1, 'second-cta')}
+        currentView={currentView}
+        spacerData={universalSpacers}
+        onSpacingChange={onUniversalSpacerChange}
+        isEditor={isEditor}
+        defaultSpacing={{ desktop: 64, mobile: 48 }}
+      />
 
-      {/* 7. FOOTER - Full width and sticky */}
+      {/* 7. FOOTER - Full width */}
       <footer 
-        className="px-6 text-center border-t mt-auto"
+        className="px-6 py-8 text-center border-t"
         style={{ 
           borderColor: themeStyles.borderColor,
-          backgroundColor: themeStyles.sectionBg,
-          paddingTop: !isEditor ? `${getSpacing('beforeFooter')}px` : '32px',
-          paddingBottom: '32px'
+          backgroundColor: themeStyles.sectionBg
         }}
       >
         <div className="container mx-auto max-w-4xl">
@@ -668,7 +564,9 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
   buttonSizes,
   onFieldEdit,
   sectionSpacing,
-  onSectionSpacingChange
+  onSectionSpacingChange,
+  universalSpacers,
+  onUniversalSpacerChange
 }) => {
   // Get theme styles
   const isDark = customization?.themeMode === 'dark'
@@ -785,13 +683,14 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
       </header>
 
       {/* Spacing after header */}
-      {isEditor && (
-        <SpacingEditor
-          spacingKey="afterHeader"
-          currentSpacing={getSpacing('afterHeader')}
-          onSpacingChange={handleSpacingChange}
-        />
-      )}
+      <UniversalSpacer
+        spacerId={generateSpacerId('trigger-template-1', 2, 'header')}
+        currentView={currentView}
+        spacerData={universalSpacers}
+        onSpacingChange={onUniversalSpacerChange}
+        isEditor={isEditor}
+        defaultSpacing={{ desktop: 48, mobile: 32 }}
+      />
 
       <div className="container mx-auto px-6 max-w-4xl flex-1">
         
@@ -807,13 +706,14 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
         </section>
 
         {/* Spacing after heading */}
-        {isEditor && (
-          <SpacingEditor
-            spacingKey="afterHeading"
-            currentSpacing={getSpacing('afterHeading')}
-            onSpacingChange={handleSpacingChange}
-          />
-        )}
+        <UniversalSpacer
+          spacerId={generateSpacerId('trigger-template-1', 2, 'booking-heading')}
+          currentView={currentView}
+          spacerData={universalSpacers}
+          onSpacingChange={onUniversalSpacerChange}
+          isEditor={isEditor}
+          defaultSpacing={{ desktop: 24, mobile: 16 }}
+        />
 
         {/* 2. BOOKING CALENDAR EMBED */}
         <section className="py-12">
@@ -826,14 +726,15 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
           </div>
         </section>
 
-        {/* Spacing after subheading */}
-        {isEditor && (
-          <SpacingEditor
-            spacingKey="afterSubheading"
-            currentSpacing={getSpacing('afterSubheading')}
-            onSpacingChange={handleSpacingChange}
-          />
-        )}
+        {/* Spacing after calendar */}
+        <UniversalSpacer
+          spacerId={generateSpacerId('trigger-template-1', 2, 'calendar')}
+          currentView={currentView}
+          spacerData={universalSpacers}
+          onSpacingChange={onUniversalSpacerChange}
+          isEditor={isEditor}
+          defaultSpacing={{ desktop: 48, mobile: 32 }}
+        />
 
         {/* 3. CASE STUDIES */}
         <section className="py-16">

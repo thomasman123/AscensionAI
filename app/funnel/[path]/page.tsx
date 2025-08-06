@@ -265,6 +265,7 @@ export default function FunnelPathPage() {
             mobile: 36
           },
           currentView: isMobileView ? 'mobile' : 'desktop', // Use detected device type
+          universalSpacers: funnel.data?.customization?.universalSpacers || {},
           sectionSpacing: funnel.data?.customization?.sectionSpacing || {
             desktop: {
               afterHeader: 48,

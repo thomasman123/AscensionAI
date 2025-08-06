@@ -4,6 +4,7 @@
  */
 
 import React from 'react'
+import { SpacerData } from './universal-spacer'
 
 // Define what fields can be edited in templates
 export interface TemplateField {
@@ -131,4 +132,6 @@ export interface TemplateProps {
     }
   }
   onSectionSpacingChange?: (key: string, value: number) => void
+  universalSpacers?: SpacerData
+  onUniversalSpacerChange?: (spacerId: string, value: number) => void
 } 
