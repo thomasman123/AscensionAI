@@ -264,7 +264,27 @@ export default function FunnelPathPage() {
             desktop: 48,
             mobile: 36
           },
-          currentView: isMobileView ? 'mobile' : 'desktop' // Use detected device type
+          currentView: isMobileView ? 'mobile' : 'desktop', // Use detected device type
+          sectionSpacing: funnel.data?.customization?.sectionSpacing || {
+            desktop: {
+              afterHeader: 48,
+              afterHeading: 24,
+              afterSubheading: 48,
+              afterVsl: 48,
+              afterFirstCta: 64,
+              afterCaseStudies: 48,
+              beforeFooter: 64
+            },
+            mobile: {
+              afterHeader: 32,
+              afterHeading: 16,
+              afterSubheading: 32,
+              afterVsl: 32,
+              afterFirstCta: 48,
+              afterCaseStudies: 32,
+              beforeFooter: 48
+            }
+          }
         })}
       </div>
       
