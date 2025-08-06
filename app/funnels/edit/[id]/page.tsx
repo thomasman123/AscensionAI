@@ -28,7 +28,8 @@ import {
   Sun,
   Moon,
   X,
-  Trash2
+  Trash2,
+  ChevronRight
 } from 'lucide-react'
 
 import { CaseStudyForm, type CaseStudy } from '@/components/case-study-form'
@@ -49,6 +50,12 @@ interface EditableField {
   label: string
 }
 
+interface SelectedElement {
+  fieldId: string
+  type: 'text' | 'button'
+  isCtaButton?: boolean
+}
+
 export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   const { user } = useAuth()
   const router = useRouter()
@@ -63,6 +70,11 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   const [showCaseStudiesModal, setShowCaseStudiesModal] = useState(false)
   const [caseStudies, setCaseStudies] = useState<any[]>([])
   const [isSavingCaseStudies, setIsSavingCaseStudies] = useState(false)
+  
+  // New states for settings tray
+  const [selectedElement, setSelectedElement] = useState<SelectedElement | null>(null)
+  const [showSettingsTray, setShowSettingsTray] = useState(false)
+  const [elementClicks, setElementClicks] = useState<Record<string, number>>({})
 
   const [customization, setCustomization] = useState({
     heading: '',
@@ -104,6 +116,15 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     logoSize: {
       desktop: 48,
       mobile: 36
+    },
+    // Button sizes for desktop and mobile
+    buttonSizes: {
+      desktop: {
+        ctaText: 100
+      },
+      mobile: {
+        ctaText: 100
+      }
     }
   })
 
@@ -255,6 +276,15 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           logoSize: data.funnel.data?.customization?.logoSize || {
             desktop: 48,
             mobile: 36
+          },
+          // Button sizes for desktop and mobile
+          buttonSizes: data.funnel.data?.customization?.buttonSizes || {
+            desktop: {
+              ctaText: 100
+            },
+            mobile: {
+              ctaText: 100
+            }
           }
         })
       } else {
@@ -357,6 +387,29 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     }
   }
 
+  const handleElementClick = (fieldId: string, type: 'text' | 'button', isCtaButton?: boolean) => {
+    const clicks = elementClicks[fieldId] || 0
+    const newClicks = clicks + 1
+    setElementClicks({ ...elementClicks, [fieldId]: newClicks })
+
+    // Reset click count after a delay
+    setTimeout(() => {
+      setElementClicks(prev => ({ ...prev, [fieldId]: 0 }))
+    }, 500)
+
+    if (newClicks === 1) {
+      // First click - show settings tray
+      setSelectedElement({ fieldId, type, isCtaButton })
+      setShowSettingsTray(true)
+      setActiveEdit(null)
+    } else if (newClicks === 2) {
+      // Second click - edit text inline
+      setShowSettingsTray(false)
+      setActiveEdit(fieldId)
+      setJustActivated(fieldId)
+    }
+  }
+
   const handleTextSizeChange = (fieldId: string, size: number) => {
     setCustomization(prev => ({
       ...prev,
@@ -364,6 +417,29 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         ...prev.textSizes,
         [currentView]: {
           ...prev.textSizes[currentView],
+          [fieldId]: size
+        }
+      }
+    }))
+  }
+
+  const handleButtonSizeChange = (fieldId: string, size: number) => {
+    if (!customization.buttonSizes) {
+      setCustomization(prev => ({
+        ...prev,
+        buttonSizes: {
+          desktop: { ctaText: 100 },
+          mobile: { ctaText: 100 }
+        }
+      }))
+    }
+    
+    setCustomization(prev => ({
+      ...prev,
+      buttonSizes: {
+        ...prev.buttonSizes,
+        [currentView]: {
+          ...prev.buttonSizes[currentView],
           [fieldId]: size
         }
       }
@@ -404,27 +480,16 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     const isCta = field.id === 'ctaText'
     const isBookingHeading = field.id === 'bookingHeading'
     
-    // console.log('renderEditableText called:', {
-    //   fieldId: field.id,
-    //   activeEdit,
-    //   isActive,
-    //   isCta,
-    //   fieldValue: field.value,
-    //   fieldType: field.type
-    // })
-    
     if (isActive) {
-      // console.log('Rendering active edit field:', field.id)
+      // Active editing mode
       return field.type === 'textarea' ? (
         <Textarea
           value={field.value}
           onChange={(e) => handleFieldUpdate(field.id, e.target.value)}
           onBlur={() => {
             if (justActivated === field.id) {
-              console.log('Ignoring onBlur during grace period for:', field.id)
               return
             }
-            console.log('onBlur clearing activeEdit for:', field.id)
             setActiveEdit(null)
           }}
           onKeyDown={(e) => {
@@ -445,10 +510,8 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           onChange={(e) => handleFieldUpdate(field.id, e.target.value)}
           onBlur={() => {
             if (justActivated === field.id) {
-              console.log('Ignoring onBlur during grace period for:', field.id)
               return
             }
-            console.log('onBlur clearing activeEdit for:', field.id)
             setActiveEdit(null)
           }}
           onKeyDown={(e) => {
@@ -486,6 +549,13 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       return displayText
     }
 
+    // Get text size for current view
+    const viewSizes = customization.textSizes[currentView]
+    const textSize = viewSizes && typeof viewSizes === 'object' && field.id in viewSizes 
+      ? (viewSizes as any)[field.id] 
+      : 100
+    const buttonSize = isCta ? (customization.buttonSizes?.[currentView]?.ctaText || 100) : 100
+
     // Special styling for CTA buttons
     if (isCta) {
       return (
@@ -493,12 +563,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
-            console.log('CTA button clicked for editing:', field.id)
-            console.log('Setting activeEdit to:', field.id)
-            // Set grace period immediately before setting activeEdit
-            setJustActivated(field.id)
-            setActiveEdit(field.id)
-            console.log('activeEdit state after click:', field.id)
+            handleElementClick(field.id, 'button', true)
           }}
           className="relative group cursor-pointer inline-block"
         >
@@ -508,7 +573,9 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
               background: 'linear-gradient(135deg, #3b82f6, #1e40af)',
               border: '2px solid transparent',
               color: isPlaceholder ? '#E5E7EB' : '#FFFFFF',
-              fontStyle: isPlaceholder ? 'italic' : 'normal'
+              fontStyle: isPlaceholder ? 'italic' : 'normal',
+              fontSize: `${textSize}%`,
+              transform: `scale(${buttonSize / 100})`
             }}
           >
             {renderText()}
@@ -527,9 +594,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
-            // Set grace period immediately before setting activeEdit
-            setJustActivated(field.id)
-            setActiveEdit(field.id)
+            handleElementClick(field.id, 'text')
           }}
           className="relative group cursor-pointer text-center"
         >
@@ -537,7 +602,8 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 hover:bg-blue-50 rounded p-2 transition-colors"
             style={{
               color: isPlaceholder ? '#9CA3AF' : 'inherit',
-              fontStyle: isPlaceholder ? 'italic' : 'normal'
+              fontStyle: isPlaceholder ? 'italic' : 'normal',
+              fontSize: `${textSize}%`
             }}
           >
             {renderText()}
@@ -555,14 +621,13 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         onClick={(e) => {
           e.preventDefault()
           e.stopPropagation()
-          // Set grace period immediately before setting activeEdit
-          setJustActivated(field.id)
-          setActiveEdit(field.id)
+          handleElementClick(field.id, 'text')
         }}
         className="relative group cursor-pointer hover:bg-blue-50 rounded p-2 transition-colors min-h-[2rem] flex items-start"
         style={{
           color: isPlaceholder ? '#9CA3AF' : 'inherit',
-          fontStyle: isPlaceholder ? 'italic' : 'normal'
+          fontStyle: isPlaceholder ? 'italic' : 'normal',
+          fontSize: `${textSize}%`
         }}
       >
         <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
@@ -602,6 +667,136 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       alert('Failed to save case studies')
     }
     setIsSavingCaseStudies(false)
+  }
+
+  const renderSettingsTray = () => {
+    if (!showSettingsTray || !selectedElement) return null
+
+    const isButton = selectedElement.type === 'button'
+    const fieldId = selectedElement.fieldId
+    const currentTextSize = customization.textSizes[currentView]?.[fieldId as keyof typeof customization.textSizes[typeof currentView]] || 100
+    const currentButtonSize = isButton ? (customization.buttonSizes?.[currentView]?.ctaText || 100) : 100
+
+    return (
+      <div className="fixed right-0 top-0 h-full w-80 bg-tier-900 border-l border-tier-800 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out"
+        style={{ transform: showSettingsTray ? 'translateX(0)' : 'translateX(100%)' }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-tier-800">
+          <h3 className="text-lg font-semibold text-tier-50">
+            {isButton ? 'Button Settings' : 'Text Settings'}
+          </h3>
+          <button
+            onClick={() => setShowSettingsTray(false)}
+            className="text-tier-400 hover:text-tier-200 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-4 space-y-6">
+          {/* Font Size */}
+          <div>
+            <label className="block text-sm font-medium text-tier-300 mb-2">
+              Font Size ({currentView === 'mobile' ? 'Mobile' : 'Desktop'})
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="range"
+                min="50"
+                max="200"
+                value={currentTextSize}
+                onChange={(e) => handleTextSizeChange(fieldId, parseInt(e.target.value))}
+                className="flex-1"
+              />
+              <span className="text-tier-400 w-12 text-right">{currentTextSize}%</span>
+            </div>
+            <div className="flex justify-between mt-2">
+              <button
+                onClick={() => handleTextSizeChange(fieldId, 50)}
+                className="text-xs text-tier-500 hover:text-tier-300"
+              >
+                50%
+              </button>
+              <button
+                onClick={() => handleTextSizeChange(fieldId, 100)}
+                className="text-xs text-tier-500 hover:text-tier-300"
+              >
+                100%
+              </button>
+              <button
+                onClick={() => handleTextSizeChange(fieldId, 150)}
+                className="text-xs text-tier-500 hover:text-tier-300"
+              >
+                150%
+              </button>
+              <button
+                onClick={() => handleTextSizeChange(fieldId, 200)}
+                className="text-xs text-tier-500 hover:text-tier-300"
+              >
+                200%
+              </button>
+            </div>
+          </div>
+
+          {/* Button Size (only for buttons) */}
+          {isButton && (
+            <div>
+              <label className="block text-sm font-medium text-tier-300 mb-2">
+                Button Size ({currentView === 'mobile' ? 'Mobile' : 'Desktop'})
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="range"
+                  min="50"
+                  max="150"
+                  value={currentButtonSize}
+                  onChange={(e) => handleButtonSizeChange('ctaText', parseInt(e.target.value))}
+                  className="flex-1"
+                />
+                <span className="text-tier-400 w-12 text-right">{currentButtonSize}%</span>
+              </div>
+              <div className="flex justify-between mt-2">
+                <button
+                  onClick={() => handleButtonSizeChange('ctaText', 75)}
+                  className="text-xs text-tier-500 hover:text-tier-300"
+                >
+                  Small
+                </button>
+                <button
+                  onClick={() => handleButtonSizeChange('ctaText', 100)}
+                  className="text-xs text-tier-500 hover:text-tier-300"
+                >
+                  Medium
+                </button>
+                <button
+                  onClick={() => handleButtonSizeChange('ctaText', 125)}
+                  className="text-xs text-tier-500 hover:text-tier-300"
+                >
+                  Large
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Instructions */}
+          <div className="bg-tier-800 rounded-lg p-3">
+            <p className="text-sm text-tier-400">
+              <strong className="text-tier-300">Tip:</strong> Click the element again to edit the text content directly.
+            </p>
+          </div>
+
+          {/* Device Preview Note */}
+          <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-3">
+            <p className="text-sm text-blue-400">
+              You're editing for <strong>{currentView === 'mobile' ? 'Mobile' : 'Desktop'}</strong> view. 
+              Switch views to edit the other size.
+            </p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   const renderCaseStudiesModal = () => {
@@ -719,7 +914,9 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             onTextSizeChange: handleTextSizeChange, // Pass text size handler to the template
             currentView: currentView, // Pass current view (desktop/mobile)
             logoSize: customization.logoSize, // Pass logo sizes
-            onLogoSizeChange: handleLogoSizeChange // Pass logo size handler to the template
+            onLogoSizeChange: handleLogoSizeChange, // Pass logo size handler to the template
+            onElementClick: handleElementClick, // Pass element click handler to the template
+            buttonSizes: customization.buttonSizes // Pass button sizes to the template
           })}
         </div>
       </div>
@@ -1195,6 +1392,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       
       {/* Case Studies Modal */}
       {renderCaseStudiesModal()}
+      {renderSettingsTray()}
     </DashboardNav>
     </>
   )

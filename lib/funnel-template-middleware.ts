@@ -113,4 +113,13 @@ export interface TemplateProps {
     mobile: number
   }
   onLogoSizeChange?: (size: number) => void
+  onElementClick?: (fieldId: string, type: 'text' | 'button', isCtaButton?: boolean) => void
+  buttonSizes?: {
+    desktop?: {
+      [key: string]: number
+    }
+    mobile?: {
+      [key: string]: number
+    }
+  }
 } 

@@ -196,6 +196,14 @@ export async function POST(request: NextRequest) {
           logoSize: customization?.logoSize || {
             desktop: 48,
             mobile: 36
+          },
+          buttonSizes: customization?.buttonSizes || {
+            desktop: {
+              ctaText: 100
+            },
+            mobile: {
+              ctaText: 100
+            }
           }
         }
       }
@@ -418,6 +426,14 @@ export async function GET(request: NextRequest) {
             logoSize: funnel.data?.customization?.logoSize || {
               desktop: 48,
               mobile: 36
+            },
+            buttonSizes: funnel.data?.customization?.buttonSizes || {
+              desktop: {
+                ctaText: 100
+              },
+              mobile: {
+                ctaText: 100
+              }
             }
           }
         }
