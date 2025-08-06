@@ -116,7 +116,8 @@ async function getFunnelData(path: string | string[]) {
         status,
         meta_title,
         meta_description,
-        meta_keywords
+        meta_keywords,
+        case_studies (*)
       )
     `)
     .eq('domain', fullDomain.toLowerCase())
@@ -132,7 +133,10 @@ async function getFunnelData(path: string | string[]) {
   // Try direct domain match
   const { data: funnel } = await supabaseAdmin
     .from('saved_funnels')
-    .select('*')
+    .select(`
+      *,
+      case_studies (*)
+    `)
     .eq('domain', fullDomain.toLowerCase())
     .eq('status', 'published')
     .single()

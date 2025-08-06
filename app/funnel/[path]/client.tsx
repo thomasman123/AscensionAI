@@ -35,6 +35,7 @@ interface FunnelData {
   booking_heading?: string
   footer_text?: string
   status?: string
+  case_studies?: any[]
 }
 
 interface FunnelPageClientProps {
@@ -160,7 +161,7 @@ export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl
   }
 
   // Get case studies
-  const caseStudies = funnel.data?.caseStudies || []
+  const caseStudies = funnel.case_studies || funnel.data?.caseStudies || []
 
   // Theme styles
   const themeMode = funnel.data?.customization?.funnelTheme || 'light'

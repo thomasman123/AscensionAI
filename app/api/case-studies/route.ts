@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
         name: cs.name,
         description: cs.description,
         result: cs.result,
-        // metric field removed until migration is run
+        metric: cs.metric || null, // Add metric field (database expects it)
         media_url: cs.mediaUrl || cs.videoEmbedUrl || cs.media_url || null, // Handle different media URL fields
         media_type: cs.mediaType || cs.media_type || (cs.videoEmbedUrl ? 'video' : null)
       }))
