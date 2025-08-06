@@ -1,6 +1,7 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Loader2 } from "lucide-react"
+import Image from "next/image"
 
 // Spinner component
 interface SpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -151,13 +152,23 @@ const PremiumSpinner: React.FC<PremiumSpinnerProps> = ({ className, isContentRea
     <div className={cn("flex min-h-screen items-center justify-center bg-background", className)}>
       <div className="flex flex-col items-center space-y-6">
         {/* Logo or default branding */}
-        <div className="h-24 flex items-center justify-center">
+        <div className="h-24 w-full max-w-xs flex items-center justify-center">
           {logoUrl ? (
-            <img 
+            <Image
               src={logoUrl} 
               alt="Loading..." 
-              className="h-full object-contain animate-fade-in"
-              style={{ maxHeight: '96px' }}
+              width={200}
+              height={96}
+              priority
+              className="object-contain animate-fade-in"
+              style={{ maxHeight: '96px', width: 'auto' }}
+              onError={(e) => {
+                // Fallback to text if image fails to load
+                const target = e.target as HTMLElement
+                target.style.display = 'none'
+                const fallback = target.nextSibling as HTMLElement
+                if (fallback) fallback.style.display = 'block'
+              }}
             />
           ) : (
             <div className="text-3xl font-bold text-purple-600 animate-fade-in">
