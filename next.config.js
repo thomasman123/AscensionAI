@@ -10,6 +10,7 @@ const nextConfig = {
       'ascension-ai-sm36.vercel.app',
       // Add common image hosting domains
       'hhbqnfglxpolmtarajld.supabase.co',
+      'zziqdjirramdmuqrfmbp.supabase.co', // Add your specific Supabase project
       'supabase.co',
       'supabase.com',
       // Add any other domains you might use for images

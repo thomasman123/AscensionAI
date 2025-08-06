@@ -2,10 +2,22 @@ import { Suspense } from 'react'
 import { PremiumSpinner } from '@/components/ui/loading'
 import FunnelPageClient from './client'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { Metadata } from 'next'
 
 // Force dynamic rendering to ensure fresh data
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
+
+export async function generateMetadata({ params }: { params: { path: string | string[] } }): Promise<Metadata> {
+  const funnel = await getFunnelData(params.path)
+  const logoUrl = funnel?.logo_url || funnel?.data?.customization?.logoUrl
+  
+  return {
+    other: logoUrl ? {
+      'link': `<link rel="preload" href="${logoUrl}" as="image" />`
+    } : {}
+  }
+}
 
 interface FunnelData {
   id: string
@@ -140,8 +152,6 @@ export default async function FunnelPage({ params }: { params: { path: string | 
   }
   
   return (
-    <Suspense fallback={<PremiumSpinner logoUrl={logoUrl || undefined} />}>
-      <FunnelPageClient params={params} initialFunnel={funnel} initialLogoUrl={logoUrl} />
-    </Suspense>
+    <FunnelPageClient params={params} initialFunnel={funnel} initialLogoUrl={logoUrl} />
   )
 } 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { renderFunnelTemplate } from '@/lib/funnel-templates'
 import { PremiumSpinner } from '@/components/ui/loading'
@@ -53,7 +53,18 @@ export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [isContentReady, setIsContentReady] = useState(false) // Start false
   const [isMobileView, setIsMobileView] = useState(false)
-  const [logoUrl] = useState<string | null>(initialLogoUrl) // Don't need to update this since we have it from server
+  
+  // Log the logo URL to debug
+  console.log('🎨 Client: Initial logo URL:', initialLogoUrl)
+
+  // Preload logo immediately
+  useEffect(() => {
+    if (initialLogoUrl && !initialLogoUrl.startsWith('data:')) {
+      const img = new Image()
+      img.src = initialLogoUrl
+      console.log('🖼️ Preloading logo:', initialLogoUrl)
+    }
+  }, [initialLogoUrl])
 
   useEffect(() => {
     // Get page from URL params
@@ -130,7 +141,7 @@ export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl
   }, [params.path, initialFunnel])
 
   if (loading) {
-    return <PremiumSpinner isContentReady={isContentReady} logoUrl={logoUrl || undefined} />
+    return <PremiumSpinner isContentReady={isContentReady} logoUrl={initialLogoUrl || undefined} />
   }
 
   if (error || !funnel) {
@@ -177,7 +188,7 @@ export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl
     caseStudiesSubtext: funnel.case_studies_subtext || 'See what our clients have achieved',
     bookingHeading: funnel.booking_heading || 'Schedule Your Call',
     footerText: funnel.footer_text || '© 2024 All rights reserved',
-    logoUrl: logoUrl || funnel.logo_url || funnel.data?.customization?.logoUrl,
+    logoUrl: initialLogoUrl || funnel.logo_url || funnel.data?.customization?.logoUrl,
     ...(funnel.data?.customization || {}),
     universalSpacers: funnel.data?.customization?.universalSpacers || {}
   }

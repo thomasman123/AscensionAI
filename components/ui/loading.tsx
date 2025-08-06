@@ -157,32 +157,16 @@ const PremiumSpinner: React.FC<PremiumSpinnerProps> = ({ className, isContentRea
         {/* Logo if available */}
         {logoUrl && !imageError && (
           <div className="h-24 w-full max-w-xs flex items-center justify-center">
-            {logoUrl.startsWith('data:') ? (
-              <img
-                src={logoUrl} 
-                alt="Logo" 
-                className="object-contain animate-fade-in"
-                style={{ maxHeight: '96px', width: 'auto' }}
-                onError={() => {
-                  console.error('Failed to load logo')
-                  setImageError(true)
-                }}
-              />
-            ) : (
-              <Image
-                src={logoUrl} 
-                alt="Logo" 
-                width={200}
-                height={96}
-                priority
-                className="object-contain animate-fade-in"
-                style={{ maxHeight: '96px', width: 'auto' }}
-                onError={() => {
-                  console.error('Failed to load logo:', logoUrl)
-                  setImageError(true)
-                }}
-              />
-            )}
+            <img
+              src={logoUrl} 
+              alt="Logo" 
+              className="object-contain animate-fade-in"
+              style={{ maxHeight: '96px', width: 'auto' }}
+              onError={() => {
+                console.error('Failed to load logo:', logoUrl)
+                setImageError(true)
+              }}
+            />
           </div>
         )}
         
