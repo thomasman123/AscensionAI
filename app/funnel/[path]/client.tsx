@@ -153,7 +153,7 @@ export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl
     caseStudiesHeading: funnel.data?.customization?.caseStudiesHeading || funnel.case_studies_heading || 'Success Stories',
     caseStudiesSubtext: funnel.data?.customization?.caseStudiesSubtext || funnel.case_studies_subtext || 'See what others have achieved',
     bookingHeading: funnel.data?.customization?.bookingHeading || funnel.booking_heading || 'Schedule Your Call',
-    footerText: funnel.data?.customization?.footerText || funnel.footer_text || '© 2024 All rights reserved',
+    footerText: funnel.data?.customization?.footerText || '© 2024 All rights reserved',
     logoUrl: initialLogoUrl || funnel.logo_url || funnel.data?.customization?.logoUrl,
     ...(funnel.data?.customization || {}),
     universalSpacers: funnel.data?.customization?.universalSpacers || {}
@@ -188,7 +188,18 @@ export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl
         isEditor: false,
         goToNextPage,
         currentView: isMobileView ? 'mobile' : 'desktop',
-        content: funnel.data?.content || {},
+        content: {
+          heading: funnel.data?.customization?.heading || funnel.headline || '',
+          subheading: funnel.data?.customization?.subheading || funnel.subheadline || '',
+          ctaText: funnel.data?.customization?.ctaText || funnel.cta_text || 'Get Started',
+          caseStudiesHeading: funnel.data?.customization?.caseStudiesHeading || funnel.case_studies_heading || 'Success Stories',
+          caseStudiesSubtext: funnel.data?.customization?.caseStudiesSubtext || funnel.case_studies_subtext || 'See what others have achieved',
+          bookingHeading: funnel.data?.customization?.bookingHeading || funnel.booking_heading || 'Book Your Strategy Call',
+          heroText: funnel.data?.customization?.heroText || funnel.hero_text || '',
+          offerDescription: funnel.data?.customization?.offerDescription || funnel.offer_description || '',
+          guaranteeText: funnel.data?.customization?.guaranteeText || funnel.guarantee_text || '',
+          footerText: funnel.data?.customization?.footerText || '© 2024 All rights reserved.'
+        },
         themeStyles
       })}
     </div>

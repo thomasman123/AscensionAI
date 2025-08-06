@@ -458,7 +458,7 @@ export async function GET(request: NextRequest) {
             metaDescription: funnel.meta_description || '',
             metaKeywords: funnel.meta_keywords || '',
             // Add footer text
-            footerText: funnel.data?.customization?.footerText || funnel.footer_text || '© 2024 Your Business. All rights reserved.'
+            footerText: funnel.data?.customization?.footerText || '© 2024 Your Business. All rights reserved.'
           }
         }
       }
