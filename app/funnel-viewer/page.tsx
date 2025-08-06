@@ -8,23 +8,12 @@ import { Badge } from '@/components/ui/badge'
 import { CheckCircle, Star, Clock, Users, ArrowRight, Play, ArrowLeft, Sun, Moon, Shield, Zap, Target } from 'lucide-react'
 import Head from 'next/head'
 import { renderFunnelTemplate } from '@/lib/funnel-templates'
-import { getGoogleFontsUrl } from '@/lib/funnel-styling-service'
+// Font styling removed - will rebuild design system from scratch
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
 
-// Helper function to map database font family back to font group
-function getFontGroupFromDatabase(fontFamily: string | undefined): string {
-  if (!fontFamily) return 'professional'
-  
-  const fontMapping: Record<string, string> = {
-    'inter': 'professional',
-    'serif': 'classic',
-    'system': 'modern'
-  }
-  
-  return fontMapping[fontFamily] || 'professional'
-}
+// Font functionality removed - will rebuild design system from scratch
 
 interface FunnelData {
   id: string
@@ -358,12 +347,6 @@ function FunnelViewerContent() {
           {funnelData.meta_keywords && <meta name="keywords" content={funnelData.meta_keywords} />}
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           
-          {/* Google Fonts */}
-          <link
-            href={getGoogleFontsUrl(getFontGroupFromDatabase((funnelData as any).font_family))}
-            rel="stylesheet"
-          />
-          
           {/* Open Graph Meta Tags */}
           <meta property="og:title" content={funnelData.meta_title || funnelData.headline} />
           <meta property="og:description" content={funnelData.meta_description || funnelData.subheadline} />
@@ -434,7 +417,6 @@ function FunnelViewerContent() {
             goToNextPage,
             currentPage,
             customization: {
-              fontGroup: getFontGroupFromDatabase((funnelData as any).font_family),
               themeMode: (funnelData as any).theme_mode || 'light'
             }
           })}

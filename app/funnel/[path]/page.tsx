@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { renderFunnelTemplate } from '@/lib/funnel-templates'
-import { getGoogleFontsUrl } from '@/lib/funnel-styling-service'
 import { PremiumSpinner } from '@/components/ui/loading'
 
 // Force dynamic rendering
@@ -118,21 +117,7 @@ export default function FunnelPathPage() {
     )
   }
 
-  // Helper function to map database font family back to font group
-  function getFontGroupFromDatabase(fontFamily: string | undefined): string {
-    if (!fontFamily) return 'professional'
-    
-    const fontMapping: Record<string, string> = {
-      'inter': 'professional',
-      'serif': 'classic',
-      'system': 'modern'
-    }
-    
-    return fontMapping[fontFamily] || 'professional'
-  }
-
-  const fontGroup = getFontGroupFromDatabase(funnel.font_family)
-  const googleFontsUrl = getGoogleFontsUrl(fontGroup)
+  // Font functionality removed - will rebuild design system from scratch
 
   // Theme styling logic
   const isDarkMode = funnel.theme_mode === 'dark'
@@ -195,11 +180,6 @@ export default function FunnelPathPage() {
         <title>{funnel.name} | AscensionAI</title>
         <meta name="description" content={funnel.headline || funnel.name} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        
-        {/* Google Fonts */}
-        {googleFontsUrl && (
-          <link href={googleFontsUrl} rel="stylesheet" />
-        )}
         
         {/* Tracking codes */}
         {funnel.facebook_pixel_code && (

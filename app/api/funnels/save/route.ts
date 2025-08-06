@@ -4,15 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic'
 
-// Map font groups to database font family values
-function getFontFromGroup(fontGroup: string): string {
-  const fontMapping = {
-    professional: 'inter',
-    classic: 'serif', 
-    modern: 'system'
-  }
-  return fontMapping[fontGroup as keyof typeof fontMapping] || 'inter'
-}
+// Font functionality removed - will rebuild design system from scratch
 
 export interface SavedFunnel {
   id: string
@@ -156,7 +148,8 @@ export async function POST(request: NextRequest) {
       background_color: '#FFFFFF',
       text_color: '#1F2937',
       logo_url: customization?.logoUrl || null,
-      font_family: getFontFromGroup(customization?.fontGroup || 'professional'),
+      // Font removed - will rebuild design system from scratch
+      font_family: null,
       theme_style: 'clean', // Always use clean theme
       theme_mode: customization?.themeMode || 'light',
       
@@ -165,7 +158,12 @@ export async function POST(request: NextRequest) {
       google_analytics_id: customization?.pixelIds?.google || null,
       facebook_pixel_code: customization?.pixelCodes?.facebook || null,
       google_analytics_code: customization?.pixelCodes?.google || null,
-      custom_tracking_code: customization?.pixelCodes?.custom || null
+      custom_tracking_code: customization?.pixelCodes?.custom || null,
+      
+      // Metadata fields
+      meta_title: customization?.metaTitle || null,
+      meta_description: customization?.metaDescription || null,
+      meta_keywords: customization?.metaKeywords || null
     }
 
     const { data: funnel, error } = await supabaseAdmin
@@ -533,7 +531,8 @@ export async function PUT(request: NextRequest) {
       
       // Only add new fields if they exist (check if migration was run)
       try {
-        if (customization.fontGroup) updates.font_family = getFontFromGroup(customization.fontGroup)
+        // Font removed - will rebuild design system from scratch
+        updates.font_family = null
         updates.theme_style = 'clean' // Always use clean theme
         if (customization.themeMode) updates.theme_mode = customization.themeMode
         if (customization.pixelIds?.facebook) updates.facebook_pixel_id = customization.pixelIds.facebook
@@ -541,6 +540,10 @@ export async function PUT(request: NextRequest) {
         if (customization.pixelCodes?.facebook) updates.facebook_pixel_code = customization.pixelCodes.facebook
         if (customization.pixelCodes?.google) updates.google_analytics_code = customization.pixelCodes.google
         if (customization.pixelCodes?.custom) updates.custom_tracking_code = customization.pixelCodes.custom
+        // Metadata fields
+        if (customization.metaTitle !== undefined) updates.meta_title = customization.metaTitle
+        if (customization.metaDescription !== undefined) updates.meta_description = customization.metaDescription
+        if (customization.metaKeywords !== undefined) updates.meta_keywords = customization.metaKeywords
       } catch (fieldError) {
         console.log('Some new fields may not exist in database yet:', fieldError)
       }

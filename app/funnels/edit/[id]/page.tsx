@@ -9,8 +9,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { DashboardNav } from '@/components/dashboard-nav'
 import { useAuth } from '@/lib/auth-context'
 import { renderFunnelTemplate } from '@/lib/funnel-templates'
-import { FONT_GROUPS, getGoogleFontsUrl } from '@/lib/funnel-styling-service'
-import Head from 'next/head'
 import { 
   ArrowLeft, 
   Save, 
@@ -79,7 +77,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       google: '',
       custom: ''
     },
-    fontGroup: 'professional', // Font groups instead of individual fonts
+    // Font styling removed - will rebuild design system from scratch
     funnelTheme: 'light', // This controls only the funnel preview appearance
     // Metadata fields
     metaTitle: '',
@@ -87,9 +85,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     metaKeywords: '',
     themeMode: 'light' // This controls the live funnel theme
   })
-
-  // Use font groups from styling service
-  const fontGroups = FONT_GROUPS
 
   // Get page count based on template type
   const getTemplatePageCount = (templateId: string): number => {
@@ -214,7 +209,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             google: '',
             custom: ''
           },
-          fontGroup: data.funnel.data?.customization?.fontGroup || 'professional',
           funnelTheme: data.funnel.data?.customization?.funnelTheme || 'light',
           // Metadata fields
           metaTitle: data.funnel.meta_title || '',
@@ -660,13 +654,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
 
   return (
     <>
-      <Head>
-        {/* Google Fonts */}
-        <link
-          href={getGoogleFontsUrl(customization.fontGroup)}
-          rel="stylesheet"
-        />
-      </Head>
       <DashboardNav>
         <div className={`h-full flex flex-col bg-tier-950`}>
         {/* Top Bar */}
@@ -944,37 +931,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                       <p className="text-xs text-tier-400 mt-1">
                         Recommended: PNG or JPG, max 5MB. Logo appears on all pages.
                       </p>
-                    </div>
-
-                    {/* Font Groups Selection */}
-                    <div>
-                      <label className={`block text-sm font-medium mb-2 text-tier-300`}>
-                        Font Style (All Pages)
-                      </label>
-                      <div className="grid gap-4">
-                        {Object.entries(fontGroups).map(([key, group]: [string, any]) => (
-                          <div
-                            key={key}
-                            onClick={() => setCustomization(prev => ({ ...prev, fontGroup: key }))}
-                            className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                              customization.fontGroup === key
-                                ? 'border-accent-500 bg-accent-500/10'
-                                : 'border-tier-700 bg-tier-800 hover:border-tier-600'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between mb-2">
-                              <h4 className="font-medium text-tier-50">{group.name}</h4>
-                              {customization.fontGroup === key && (
-                                <div className="w-2 h-2 bg-accent-500 rounded-full"></div>
-                              )}
-                            </div>
-                            <p className="text-sm text-tier-300 mb-2">{group.description}</p>
-                            <div className="text-xs text-tier-400">
-                              Fonts: {group.fonts.join(', ')}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
                     </div>
 
                     {/* Live Funnel Theme Setting */}
