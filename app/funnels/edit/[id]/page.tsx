@@ -137,7 +137,28 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       calendarTitle: 'Book Your Call'
     },
     // Footer text (same across all pages)
-    footerText: '© 2024 Your Business. All rights reserved.'
+    footerText: '© 2024 Your Business. All rights reserved.',
+    // Section spacing (responsive)
+    sectionSpacing: {
+      desktop: {
+        afterHeader: 48,
+        afterHeading: 24,
+        afterSubheading: 48,
+        afterVsl: 48,
+        afterFirstCta: 64,
+        afterCaseStudies: 48,
+        beforeFooter: 64
+      },
+      mobile: {
+        afterHeader: 32,
+        afterHeading: 16,
+        afterSubheading: 32,
+        afterVsl: 32,
+        afterFirstCta: 48,
+        afterCaseStudies: 32,
+        beforeFooter: 48
+      }
+    }
   })
 
   // Get page count based on template type
@@ -285,7 +306,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         })
       
       // Load case studies for this funnel
-      await loadCaseStudies(data.funnel.id)
+      // await loadCaseStudies(data.funnel.id)
         
         setCustomization({
           heading: data.funnel.data?.customization?.heading || data.funnel.headline || '',
@@ -346,7 +367,28 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             calendarTitle: data.funnel.calendar_title || 'Book Your Call'
           },
           // Footer text (same across all pages)
-          footerText: data.funnel.data?.customization?.footerText || '© 2024 Your Business. All rights reserved.'
+          footerText: data.funnel.data?.customization?.footerText || '© 2024 Your Business. All rights reserved.',
+          // Section spacing (responsive)
+          sectionSpacing: data.funnel.data?.customization?.sectionSpacing || {
+            desktop: {
+              afterHeader: 48,
+              afterHeading: 24,
+              afterSubheading: 48,
+              afterVsl: 48,
+              afterFirstCta: 64,
+              afterCaseStudies: 48,
+              beforeFooter: 64
+            },
+            mobile: {
+              afterHeader: 32,
+              afterHeading: 16,
+              afterSubheading: 32,
+              afterVsl: 32,
+              afterFirstCta: 48,
+              afterCaseStudies: 32,
+              beforeFooter: 48
+            }
+          }
         })
       } else {
         console.error('Failed to load funnel')
@@ -508,6 +550,19 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       logoSize: {
         ...prev.logoSize,
         [currentView]: size
+      }
+    }))
+  }
+
+  const handleSectionSpacingChange = (key: string, value: number) => {
+    setCustomization(prev => ({
+      ...prev,
+      sectionSpacing: {
+        ...prev.sectionSpacing,
+        [currentView]: {
+          ...prev.sectionSpacing[currentView],
+          [key]: value
+        }
       }
     }))
   }
@@ -1419,7 +1474,9 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             onLogoSizeChange: handleLogoSizeChange, // Pass logo size handler to the template
             onElementClick: handleElementClick, // Pass element click handler to the template
             buttonSizes: customization.buttonSizes, // Pass button sizes to the template
-            onFieldEdit: handleFieldUpdate // Pass field update handler for text editing
+            onFieldEdit: handleFieldUpdate, // Pass field update handler for text editing
+            sectionSpacing: customization.sectionSpacing, // Pass section spacing
+            onSectionSpacingChange: handleSectionSpacingChange // Pass spacing change handler
           })}
         </div>
       </div>

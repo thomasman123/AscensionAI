@@ -6,6 +6,81 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { TemplateProps, getFieldValue, TRIGGER_TEMPLATE_1_FIELDS } from './funnel-template-middleware'
 
+// Spacing Editor Component for adjustable spacing between sections
+interface SpacingEditorProps {
+  spacingKey: string
+  currentSpacing: number
+  onSpacingChange: (key: string, value: number) => void
+  isVisible?: boolean
+}
+
+const SpacingEditor: React.FC<SpacingEditorProps> = ({ 
+  spacingKey, 
+  currentSpacing, 
+  onSpacingChange,
+  isVisible = true
+}) => {
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStartY, setDragStartY] = useState(0)
+  const [dragStartSpacing, setDragStartSpacing] = useState(currentSpacing)
+  const [isHovered, setIsHovered] = useState(false)
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return
+      
+      const deltaY = e.clientY - dragStartY
+      const newSpacing = Math.max(0, Math.min(200, dragStartSpacing + deltaY))
+      onSpacingChange(spacingKey, newSpacing)
+    }
+
+    const handleMouseUp = () => {
+      setIsDragging(false)
+    }
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+      
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove)
+        document.removeEventListener('mouseup', handleMouseUp)
+      }
+    }
+  }, [isDragging, dragStartY, dragStartSpacing, spacingKey, onSpacingChange])
+
+  if (!isVisible) return <div style={{ height: `${currentSpacing}px` }} />
+
+  return (
+    <div 
+      className="relative"
+      style={{ height: `${currentSpacing}px` }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div 
+        className={`absolute inset-x-0 top-1/2 -translate-y-1/2 h-8 flex items-center justify-center cursor-ns-resize transition-opacity ${
+          isHovered || isDragging ? 'opacity-100' : 'opacity-0'
+        }`}
+        onMouseDown={(e) => {
+          e.preventDefault()
+          setIsDragging(true)
+          setDragStartY(e.clientY)
+          setDragStartSpacing(currentSpacing)
+        }}
+      >
+        <div className="w-full max-w-md mx-auto flex items-center justify-center gap-2">
+          <div className="flex-1 h-1 bg-blue-400 rounded-full" />
+          <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded">
+            {currentSpacing}px
+          </div>
+          <div className="flex-1 h-1 bg-blue-400 rounded-full" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // Logo Resizer Component for Editor
 const LogoResizer: React.FC<{
   src: string
@@ -149,14 +224,16 @@ const renderCaseStudyCard = (caseStudy: any, index: number, themeStyles: any) =>
   )
 }
 
-export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
-  content,
-  customization,
-  funnelData,
-  isEditor = false,
-  caseStudies = [],
+export const TriggerTemplatePage1: React.FC<TemplateProps & {
+  vslData?: { url?: string; title?: string; type?: 'video' | 'youtube' | 'none' }
+  onCtaClick?: () => void
+}> = ({ 
+  content, 
+  customization, 
+  funnelData, 
+  isEditor = false, 
+  caseStudies = [], 
   vslData,
-  onFieldEdit,
   onCtaClick,
   textSizes,
   onTextSizeChange,
@@ -164,21 +241,36 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
   logoSize,
   onLogoSizeChange,
   onElementClick,
-  buttonSizes
+  buttonSizes,
+  onFieldEdit,
+  sectionSpacing,
+  onSectionSpacingChange
 }) => {
-  // Simple theme styles - no font customization
-  const isDark = customization?.themeMode === 'dark'
-  const themeStyles = {
-    background: isDark ? '#0f172a' : '#ffffff',
-    textPrimary: isDark ? '#f8fafc' : '#1e293b',
-    textSecondary: isDark ? '#cbd5e1' : '#475569',
+  // Get theme styles from the parent funnel template
+  const themeStyles = funnelData?.themeStyles || {
+    background: '#ffffff',
+    textPrimary: '#1e293b',
+    textSecondary: '#475569',
     accent: '#3b82f6',
     ctaGradient: 'linear-gradient(135deg, #3b82f6, #1e40af)',
-    sectionBg: isDark ? 'rgba(30, 41, 59, 0.5)' : 'rgba(248, 250, 252, 0.5)',
-    cardBg: isDark ? 'rgba(51, 65, 85, 0.8)' : 'rgba(255, 255, 255, 0.9)',
-    borderColor: isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.3)'
+    sectionBg: 'rgba(248, 250, 252, 0.5)',
+    cardBg: 'rgba(255, 255, 255, 0.9)',
+    borderColor: 'rgba(148, 163, 184, 0.3)'
   }
 
+  // Get current spacing values
+  const getSpacing = (key: string) => {
+    return sectionSpacing?.[currentView]?.[key] || 48
+  }
+
+  // Handle spacing change
+  const handleSpacingChange = (key: string, value: number) => {
+    if (onSectionSpacingChange) {
+      onSectionSpacingChange(key, value)
+    }
+  }
+
+  // Editable text component
   const EditableText: React.FC<{
     fieldId: string
     children: React.ReactNode
@@ -268,21 +360,39 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
         </div>
       </header>
 
+      {/* Spacing after header */}
+      {isEditor && (
+        <SpacingEditor
+          spacingKey="afterHeader"
+          currentSpacing={getSpacing('afterHeader')}
+          onSpacingChange={handleSpacingChange}
+        />
+      )}
+
       <div className="container mx-auto px-6 max-w-4xl flex-1">
         
         {/* 1. HEADING */}
-        <section className="text-center py-12">
+        <section className="text-center" style={{ paddingTop: !isEditor ? `${getSpacing('afterHeader')}px` : 0 }}>
           <EditableText
             fieldId="heading"
-            className="text-4xl md:text-5xl lg:text-6xl leading-tight mb-6 font-bold"
+            className="text-4xl md:text-5xl lg:text-6xl leading-tight font-bold"
             style={{ color: themeStyles.textPrimary }}
           >
             {getFieldValue('heading', content, TRIGGER_TEMPLATE_1_FIELDS)}
           </EditableText>
         </section>
 
+        {/* Spacing after heading */}
+        {isEditor && (
+          <SpacingEditor
+            spacingKey="afterHeading"
+            currentSpacing={getSpacing('afterHeading')}
+            onSpacingChange={handleSpacingChange}
+          />
+        )}
+
         {/* 2. SUBHEADING */}
-        <section className="text-center py-4">
+        <section className="text-center" style={{ paddingTop: !isEditor ? `${getSpacing('afterHeading')}px` : 0 }}>
           <EditableText
             fieldId="subheading"
             className="text-xl md:text-2xl max-w-3xl mx-auto"
@@ -292,8 +402,17 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
           </EditableText>
         </section>
 
+        {/* Spacing after subheading */}
+        {isEditor && (
+          <SpacingEditor
+            spacingKey="afterSubheading"
+            currentSpacing={getSpacing('afterSubheading')}
+            onSpacingChange={handleSpacingChange}
+          />
+        )}
+
         {/* 3. VSL */}
-        <section className="py-12 text-center">
+        <section className="text-center" style={{ paddingTop: !isEditor ? `${getSpacing('afterSubheading')}px` : 0 }}>
           <div className="max-w-4xl mx-auto">
             {vslData?.url ? (
               vslData.type === 'youtube' ? (
@@ -328,8 +447,17 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
           </div>
         </section>
 
+        {/* Spacing after VSL */}
+        {isEditor && (
+          <SpacingEditor
+            spacingKey="afterVsl"
+            currentSpacing={getSpacing('afterVsl')}
+            onSpacingChange={handleSpacingChange}
+          />
+        )}
+
         {/* 4. CTA 1 */}
-        <section className="py-8 text-center">
+        <section className="text-center" style={{ paddingTop: !isEditor ? `${getSpacing('afterVsl')}px` : 0 }}>
           {isEditor ? (
             <EditableText
               fieldId="ctaText"
@@ -358,8 +486,17 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
           )}
         </section>
 
+        {/* Spacing after first CTA */}
+        {isEditor && (
+          <SpacingEditor
+            spacingKey="afterFirstCta"
+            currentSpacing={getSpacing('afterFirstCta')}
+            onSpacingChange={handleSpacingChange}
+          />
+        )}
+
         {/* 5. CASE STUDIES */}
-        <section className="py-16">
+        <section className="py-16" style={{ paddingTop: !isEditor ? `${getSpacing('afterFirstCta')}px` : 0 }}>
           <div className="text-center mb-12">
             <EditableText
               fieldId="caseStudiesHeading"
@@ -403,8 +540,17 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
           </div>
         </section>
 
+        {/* Spacing after case studies */}
+        {isEditor && (
+          <SpacingEditor
+            spacingKey="afterCaseStudies"
+            currentSpacing={getSpacing('afterCaseStudies')}
+            onSpacingChange={handleSpacingChange}
+          />
+        )}
+
         {/* 6. CTA 2 */}
-        <section className="py-8 text-center">
+        <section className="text-center" style={{ paddingTop: !isEditor ? `${getSpacing('afterCaseStudies')}px` : 0 }}>
           {isEditor ? (
             <EditableText
               fieldId="ctaText"
@@ -435,12 +581,23 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
 
       </div>
 
+      {/* Spacing before footer */}
+      {isEditor && (
+        <SpacingEditor
+          spacingKey="beforeFooter"
+          currentSpacing={getSpacing('beforeFooter')}
+          onSpacingChange={handleSpacingChange}
+        />
+      )}
+
       {/* 7. FOOTER - Full width and sticky */}
       <footer 
-        className="py-8 px-6 text-center border-t mt-auto"
+        className="px-6 text-center border-t mt-auto"
         style={{ 
           borderColor: themeStyles.borderColor,
-          backgroundColor: themeStyles.sectionBg 
+          backgroundColor: themeStyles.sectionBg,
+          paddingTop: !isEditor ? `${getSpacing('beforeFooter')}px` : '32px',
+          paddingBottom: '32px'
         }}
       >
         <div className="container mx-auto max-w-4xl">
@@ -457,31 +614,46 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
   )
 }
 
-export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
-  content,
-  customization,
-  funnelData,
-  isEditor = false,
+export const TriggerTemplatePage2: React.FC<TemplateProps> = ({ 
+  content, 
+  customization, 
+  funnelData, 
+  isEditor = false, 
   caseStudies = [],
-  onFieldEdit,
   textSizes,
   onTextSizeChange,
   currentView = 'desktop',
   logoSize,
   onLogoSizeChange,
   onElementClick,
-  buttonSizes
+  buttonSizes,
+  onFieldEdit,
+  sectionSpacing,
+  onSectionSpacingChange
 }) => {
-  // Simple theme styles - no font customization
+  // Get theme styles
   const isDark = customization?.themeMode === 'dark'
   const themeStyles = {
     background: isDark ? '#0f172a' : '#ffffff',
     textPrimary: isDark ? '#f8fafc' : '#1e293b',
     textSecondary: isDark ? '#cbd5e1' : '#475569',
     accent: '#3b82f6',
+    ctaGradient: 'linear-gradient(135deg, #3b82f6, #1e40af)',
     sectionBg: isDark ? 'rgba(30, 41, 59, 0.5)' : 'rgba(248, 250, 252, 0.5)',
     cardBg: isDark ? 'rgba(51, 65, 85, 0.8)' : 'rgba(255, 255, 255, 0.9)',
     borderColor: isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.3)'
+  }
+
+  // Get current spacing values
+  const getSpacing = (key: string) => {
+    return sectionSpacing?.[currentView]?.[key] || 48
+  }
+
+  // Handle spacing change
+  const handleSpacingChange = (key: string, value: number) => {
+    if (onSectionSpacingChange) {
+      onSectionSpacingChange(key, value)
+    }
   }
 
   const EditableText: React.FC<{
@@ -573,6 +745,15 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
         </div>
       </header>
 
+      {/* Spacing after header */}
+      {isEditor && (
+        <SpacingEditor
+          spacingKey="afterHeader"
+          currentSpacing={getSpacing('afterHeader')}
+          onSpacingChange={handleSpacingChange}
+        />
+      )}
+
       <div className="container mx-auto px-6 max-w-4xl flex-1">
         
         {/* 1. HEADING 2 */}
@@ -586,6 +767,15 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
           </EditableText>
         </section>
 
+        {/* Spacing after heading */}
+        {isEditor && (
+          <SpacingEditor
+            spacingKey="afterHeading"
+            currentSpacing={getSpacing('afterHeading')}
+            onSpacingChange={handleSpacingChange}
+          />
+        )}
+
         {/* 2. BOOKING CALENDAR EMBED */}
         <section className="py-12">
           <div className="max-w-2xl mx-auto">
@@ -596,6 +786,15 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
             </div>
           </div>
         </section>
+
+        {/* Spacing after subheading */}
+        {isEditor && (
+          <SpacingEditor
+            spacingKey="afterSubheading"
+            currentSpacing={getSpacing('afterSubheading')}
+            onSpacingChange={handleSpacingChange}
+          />
+        )}
 
         {/* 3. CASE STUDIES */}
         <section className="py-16">

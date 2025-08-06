@@ -122,4 +122,13 @@ export interface TemplateProps {
       [key: string]: number
     }
   }
+  sectionSpacing?: {
+    desktop?: {
+      [key: string]: number
+    }
+    mobile?: {
+      [key: string]: number
+    }
+  }
+  onSectionSpacingChange?: (key: string, value: number) => void
 } 

@@ -37,6 +37,15 @@ export interface FunnelTemplateProps {
     }
   }
   onFieldEdit?: (fieldId: string, value: string) => void
+  sectionSpacing?: {
+    desktop?: {
+      [key: string]: number
+    }
+    mobile?: {
+      [key: string]: number
+    }
+  }
+  onSectionSpacingChange?: (key: string, value: number) => void
 }
 
 export const TriggerTemplate1 = ({ 
@@ -57,7 +66,9 @@ export const TriggerTemplate1 = ({
   onLogoSizeChange,
   onElementClick,
   buttonSizes,
-  onFieldEdit
+  onFieldEdit,
+  sectionSpacing,
+  onSectionSpacingChange
 }: FunnelTemplateProps) => {
   // Use content if provided, otherwise fall back to funnelData
   const templateContent = content || funnelData
@@ -77,6 +88,8 @@ export const TriggerTemplate1 = ({
       onLogoSizeChange={onLogoSizeChange}
       onElementClick={onElementClick}
       buttonSizes={buttonSizes}
+      sectionSpacing={sectionSpacing}
+      onSectionSpacingChange={onSectionSpacingChange}
       onFieldEdit={onFieldEdit || ((fieldId, value) => {
         if (isEditor && renderEditableText) {
           const field = editableFields.find((f: any) => f.id === fieldId)
@@ -101,6 +114,8 @@ export const TriggerTemplate1 = ({
     onLogoSizeChange={onLogoSizeChange}
     onElementClick={onElementClick}
     buttonSizes={buttonSizes}
+    sectionSpacing={sectionSpacing}
+    onSectionSpacingChange={onSectionSpacingChange}
     vslData={{
       url: funnelData.vsl_url,
       type: funnelData.vsl_type
