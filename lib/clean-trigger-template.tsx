@@ -190,9 +190,13 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
     const textSize = textSizes?.[currentView]?.[fieldId] || 24
     const buttonSize = isButton ? (buttonSizes?.[currentView]?.ctaText || 100) : 100
     
+    // Calculate appropriate line-height based on font size
+    const lineHeight = textSize * 1.5 // 1.5x the font size for proper spacing
+    
     const finalStyle = {
       ...style,
       fontSize: `${textSize}px`,
+      lineHeight: `${lineHeight}px`,
       ...(isButton ? { transform: `scale(${buttonSize / 100})` } : {})
     }
     
@@ -490,9 +494,13 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
     const textSize = textSizes?.[currentView]?.[fieldId] || 24
     const buttonSize = isButton ? (buttonSizes?.[currentView]?.ctaText || 100) : 100
     
+    // Calculate appropriate line-height based on font size
+    const lineHeight = textSize * 1.5 // 1.5x the font size for proper spacing
+    
     const finalStyle = {
       ...style,
       fontSize: `${textSize}px`,
+      lineHeight: `${lineHeight}px`,
       ...(isButton ? { transform: `scale(${buttonSize / 100})` } : {})
     }
     

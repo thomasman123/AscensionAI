@@ -63,7 +63,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   const [isSaving, setIsSaving] = useState(false)
   const [funnel, setFunnel] = useState<any>(null)
   const [currentView, setCurrentView] = useState<'desktop' | 'mobile'>('desktop')
-  const [editorMode, setEditorMode] = useState<'preview' | 'settings'>('preview')
   const [activeEdit, setActiveEdit] = useState<string | null>(null)
   const [justActivated, setJustActivated] = useState<string | null>(null)
   const [currentEditPage, setCurrentEditPage] = useState<number>(1)
@@ -75,6 +74,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   const [selectedElement, setSelectedElement] = useState<SelectedElement | null>(null)
   const [showSettingsTray, setShowSettingsTray] = useState(false)
   const [elementClicks, setElementClicks] = useState<Record<string, number>>({})
+  const [drawerPage, setDrawerPage] = useState<'element-settings' | 'edit-text' | 'general-settings'>('element-settings')
 
   const [customization, setCustomization] = useState({
     heading: '',
@@ -248,6 +248,10 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       if (response.ok) {
         const data = await response.json()
         setFunnel(data.funnel)
+        
+        console.log('Loaded funnel data:', data.funnel)
+        console.log('Funnel data.data:', data.funnel.data)
+        console.log('Customization from data:', data.funnel.data?.customization)
       
       // Load case studies for this funnel
       await loadCaseStudies(data.funnel.id)
@@ -345,6 +349,11 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       }
 
       console.log('Saving funnel with data:', saveData)
+      console.log('Customization being saved:', {
+        textSizes: customization.textSizes,
+        logoSize: customization.logoSize,
+        buttonSizes: customization.buttonSizes
+      })
 
       const response = await fetch('/api/funnels/save', {
         method: 'PUT',
@@ -403,38 +412,25 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   }
 
   const handleElementClick = (fieldId: string, type: 'text' | 'button', isCtaButton?: boolean) => {
-    const clicks = elementClicks[fieldId] || 0
-    const newClicks = clicks + 1
-    setElementClicks({ ...elementClicks, [fieldId]: newClicks })
-
-    // Reset click count after a delay
-    setTimeout(() => {
-      setElementClicks(prev => ({ ...prev, [fieldId]: 0 }))
-    }, 500)
-
-    if (newClicks === 1) {
-      // First click - show settings tray
-      setSelectedElement({ fieldId, type, isCtaButton })
-      setShowSettingsTray(true)
-      setActiveEdit(null)
-    } else if (newClicks === 2) {
-      // Second click - edit text inline
-      setShowSettingsTray(false)
-      setActiveEdit(fieldId)
-      setJustActivated(fieldId)
-    }
+    setSelectedElement({ fieldId, type, isCtaButton })
+    setShowSettingsTray(true)
+    setDrawerPage('element-settings')
+    setActiveEdit(null)
   }
 
   const handleTextSizeChange = (fieldId: string, size: number) => {
+    console.log('handleTextSizeChange called:', { fieldId, size, currentView })
+    const newTextSizes = {
+      ...customization.textSizes,
+      [currentView]: {
+        ...customization.textSizes[currentView],
+        [fieldId]: size
+      }
+    }
+    console.log('New textSizes:', newTextSizes)
     setCustomization(prev => ({
       ...prev,
-      textSizes: {
-        ...prev.textSizes,
-        [currentView]: {
-          ...prev.textSizes[currentView],
-          [fieldId]: size
-        }
-      }
+      textSizes: newTextSizes
     }))
   }
 
@@ -685,32 +681,60 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   }
 
   const renderSettingsTray = () => {
-    if (!showSettingsTray || !selectedElement) return null
+    if (!showSettingsTray) return null
 
-    const isButton = selectedElement.type === 'button'
-    const fieldId = selectedElement.fieldId
-    const currentTextSize = customization.textSizes[currentView]?.[fieldId as keyof typeof customization.textSizes[typeof currentView]] || 24
-    const currentButtonSize = isButton ? (customization.buttonSizes?.[currentView]?.ctaText || 100) : 100
+    const renderDrawerHeader = () => {
+      const titles = {
+        'element-settings': selectedElement?.type === 'button' ? 'Button Settings' : 'Text Settings',
+        'edit-text': 'Edit Text',
+        'general-settings': 'Funnel Settings'
+      }
 
-    return (
-      <div className="settings-tray fixed right-0 top-0 h-full w-80 bg-tier-900 border-l border-tier-800 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out"
-        style={{ transform: showSettingsTray ? 'translateX(0)' : 'translateX(100%)' }}
-      >
-        {/* Header */}
+      return (
         <div className="flex items-center justify-between p-4 border-b border-tier-800">
-          <h3 className="text-lg font-semibold text-tier-50">
-            {isButton ? 'Button Settings' : 'Text Settings'}
+          {drawerPage !== 'general-settings' && drawerPage !== 'element-settings' && (
+            <button
+              onClick={() => setDrawerPage('element-settings')}
+              className="text-tier-400 hover:text-tier-200 transition-colors mr-2"
+            >
+              <ChevronRight className="w-5 h-5 rotate-180" />
+            </button>
+          )}
+          <h3 className="text-lg font-semibold text-tier-50 flex-1">
+            {titles[drawerPage]}
           </h3>
           <button
-            onClick={() => setShowSettingsTray(false)}
+            onClick={() => {
+              setShowSettingsTray(false)
+              setSelectedElement(null)
+            }}
             className="text-tier-400 hover:text-tier-200 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
+      )
+    }
 
-        {/* Content */}
+    const renderElementSettings = () => {
+      if (!selectedElement) return null
+      
+      const isButton = selectedElement.type === 'button'
+      const fieldId = selectedElement.fieldId
+      const currentTextSize = customization.textSizes[currentView]?.[fieldId as keyof typeof customization.textSizes[typeof currentView]] || 24
+      const currentButtonSize = isButton ? (customization.buttonSizes?.[currentView]?.ctaText || 100) : 100
+
+      return (
         <div className="p-4 space-y-6">
+          {/* Edit Text Button */}
+          <button
+            onClick={() => setDrawerPage('edit-text')}
+            className="w-full flex items-center justify-between p-3 bg-tier-800 hover:bg-tier-700 rounded-lg transition-colors"
+          >
+            <span className="text-tier-100">Edit Text Content</span>
+            <ChevronRight className="w-5 h-5 text-tier-400" />
+          </button>
+
           {/* Font Size */}
           <div>
             <label className="block text-sm font-medium text-tier-300 mb-2">
@@ -720,7 +744,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
               <input
                 type="range"
                 min="12"
-                max="72"
+                max="120"
                 value={currentTextSize}
                 onChange={(e) => handleTextSizeChange(fieldId, parseInt(e.target.value))}
                 className="flex-1"
@@ -729,11 +753,11 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                 <input
                   type="number"
                   min="12"
-                  max="72"
+                  max="120"
                   value={currentTextSize}
                   onChange={(e) => {
                     const value = parseInt(e.target.value)
-                    if (!isNaN(value) && value >= 12 && value <= 72) {
+                    if (!isNaN(value) && value >= 12 && value <= 120) {
                       handleTextSizeChange(fieldId, value)
                     }
                   }}
@@ -766,6 +790,12 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                 className="text-xs text-tier-500 hover:text-tier-300"
               >
                 XL
+              </button>
+              <button
+                onClick={() => handleTextSizeChange(fieldId, 72)}
+                className="text-xs text-tier-500 hover:text-tier-300"
+              >
+                2XL
               </button>
             </div>
           </div>
@@ -810,13 +840,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             </div>
           )}
 
-          {/* Instructions */}
-          <div className="bg-tier-800 rounded-lg p-3">
-            <p className="text-sm text-tier-400">
-              <strong className="text-tier-300">Tip:</strong> Click the element again to edit the text content directly.
-            </p>
-          </div>
-
           {/* Device Preview Note */}
           <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-3">
             <p className="text-sm text-blue-400">
@@ -825,6 +848,269 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             </p>
           </div>
         </div>
+      )
+    }
+
+    const renderEditText = () => {
+      if (!selectedElement) return null
+      
+      const field = editableFields.find(f => f.id === selectedElement.fieldId)
+      if (!field) return null
+
+      return (
+        <div className="p-4 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-tier-300 mb-2">
+              {field.label}
+            </label>
+            {field.type === 'textarea' ? (
+              <Textarea
+                value={field.value}
+                onChange={(e) => handleFieldUpdate(field.id, e.target.value)}
+                placeholder={field.placeholder}
+                className="w-full bg-tier-800 border-tier-700 text-tier-50"
+                rows={4}
+              />
+            ) : (
+              <Input
+                value={field.value}
+                onChange={(e) => handleFieldUpdate(field.id, e.target.value)}
+                placeholder={field.placeholder}
+                className="w-full bg-tier-800 border-tier-700 text-tier-50"
+              />
+            )}
+          </div>
+          
+          <div className="bg-tier-800 rounded-lg p-3">
+            <p className="text-sm text-tier-400">
+              Changes are applied instantly to the preview.
+            </p>
+          </div>
+        </div>
+      )
+    }
+
+    const renderGeneralSettings = () => (
+      <div className="p-4 space-y-6 max-h-[calc(100vh-80px)] overflow-y-auto">
+        {/* Page Content Editing */}
+        {totalPages > 1 && (
+          <Card className="bg-tier-800 border-tier-700">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-tier-50 text-base">
+                <Edit3 className="w-4 h-4" />
+                Page Content Editing
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-tier-50 font-medium text-sm">
+                    Currently editing: {currentEditPage === 1 ? 'Page 1 (Trigger)' : currentEditPage === 2 ? 'Page 2 (Booking)' : `Page ${currentEditPage}`}
+                  </p>
+                  <p className="text-xs text-tier-400 mt-1">
+                    {currentEditPage === 1 
+                      ? 'Headline, subheadline, CTAs, and case studies'
+                      : currentEditPage === 2 
+                        ? 'Booking headline and calendar section'
+                        : 'Page content'
+                    }
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentEditPage(pageNum)}
+                      className={`px-3 py-1 rounded text-xs transition-colors ${
+                        currentEditPage === pageNum
+                          ? 'bg-accent-500 text-white'
+                          : 'bg-tier-700 text-tier-300 hover:bg-tier-600'
+                      }`}
+                    >
+                      {pageNum === 1 ? 'Trigger' : pageNum === 2 ? 'Booking' : `Page ${pageNum}`}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Pixel Tracking */}
+        <Card className="bg-tier-800 border-tier-700">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-tier-50 text-base">
+              <Code className="w-4 h-4" />
+              Tracking & Analytics
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium mb-1 text-tier-300">
+                Facebook Pixel
+              </label>
+              <Textarea
+                value={customization.pixelCodes.facebook}
+                onChange={(e) => handlePixelCodeChange('facebook', e.target.value)}
+                placeholder="Paste your Facebook pixel code here..."
+                className="bg-tier-700 border-tier-600 text-tier-50 text-sm"
+                rows={2}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1 text-tier-300">
+                Google Analytics
+              </label>
+              <Textarea
+                value={customization.pixelCodes.google}
+                onChange={(e) => handlePixelCodeChange('google', e.target.value)}
+                placeholder="Paste your Google Analytics code here..."
+                className="bg-tier-700 border-tier-600 text-tier-50 text-sm"
+                rows={2}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Branding */}
+        <Card className="bg-tier-800 border-tier-700">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-tier-50 text-base">
+              <Palette className="w-4 h-4" />
+              Branding
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <MediaUpload
+                value={customization.logoUrl}
+                onChange={handleLogoUpload}
+                accept="image/*"
+                maxSize={5}
+                label="Logo"
+                placeholder="Upload Logo"
+                preview={true}
+              />
+              <p className="text-xs text-tier-400 mt-1">
+                Recommended: PNG or JPG, max 5MB
+              </p>
+            </div>
+
+            {/* Theme Settings */}
+            <div>
+              <label className="block text-xs font-medium mb-2 text-tier-300">
+                Live Funnel Theme
+              </label>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCustomization(prev => ({ ...prev, themeMode: 'light' }))}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors text-sm ${
+                    customization.themeMode === 'light'
+                      ? 'bg-accent-500 text-white'
+                      : 'bg-tier-700 text-tier-300 hover:text-tier-50'
+                  }`}
+                >
+                  <Sun className="w-3 h-3" />
+                  Light
+                </button>
+                <button
+                  onClick={() => setCustomization(prev => ({ ...prev, themeMode: 'dark' }))}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors text-sm ${
+                    customization.themeMode === 'dark'
+                      ? 'bg-accent-500 text-white'
+                      : 'bg-tier-700 text-tier-300 hover:text-tier-50'
+                  }`}
+                >
+                  <Moon className="w-3 h-3" />
+                  Dark
+                </button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* SEO */}
+        <Card className="bg-tier-800 border-tier-700">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-tier-50 text-base">
+              <Globe className="w-4 h-4" />
+              SEO & Metadata
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <label className="block text-xs font-medium mb-1 text-tier-300">
+                Page Title
+              </label>
+              <Input
+                value={customization.metaTitle}
+                onChange={(e) => setCustomization(prev => ({ ...prev, metaTitle: e.target.value }))}
+                placeholder="Custom page title"
+                className="bg-tier-700 border-tier-600 text-tier-50 text-sm"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-xs font-medium mb-1 text-tier-300">
+                Meta Description
+              </label>
+              <Textarea
+                value={customization.metaDescription}
+                onChange={(e) => setCustomization(prev => ({ ...prev, metaDescription: e.target.value }))}
+                placeholder="Brief description (150-160 characters)"
+                className="bg-tier-700 border-tier-600 text-tier-50 text-sm"
+                rows={2}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Case Studies */}
+        <Card className="bg-tier-800 border-tier-700">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-tier-50 text-base">
+              <Edit3 className="w-4 h-4" />
+              Case Studies
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={() => {
+                setShowSettingsTray(false)
+                setShowCaseStudiesModal(true)
+              }}
+              className="w-full bg-accent-500 hover:bg-accent-600 text-white text-sm"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Manage Case Studies ({caseStudies.length})
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Domain Settings */}
+        <DomainManager 
+          funnelId={funnel?.id || params.id}
+          userId={user?.id}
+          onDomainAdded={(domain) => {
+            console.log('Domain added:', domain)
+            setCustomization(prev => ({ ...prev, domain: domain.domain }))
+          }}
+          onDomainRemoved={(domainId) => {
+            console.log('Domain removed:', domainId)
+            setCustomization(prev => ({ ...prev, domain: '' }))
+          }}
+        />
+      </div>
+    )
+
+    return (
+      <div className="settings-tray fixed right-0 top-0 h-full w-80 bg-tier-900 border-l border-tier-800 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out"
+        style={{ transform: showSettingsTray ? 'translateX(0)' : 'translateX(100%)' }}
+      >
+        {renderDrawerHeader()}
+        {drawerPage === 'element-settings' && renderElementSettings()}
+        {drawerPage === 'edit-text' && renderEditText()}
+        {drawerPage === 'general-settings' && renderGeneralSettings()}
       </div>
     )
   }
@@ -1049,31 +1335,19 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                   </button>
                 </div>
 
-                {/* Mode Toggle */}
-                <div className="flex rounded-lg p-1 bg-tier-800">
-                  <button
-                    onClick={() => setEditorMode('preview')}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      editorMode === 'preview'
-                        ? 'bg-accent-500 text-white'
-                        : 'text-tier-300 hover:text-tier-50'
-                    }`}
-                  >
-                    <Eye className="w-4 h-4 inline mr-2" />
-                    Preview
-                  </button>
-                  <button
-                    onClick={() => setEditorMode('settings')}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      editorMode === 'settings'
-                        ? 'bg-accent-500 text-white'
-                        : 'text-tier-300 hover:text-tier-50'
-                    }`}
-                  >
-                    <Settings className="w-4 h-4 inline mr-2" />
-                    Settings
-                  </button>
-                </div>
+                {/* Settings Button */}
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowSettingsTray(true)
+                    setDrawerPage('general-settings')
+                    setSelectedElement(null)
+                  }}
+                  className="border-tier-600 text-tier-300 hover:border-tier-500"
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Settings
+                </Button>
 
                 <Button
                   onClick={handleSave}
@@ -1096,327 +1370,14 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         <div className="flex-1 flex overflow-hidden">
           {/* Preview Panel */}
           <div className={`flex-1 overflow-auto p-6 bg-tier-900`}>
-            {editorMode === 'preview' ? (
-              <div className="space-y-4">
-                <div className="text-center">
-                  <p className={`text-sm text-tier-300`}>
-                    Click on any text to edit directly • {currentView === 'mobile' ? 'Mobile' : 'Desktop'} view
-                  </p>
-                </div>
-                {renderFunnelPreview()}
+            <div className="space-y-4">
+              <div className="text-center">
+                <p className={`text-sm text-tier-300`}>
+                  Click on any text to edit directly • {currentView === 'mobile' ? 'Mobile' : 'Desktop'} view
+                </p>
               </div>
-            ) : (
-              <div className="max-w-4xl mx-auto space-y-8">
-                {/* Page Content Editing */}
-                {totalPages > 1 && (
-                  <Card className={`bg-tier-900 border-tier-800`}>
-                    <CardHeader>
-                      <CardTitle className={`flex items-center gap-2 text-tier-50`}>
-                        <Edit3 className="w-5 h-5" />
-                        Page Content Editing
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-tier-50 font-medium">
-                            Currently editing: {currentEditPage === 1 ? 'Page 1 (Trigger)' : currentEditPage === 2 ? 'Page 2 (Booking)' : `Page ${currentEditPage}`}
-                          </p>
-                          <p className="text-sm text-tier-400 mt-1">
-                            {currentEditPage === 1 
-                              ? 'Headline, subheadline, CTAs, and case studies'
-                              : currentEditPage === 2 
-                                ? 'Booking headline and calendar section'
-                                : 'Page content'
-                            }
-                          </p>
-                        </div>
-                        <div className="flex gap-2">
-                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                            <button
-                              key={pageNum}
-                              onClick={() => setCurrentEditPage(pageNum)}
-                              className={`px-3 py-1 rounded text-sm transition-colors ${
-                                currentEditPage === pageNum
-                                  ? 'bg-accent-500 text-white'
-                                  : 'bg-tier-800 text-tier-300 hover:bg-tier-700'
-                              }`}
-                            >
-                              {pageNum === 1 ? 'Trigger' : pageNum === 2 ? 'Booking' : `Page ${pageNum}`}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="text-sm text-tier-400">
-                        💡 <strong>Tip:</strong> Click elements in the preview above to edit them directly. The settings below apply to ALL pages of this funnel.
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Global Funnel Settings Notice */}
-                <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="text-blue-400 mt-0.5">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 className="text-blue-400 font-medium mb-1">Global Settings</h4>
-                      <p className="text-blue-300/80 text-sm">
-                        All settings below (logo, fonts, colors, tracking, etc.) apply to the entire funnel across all pages. 
-                        Only text content is editable per page.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Pixel Tracking */}
-                <Card className={`bg-tier-900 border-tier-800`}>
-                  <CardHeader>
-                    <CardTitle className={`flex items-center gap-2 text-tier-50`}>
-                      <Code className="w-5 h-5" />
-                      Global Tracking & Analytics
-                    </CardTitle>
-                    <p className="text-sm text-tier-400 mt-1">
-                      These tracking codes apply to all pages of your funnel
-                    </p>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <label className={`block text-sm font-medium mb-2 text-tier-300`}>
-                        Facebook Pixel
-                      </label>
-                      <Textarea
-                        value={customization.pixelCodes.facebook}
-                        onChange={(e) => handlePixelCodeChange('facebook', e.target.value)}
-                        placeholder="Paste your Facebook pixel code here..."
-                        className={`bg-tier-800 border-tier-700 text-tier-50`}
-                      />
-                    </div>
-                    <div>
-                      <label className={`block text-sm font-medium mb-2 text-tier-300`}>
-                        Google Analytics
-                      </label>
-                      <Textarea
-                        value={customization.pixelCodes.google}
-                        onChange={(e) => handlePixelCodeChange('google', e.target.value)}
-                        placeholder="Paste your Google Analytics code here..."
-                        className={`bg-tier-800 border-tier-700 text-tier-50`}
-                      />
-                    </div>
-                    <div>
-                      <label className={`block text-sm font-medium mb-2 text-tier-300`}>
-                        Custom Tracking Code
-                      </label>
-                      <Textarea
-                        value={customization.pixelCodes.custom}
-                        onChange={(e) => handlePixelCodeChange('custom', e.target.value)}
-                        placeholder="Any additional tracking codes..."
-                        className={`bg-tier-800 border-tier-700 text-tier-50`}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Colors & Branding */}
-                <Card className={`bg-tier-900 border-tier-800`}>
-                  <CardHeader>
-                    <CardTitle className={`flex items-center gap-2 text-tier-50`}>
-                      <Palette className="w-5 h-5" />
-                      Global Branding & Design
-                    </CardTitle>
-                    <p className="text-sm text-tier-400 mt-1">
-                      These settings apply to all pages of your funnel
-                    </p>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div>
-                      <MediaUpload
-                        value={customization.logoUrl}
-                        onChange={handleLogoUpload}
-                        accept="image/*"
-                        maxSize={5}
-                        label="Logo (All Pages)"
-                        placeholder="Upload Logo"
-                        preview={true}
-                      />
-
-                      <p className="text-xs text-tier-400 mt-1">
-                        Recommended: PNG or JPG, max 5MB. Logo appears on all pages.
-                      </p>
-                    </div>
-
-                    {/* Live Funnel Theme Setting */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2 text-tier-300">
-                        Live Funnel Theme
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => setCustomization(prev => ({ ...prev, themeMode: 'light' }))}
-                          className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
-                            customization.themeMode === 'light'
-                              ? 'bg-accent-500 text-white'
-                              : 'bg-tier-800 text-tier-300 hover:text-tier-50'
-                          }`}
-                        >
-                          <Sun className="w-4 h-4" />
-                          Light
-                        </button>
-                        <button
-                          onClick={() => setCustomization(prev => ({ ...prev, themeMode: 'dark' }))}
-                          className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
-                            customization.themeMode === 'dark'
-                              ? 'bg-accent-500 text-white'
-                              : 'bg-tier-800 text-tier-300 hover:text-tier-50'
-                          }`}
-                        >
-                          <Moon className="w-4 h-4" />
-                          Dark
-                        </button>
-                      </div>
-                      <p className="text-sm mt-2 text-tier-400">
-                        Choose how your live funnel appears to visitors. This controls the actual theme visitors see.
-                      </p>
-                    </div>
-
-                    {/* Preview Theme Setting */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2 text-tier-300">
-                        Editor Preview Theme
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => setCustomization(prev => ({ ...prev, funnelTheme: 'light' }))}
-                          className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
-                            customization.funnelTheme === 'light'
-                              ? 'bg-accent-500 text-white'
-                              : 'bg-tier-800 text-tier-300 hover:text-tier-50'
-                          }`}
-                        >
-                          <Sun className="w-4 h-4" />
-                          Light
-                        </button>
-                        <button
-                          onClick={() => setCustomization(prev => ({ ...prev, funnelTheme: 'dark' }))}
-                          className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
-                            customization.funnelTheme === 'dark'
-                              ? 'bg-accent-500 text-white'
-                              : 'bg-tier-800 text-tier-300 hover:text-tier-50'
-                          }`}
-                        >
-                          <Moon className="w-4 h-4" />
-                          Dark
-                        </button>
-                      </div>
-                      <p className="text-sm mt-2 text-tier-400">
-                        Choose how the funnel appears in this editor preview. This only affects the editor, not the live page.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* SEO & Metadata Settings */}
-                <Card className={`bg-tier-900 border-tier-800`}>
-                  <CardHeader>
-                    <CardTitle className={`flex items-center gap-2 text-tier-50`}>
-                      <Globe className="w-5 h-5" />
-                      Global SEO & Metadata
-                    </CardTitle>
-                    <p className="text-sm text-tier-400 mt-1">
-                      These SEO settings apply to all pages of your funnel
-                    </p>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2 text-tier-300">
-                        Page Title
-                      </label>
-                      <Input
-                        value={customization.metaTitle}
-                        onChange={(e) => setCustomization(prev => ({ ...prev, metaTitle: e.target.value }))}
-                        placeholder="Custom page title (leave empty to use headline)"
-                        className="bg-tier-800 border-tier-700 text-tier-50 placeholder-tier-400"
-                      />
-                      <p className="text-sm mt-1 text-tier-400">
-                        This will be the browser tab title. If empty, will use your headline.
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium mb-2 text-tier-300">
-                        Meta Description
-                      </label>
-                      <Textarea
-                        value={customization.metaDescription}
-                        onChange={(e) => setCustomization(prev => ({ ...prev, metaDescription: e.target.value }))}
-                        placeholder="Brief description for search engines (150-160 characters)"
-                        className="bg-tier-800 border-tier-700 text-tier-50 placeholder-tier-400"
-                        rows={3}
-                      />
-                      <p className="text-sm mt-1 text-tier-400">
-                        This appears in search engine results. Keep it under 160 characters.
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium mb-2 text-tier-300">
-                        Keywords
-                      </label>
-                      <Input
-                        value={customization.metaKeywords}
-                        onChange={(e) => setCustomization(prev => ({ ...prev, metaKeywords: e.target.value }))}
-                        placeholder="keyword1, keyword2, keyword3"
-                        className="bg-tier-800 border-tier-700 text-tier-50 placeholder-tier-400"
-                      />
-                      <p className="text-sm mt-1 text-tier-400">
-                        Comma-separated keywords related to your offer.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Case Studies Management */}
-                <Card className={`bg-tier-900 border-tier-800`}>
-                  <CardHeader>
-                    <CardTitle className={`flex items-center gap-2 text-tier-50`}>
-                      <Edit3 className="w-5 h-5" />
-                      Case Studies
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-sm text-tier-400">
-                      Add customer success stories and testimonials to build trust and credibility.
-                    </p>
-                    <Button
-                      onClick={() => setShowCaseStudiesModal(true)}
-                      className="w-full bg-accent-500 hover:bg-accent-600 text-white"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Manage Case Studies ({caseStudies.length})
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                {/* Domain Settings */}
-                <DomainManager 
-                  funnelId={funnel?.id || params.id}
-                  userId={user?.id}
-                  onDomainAdded={(domain) => {
-                    console.log('Domain added:', domain)
-                    // Update the funnel's custom domain
-                    setCustomization(prev => ({ ...prev, domain: domain.domain }))
-                  }}
-                  onDomainRemoved={(domainId) => {
-                    console.log('Domain removed:', domainId)
-                    // Clear the custom domain
-                    setCustomization(prev => ({ ...prev, domain: '' }))
-                  }}
-                />
-              </div>
-            )}
+              {renderFunnelPreview()}
+            </div>
           </div>
         </div>
       </div>

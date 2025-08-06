@@ -619,7 +619,47 @@ export async function PUT(request: NextRequest) {
       }
     }
 
+    // Update the data column with all customization data
+    if (customization) {
+      updates.data = {
+        offerData: updateData.offerData || {},
+        caseStudies: updateData.caseStudies || [],
+        media: media || {},
+        templateId: updateData.templateId,
+        customization: {
+          ...customization,
+          textSizes: customization.textSizes || {
+            desktop: {
+              heading: 48,
+              subheading: 24,
+              caseStudiesHeading: 36,
+              bookingHeading: 48
+            },
+            mobile: {
+              heading: 36,
+              subheading: 20,
+              caseStudiesHeading: 28,
+              bookingHeading: 36
+            }
+          },
+          logoSize: customization.logoSize || {
+            desktop: 48,
+            mobile: 36
+          },
+          buttonSizes: customization.buttonSizes || {
+            desktop: {
+              ctaText: 100
+            },
+            mobile: {
+              ctaText: 100
+            }
+          }
+        }
+      }
+    }
+
     console.log('Updating funnel with data:', updates)
+    console.log('Data column being saved:', updates.data)
     
     const { data: funnel, error } = await supabaseAdmin
       .from('saved_funnels')
