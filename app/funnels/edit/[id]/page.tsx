@@ -330,6 +330,8 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       }
 
       console.log('Saving funnel with data:', saveData)
+      console.log('Customization object:', customization)
+      console.log('Logo size:', customization.logoSize)
 
       const response = await fetch('/api/funnels/save', {
         method: 'PUT',
@@ -447,6 +449,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   }
 
   const handleLogoSizeChange = (size: number) => {
+    console.log('handleLogoSizeChange called with size:', size, 'for view:', currentView)
     setCustomization(prev => ({
       ...prev,
       logoSize: {

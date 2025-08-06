@@ -38,6 +38,7 @@ const LogoResizer: React.FC<{
     const handleMouseMove = (e: MouseEvent) => {
       const delta = e.clientX - startX.current
       const newSize = Math.max(20, startSize.current + delta) // Minimum 20px, no maximum
+      console.log('LogoResizer: Setting size to', newSize)
       setSize(newSize)
       onSizeChange?.(newSize)
     }
