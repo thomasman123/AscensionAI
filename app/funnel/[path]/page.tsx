@@ -202,7 +202,7 @@ export default function FunnelPathPage() {
     caseStudiesHeading: funnel.case_studies_heading || 'Success Stories',
     caseStudiesSubtext: funnel.case_studies_subtext || 'See what others have achieved',
     bookingHeading: funnel.booking_heading || 'Book Your Strategy Call',
-    footerText: `© 2024 ${funnel.name || 'Your Business'}. All rights reserved.`
+    footerText: funnel.data?.customization?.footerText || `© 2024 ${funnel.name || 'Your Business'}. All rights reserved.`
   }
 
   return (

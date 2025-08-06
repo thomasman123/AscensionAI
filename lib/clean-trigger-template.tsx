@@ -444,12 +444,13 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
         }}
       >
         <div className="container mx-auto max-w-4xl">
-          <p 
+          <EditableText 
+            fieldId="footerText"
             className="text-sm"
             style={{ color: themeStyles.textSecondary }}
           >
-            © 2024 Electrical Business. All rights reserved.
-          </p>
+            {content.footerText || '© 2024 Your Business. All rights reserved.'}
+          </EditableText>
         </div>
       </footer>
     </div>
@@ -652,12 +653,13 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
         }}
       >
         <div className="container mx-auto max-w-4xl">
-          <p 
+          <EditableText 
+            fieldId="footerText"
             className="text-sm"
             style={{ color: themeStyles.textSecondary }}
           >
-            © 2024 Electrical Business. All rights reserved.
-          </p>
+            {content.footerText || '© 2024 Your Business. All rights reserved.'}
+          </EditableText>
         </div>
       </footer>
     </div>

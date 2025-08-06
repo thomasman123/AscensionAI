@@ -135,7 +135,9 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       vslTitle: '',
       calendarEmbedCode: '',
       calendarTitle: 'Book Your Call'
-    }
+    },
+    // Footer text (same across all pages)
+    footerText: '© 2024 Your Business. All rights reserved.'
   })
 
   // Get page count based on template type
@@ -161,6 +163,13 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           value: customization.bookingHeading,
           placeholder: 'Book Your Strategy Call',
           label: 'Booking Page Heading'
+        },
+        {
+          id: 'footerText',
+          type: 'text',
+          value: customization.footerText,
+          placeholder: '© 2024 Your Business. All rights reserved.',
+          label: 'Footer Text (All Pages)'
         }
       ]
     }
@@ -201,6 +210,13 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         value: customization.caseStudiesSubtext,
         placeholder: 'See what others have achieved',
         label: 'Case Studies Subtext'
+      },
+      {
+        id: 'footerText',
+        type: 'text',
+        value: customization.footerText,
+        placeholder: '© 2024 Your Business. All rights reserved.',
+        label: 'Footer Text (All Pages)'
       }
     ]
   }
@@ -322,7 +338,9 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             vslTitle: data.funnel.vsl_title || '',
             calendarEmbedCode: data.funnel.calendar_embed_code || '',
             calendarTitle: data.funnel.calendar_title || 'Book Your Call'
-          }
+          },
+          // Footer text (same across all pages)
+          footerText: data.funnel.data?.customization?.footerText || '© 2024 Your Business. All rights reserved.'
         })
       } else {
         console.error('Failed to load funnel')
@@ -1371,6 +1389,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
               caseStudiesHeading: customization.caseStudiesHeading,
               caseStudiesSubtext: customization.caseStudiesSubtext,
               bookingHeading: customization.bookingHeading,
+              footerText: customization.footerText, // Add footer text
               vsl_url: null, // No VSL in editor preview
               vsl_title: null,
               template_id: funnel?.template_id || 'trigger-template-1',
