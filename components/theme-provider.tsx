@@ -8,6 +8,7 @@ interface ThemeProviderProps {
   theme: Theme | null
   overrides?: ThemeOverrides
   children: React.ReactNode
+  initialCSS?: string // Pre-generated CSS to inject immediately
 }
 
 /**
@@ -21,7 +22,7 @@ interface ThemeProviderProps {
  *   {renderFunnelTemplate(templateId, props)}
  * </ThemeProvider>
  */
-export default function ThemeProvider({ theme, overrides, children }: ThemeProviderProps) {
+export default function ThemeProvider({ theme, overrides, children, initialCSS }: ThemeProviderProps) {
   const [themeId, setThemeId] = useState<string>('')
   
   useEffect(() => {
@@ -35,8 +36,8 @@ export default function ThemeProvider({ theme, overrides, children }: ThemeProvi
     return <>{children}</>
   }
   
-  // Generate CSS for this theme
-  const themeCSS = generateThemeCSS(theme, overrides)
+  // Use initialCSS if provided, otherwise generate it
+  const themeCSS = initialCSS || generateThemeCSS(theme, overrides)
   
   return (
     <>

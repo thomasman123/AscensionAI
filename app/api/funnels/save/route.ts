@@ -377,6 +377,7 @@ export async function GET(request: NextRequest) {
         createdAt: funnel.created_at,
         updatedAt: funnel.updated_at,
         domain: funnel.domain,
+        theme_id: funnel.theme_id,  // Include theme_id
         data: {
           // Merge the stored data with reconstructed data
           ...(funnel.data || {}),

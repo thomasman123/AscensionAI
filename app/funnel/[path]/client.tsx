@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { renderFunnelTemplate } from '@/lib/funnel-templates'
-import ThemeProvider, { useTheme } from '@/components/theme-provider'
+import ThemeProvider from '@/components/theme-provider'
+import { Theme } from '@/lib/theme-types'
 
 interface FunnelData {
   id: string
@@ -45,9 +46,11 @@ interface FunnelPageClientProps {
   params: { path: string | string[] }
   initialFunnel: FunnelData | null
   initialLogoUrl: string | null
+  initialTheme?: Theme | null
+  initialThemeCSS?: string | null
 }
 
-export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl }: FunnelPageClientProps) {
+export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl, initialTheme, initialThemeCSS }: FunnelPageClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [funnel, setFunnel] = useState<FunnelData | null>(initialFunnel)
@@ -55,8 +58,8 @@ export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [isMobileView, setIsMobileView] = useState(false)
   
-  // Load theme for the funnel
-  const { theme, loading: themeLoading } = useTheme(funnel?.theme_id)
+  // Use initialTheme directly instead of fetching it client-side
+  const theme = initialTheme || null
 
   useEffect(() => {
     // Get page from URL params
@@ -187,7 +190,7 @@ export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl
   // Render the funnel template
   return (
     <div>
-      <ThemeProvider theme={theme} overrides={funnel.theme_overrides}>
+      <ThemeProvider theme={theme} overrides={funnel.theme_overrides} initialCSS={initialThemeCSS || undefined}>
         {renderFunnelTemplate(funnel.template_id || 'trigger-template-1', {
           funnelData: funnel,
           customization,

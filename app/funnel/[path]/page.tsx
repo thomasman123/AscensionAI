@@ -3,6 +3,7 @@ import { PremiumSpinner } from '@/components/ui/loading'
 import FunnelPageClient from './client'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { Metadata } from 'next'
+import { generateThemeCSS } from '@/lib/theme-generator'
 
 // Force dynamic rendering to ensure fresh data
 export const dynamic = 'force-dynamic'
@@ -58,6 +59,8 @@ interface FunnelData {
   domain?: string
   data?: any
   template_id?: string
+  theme_id?: string
+  theme_overrides?: any
   heading?: string
   subheading?: string
   case_studies_heading?: string
@@ -109,6 +112,8 @@ async function getFunnelData(path: string | string[]) {
         domain,
         data,
         template_id,
+        theme_id,
+        theme_overrides,
         case_studies_heading,
         case_studies_subtext,
         booking_heading,
@@ -150,6 +155,28 @@ async function getFunnelData(path: string | string[]) {
   return funnel as FunnelData | null
 }
 
+// Fetch theme data on server side
+async function getThemeData(themeId?: string | null) {
+  if (!themeId) {
+    // Load default theme
+    const { data: defaultTheme } = await supabaseAdmin
+      .from('themes')
+      .select('*')
+      .eq('is_default', true)
+      .single()
+    
+    return defaultTheme
+  }
+  
+  const { data: theme } = await supabaseAdmin
+    .from('themes')
+    .select('*')
+    .eq('id', themeId)
+    .single()
+  
+  return theme
+}
+
 export default async function FunnelPage({ params }: { params: { path: string | string[] } }) {
   const funnel = await getFunnelData(params.path)
   const logoUrl = funnel?.logo_url || funnel?.data?.customization?.logoUrl || null
@@ -176,7 +203,19 @@ export default async function FunnelPage({ params }: { params: { path: string | 
     )
   }
   
+  // Load theme on server side to prevent flash
+  const theme = await getThemeData(funnel.theme_id)
+  
+  // Generate CSS on server side
+  const themeCSS = theme ? generateThemeCSS(theme, funnel.theme_overrides) : null
+  
   return (
-    <FunnelPageClient params={params} initialFunnel={funnel} initialLogoUrl={logoUrl} />
+    <FunnelPageClient 
+      params={params} 
+      initialFunnel={funnel} 
+      initialLogoUrl={logoUrl} 
+      initialTheme={theme}
+      initialThemeCSS={themeCSS}
+    />
   )
 } 
