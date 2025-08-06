@@ -55,6 +55,7 @@ export default function FunnelPathPage() {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [isContentReady, setIsContentReady] = useState(false)
   const [isMobileView, setIsMobileView] = useState(false)
+  const [logoUrl, setLogoUrl] = useState<string | null>(null)
 
   useEffect(() => {
     // Get page from URL params
@@ -95,6 +96,10 @@ export default function FunnelPathPage() {
           const data = await response.json()
           setFunnel(data.funnel)
           console.log('✅ Funnel loaded successfully:', data.funnel?.name)
+          // Set logo URL if available
+          if (data.funnel?.logo_url || data.funnel?.data?.customization?.logoUrl) {
+            setLogoUrl(data.funnel.logo_url || data.funnel.data?.customization?.logoUrl)
+          }
           // Immediate content ready signal
           setIsContentReady(true)
           // Complete animation after progress bar reaches 100%
@@ -116,7 +121,7 @@ export default function FunnelPathPage() {
   }, [params.path])
 
   if (loading) {
-    return <PremiumSpinner isContentReady={isContentReady} logoUrl={funnel?.logo_url || funnel?.data?.customization?.logoUrl} />
+    return <PremiumSpinner isContentReady={isContentReady} logoUrl={logoUrl || undefined} />
   }
 
   if (error || !funnel) {

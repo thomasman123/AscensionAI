@@ -150,19 +150,21 @@ const PremiumSpinner: React.FC<PremiumSpinnerProps> = ({ className, isContentRea
   return (
     <div className={cn("flex min-h-screen items-center justify-center bg-background", className)}>
       <div className="flex flex-col items-center space-y-6">
-        {/* Logo or loader */}
-        {logoUrl ? (
-          <div className="h-24 flex items-center justify-center">
+        {/* Logo or default branding */}
+        <div className="h-24 flex items-center justify-center">
+          {logoUrl ? (
             <img 
               src={logoUrl} 
               alt="Loading..." 
               className="h-full object-contain animate-fade-in"
               style={{ maxHeight: '96px' }}
             />
-          </div>
-        ) : (
-          <div className="loader" />
-        )}
+          ) : (
+            <div className="text-3xl font-bold text-purple-600 animate-fade-in">
+              Loading...
+            </div>
+          )}
+        </div>
         
         {/* Progress bar */}
         <div className="w-48 h-1 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">

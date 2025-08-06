@@ -756,22 +756,4 @@ html {
   min-height: 650px !important;
 }
 
-/* Premium Loader Animation */
-.loader {
-  width: 50px;
-  aspect-ratio: 1;
-  color: #8b5cf6; /* Purple color */
-  border: 2px solid;
-  box-sizing: border-box;
-  --c: radial-gradient(farthest-side, #0000 calc(100% - 3px), currentColor calc(100% - 2px) 98%, #0000);
-  background: var(--c), var(--c);
-  background-size: 23px 23px;
-  background-position: 0 0, 12px 12px;
-  animation: l4 0.6s infinite;
-}
-
-@keyframes l4 {
-  100% {
-    background-position: -23px 0px, 12px 35px;
-  }
-} 
+/* Premium Loader Animation - Removed to prevent purple box from showing */ 
