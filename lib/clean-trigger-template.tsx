@@ -5,10 +5,9 @@
 
 import React from 'react'
 import { TemplateProps, getFieldValue, TRIGGER_TEMPLATE_1_FIELDS } from './funnel-template-middleware'
-import { generateFunnelStyles, getTextElementStyle } from './funnel-styling-service'
 
 // Helper function to render case study card
-const renderCaseStudyCard = (caseStudy: any, index: number, themeStyles: any, funnelStyles: any) => {
+const renderCaseStudyCard = (caseStudy: any, index: number, themeStyles: any) => {
   return (
     <div className="text-center">
       {/* Case Study Image */}
@@ -33,25 +32,25 @@ const renderCaseStudyCard = (caseStudy: any, index: number, themeStyles: any, fu
       )}
       <h3 
         className="text-xl mb-3"
-        style={getTextElementStyle('subheading', funnelStyles, { 
+        style={{ 
           color: themeStyles.textPrimary,
           fontSize: '1.25rem'
-        })}
+        }}
       >
         {caseStudy.name || `Case Study ${index + 1}`}
       </h3>
       <p 
         className="mb-4"
-        style={getTextElementStyle('body', funnelStyles, { color: themeStyles.textSecondary })}
+        style={{ color: themeStyles.textSecondary }}
       >
         {caseStudy.description || 'Description not available.'}
       </p>
       <div 
         className="text-lg"
-        style={getTextElementStyle('subheading', funnelStyles, { 
+        style={{ 
           color: themeStyles.accent,
           fontWeight: '700'
-        })}
+        }}
       >
         {caseStudy.result || 'Amazing Result'}
       </div>
@@ -69,14 +68,7 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
   onFieldEdit,
   onCtaClick
 }) => {
-  // Generate funnel styles
-  const funnelStyles = customization ? generateFunnelStyles(customization) : {
-    colors: { primary: '#3b82f6', secondary: '#1e40af', accent: '#059669', background: '#ffffff', text: '#1e293b' },
-    fonts: { heading: '"Inter", sans-serif', subheading: '"Inter", sans-serif', body: '"Inter", sans-serif', cta: '"Inter", sans-serif' },
-    theme: 'light' as const,
-    spacing: { section: '2rem', text: '1rem' }
-  }
-
+  // Simple theme styles - no font customization
   const isDark = customization?.themeMode === 'dark'
   const themeStyles = {
     background: isDark ? '#0f172a' : '#ffffff',
@@ -141,8 +133,8 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
         <section className="text-center py-12">
           <EditableText
             fieldId="heading"
-            className="text-4xl md:text-5xl lg:text-6xl leading-tight mb-6"
-            style={getTextElementStyle('heading', funnelStyles)}
+            className="text-4xl md:text-5xl lg:text-6xl leading-tight mb-6 font-bold"
+            style={{ color: themeStyles.textPrimary }}
           >
             {getFieldValue('heading', content, TRIGGER_TEMPLATE_1_FIELDS)}
           </EditableText>
@@ -153,7 +145,7 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
           <EditableText
             fieldId="subheading"
             className="text-xl md:text-2xl max-w-3xl mx-auto"
-            style={getTextElementStyle('subheading', funnelStyles, { color: themeStyles.textSecondary })}
+            style={{ color: themeStyles.textSecondary }}
           >
             {getFieldValue('subheading', content, TRIGGER_TEMPLATE_1_FIELDS)}
           </EditableText>
@@ -200,11 +192,11 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
           {isEditor ? (
             <EditableText
               fieldId="ctaText"
-              className="px-12 py-4 text-lg rounded-lg shadow-lg transition-all duration-200 text-white inline-block"
+              className="px-12 py-4 text-lg rounded-lg shadow-lg transition-all duration-200 text-white inline-block font-semibold"
               style={{ 
                 background: themeStyles.ctaGradient,
                 border: 'none',
-                ...getTextElementStyle('cta', funnelStyles, { color: '#ffffff' })
+                color: '#ffffff'
               }}
             >
               {getFieldValue('ctaText', content, TRIGGER_TEMPLATE_1_FIELDS)}
@@ -212,11 +204,11 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
           ) : (
             <button
               onClick={onCtaClick}
-              className="px-12 py-4 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 text-white"
+              className="px-12 py-4 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 text-white font-semibold"
               style={{ 
                 background: themeStyles.ctaGradient,
                 border: 'none',
-                ...getTextElementStyle('cta', funnelStyles, { color: '#ffffff' })
+                color: '#ffffff'
               }}
             >
               {getFieldValue('ctaText', content, TRIGGER_TEMPLATE_1_FIELDS)}
@@ -229,18 +221,18 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
           <div className="text-center mb-12">
             <EditableText
               fieldId="caseStudiesHeading"
-              className="text-3xl md:text-4xl mb-4"
-              style={getTextElementStyle('heading', funnelStyles, { 
+              className="text-3xl md:text-4xl mb-4 font-bold"
+              style={{ 
                 color: themeStyles.textPrimary,
                 fontSize: '2.25rem'
-              })}
+              }}
             >
               {getFieldValue('caseStudiesHeading', content, TRIGGER_TEMPLATE_1_FIELDS)}
             </EditableText>
             <EditableText
               fieldId="caseStudiesSubtext"
               className="text-lg"
-              style={getTextElementStyle('body', funnelStyles, { color: themeStyles.textSecondary })}
+              style={{ color: themeStyles.textSecondary }}
             >
               {getFieldValue('caseStudiesSubtext', content, TRIGGER_TEMPLATE_1_FIELDS)}
             </EditableText>
@@ -254,13 +246,13 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
                 className="p-6 rounded-lg shadow-lg"
                 style={{ backgroundColor: themeStyles.cardBg }}
               >
-                {renderCaseStudyCard(caseStudy, index, themeStyles, funnelStyles)}
+                {renderCaseStudyCard(caseStudy, index, themeStyles)}
               </div>
             )) : (
               <div className="text-center py-8 col-span-full">
                 <p 
                   className="text-lg"
-                  style={getTextElementStyle('body', funnelStyles, { color: themeStyles.textSecondary })}
+                  style={{ color: themeStyles.textSecondary }}
                 >
                   {isEditor ? 'Case studies will appear here when added' : 'No case studies added yet.'}
                 </p>
@@ -274,11 +266,11 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
           {isEditor ? (
             <EditableText
               fieldId="ctaText"
-              className="px-12 py-4 text-lg rounded-lg shadow-lg transition-all duration-200 text-white inline-block"
+              className="px-12 py-4 text-lg rounded-lg shadow-lg transition-all duration-200 text-white inline-block font-semibold"
               style={{ 
                 background: themeStyles.ctaGradient,
                 border: 'none',
-                ...getTextElementStyle('cta', funnelStyles, { color: '#ffffff' })
+                color: '#ffffff'
               }}
             >
               {getFieldValue('ctaText', content, TRIGGER_TEMPLATE_1_FIELDS)}
@@ -286,11 +278,11 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
           ) : (
             <button
               onClick={onCtaClick}
-              className="px-12 py-4 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 text-white"
+              className="px-12 py-4 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 text-white font-semibold"
               style={{ 
                 background: themeStyles.ctaGradient,
                 border: 'none',
-                ...getTextElementStyle('cta', funnelStyles, { color: '#ffffff' })
+                color: '#ffffff'
               }}
             >
               {getFieldValue('ctaText', content, TRIGGER_TEMPLATE_1_FIELDS)}
@@ -329,14 +321,7 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
   caseStudies = [],
   onFieldEdit
 }) => {
-  // Generate funnel styles
-  const funnelStyles = customization ? generateFunnelStyles(customization) : {
-    colors: { primary: '#3b82f6', secondary: '#1e40af', accent: '#059669', background: '#ffffff', text: '#1e293b' },
-    fonts: { heading: '"Inter", sans-serif', subheading: '"Inter", sans-serif', body: '"Inter", sans-serif', cta: '"Inter", sans-serif' },
-    theme: 'light' as const,
-    spacing: { section: '2rem', text: '1rem' }
-  }
-
+  // Simple theme styles - no font customization
   const isDark = customization?.themeMode === 'dark'
   const themeStyles = {
     background: isDark ? '#0f172a' : '#ffffff',
@@ -400,8 +385,8 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
         <section className="text-center py-12">
           <EditableText
             fieldId="bookingHeading"
-            className="text-4xl md:text-5xl lg:text-6xl leading-tight mb-6"
-            style={getTextElementStyle('heading', funnelStyles)}
+            className="text-4xl md:text-5xl lg:text-6xl leading-tight mb-6 font-bold"
+            style={{ color: themeStyles.textPrimary }}
           >
             {getFieldValue('bookingHeading', content, TRIGGER_TEMPLATE_1_FIELDS)}
           </EditableText>
@@ -423,18 +408,18 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
           <div className="text-center mb-12">
             <EditableText
               fieldId="caseStudiesHeading"
-              className="text-3xl md:text-4xl mb-4"
-              style={getTextElementStyle('heading', funnelStyles, { 
+              className="text-3xl md:text-4xl mb-4 font-bold"
+              style={{ 
                 color: themeStyles.textPrimary,
                 fontSize: '2.25rem'
-              })}
+              }}
             >
               {getFieldValue('caseStudiesHeading', content, TRIGGER_TEMPLATE_1_FIELDS)}
             </EditableText>
             <EditableText
               fieldId="caseStudiesSubtext"
               className="text-lg"
-              style={getTextElementStyle('body', funnelStyles, { color: themeStyles.textSecondary })}
+              style={{ color: themeStyles.textSecondary }}
             >
               {getFieldValue('caseStudiesSubtext', content, TRIGGER_TEMPLATE_1_FIELDS)}
             </EditableText>
@@ -448,13 +433,13 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
                 className="p-6 rounded-lg shadow-lg"
                 style={{ backgroundColor: themeStyles.cardBg }}
               >
-                {renderCaseStudyCard(caseStudy, index, themeStyles, funnelStyles)}
+                {renderCaseStudyCard(caseStudy, index, themeStyles)}
               </div>
             )) : (
               <div className="text-center py-8 col-span-full">
                 <p 
                   className="text-lg"
-                  style={getTextElementStyle('body', funnelStyles, { color: themeStyles.textSecondary })}
+                  style={{ color: themeStyles.textSecondary }}
                 >
                   No case studies added yet.
                 </p>

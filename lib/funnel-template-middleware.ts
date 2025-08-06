@@ -4,7 +4,6 @@
  */
 
 import React from 'react'
-import { generateFunnelStyles, getTextElementStyle, FunnelStyles } from './funnel-styling-service'
 
 // Define what fields can be edited in templates
 export interface TemplateField {

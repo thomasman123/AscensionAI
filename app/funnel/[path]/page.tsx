@@ -96,7 +96,7 @@ export default function FunnelPathPage() {
   }, [params.path])
 
   if (loading) {
-    return <PremiumSpinner text="Loading your experience..." />
+    return <PremiumSpinner />
   }
 
   if (error || !funnel) {
