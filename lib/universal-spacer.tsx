@@ -84,14 +84,20 @@ export const UniversalSpacer: React.FC<UniversalSpacerProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => !isDragging && setIsHovered(false)}
     >
-      {/* Hover area - always present but only visible on hover */}
+      {/* Full-width draggable area */}
       <div
-        className={`absolute inset-x-0 top-1/2 -translate-y-1/2 transition-all duration-200 ${
+        className={`absolute left-0 right-0 top-1/2 -translate-y-1/2 transition-all duration-200 ${
           isHovered || isDragging ? 'opacity-100' : 'opacity-0'
         }`}
         style={{
-          height: '20px',
-          cursor: 'ns-resize'
+          height: '24px',
+          cursor: 'ns-resize',
+          // Extend beyond container to span full viewport width
+          marginLeft: '-50vw',
+          marginRight: '-50vw',
+          left: '50%',
+          right: '50%',
+          width: '100vw'
         }}
         onMouseDown={(e) => {
           e.preventDefault()
@@ -100,33 +106,33 @@ export const UniversalSpacer: React.FC<UniversalSpacerProps> = ({
           setDragStartSpacing(currentSpacing)
         }}
       >
-        {/* Divider line */}
+        {/* Full-width divider line */}
         <div 
-          className={`absolute inset-x-4 top-1/2 -translate-y-1/2 h-px transition-all duration-200 ${
-            isDragging ? 'bg-blue-500' : 'bg-gray-400'
+          className={`absolute inset-x-0 top-1/2 -translate-y-1/2 h-0.5 transition-all duration-200 ${
+            isDragging ? 'bg-blue-500' : 'bg-gray-300'
           }`}
         />
         
         {/* Center handle */}
         <div 
-          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-200 ${
+          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-200 z-10 ${
             isDragging ? 'scale-110' : ''
           }`}
         >
           <div 
-            className={`flex items-center gap-2 px-3 py-1 rounded-full ${
-              isDragging ? 'bg-blue-500' : 'bg-gray-400'
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full shadow-lg ${
+              isDragging ? 'bg-blue-600' : 'bg-gray-700'
             }`}
           >
             {/* Drag dots */}
             <div className="flex gap-0.5">
-              <div className="w-1 h-3 bg-white rounded-full opacity-70" />
-              <div className="w-1 h-3 bg-white rounded-full opacity-70" />
-              <div className="w-1 h-3 bg-white rounded-full opacity-70" />
+              <div className="w-1 h-3 bg-white rounded-full" />
+              <div className="w-1 h-3 bg-white rounded-full" />
+              <div className="w-1 h-3 bg-white rounded-full" />
             </div>
             
-            {/* Spacing value */}
-            <div className="text-xs font-medium text-white whitespace-nowrap">
+            {/* Spacing value - always visible when hovering or dragging */}
+            <div className="text-xs font-semibold text-white whitespace-nowrap">
               {currentSpacing}px
             </div>
           </div>

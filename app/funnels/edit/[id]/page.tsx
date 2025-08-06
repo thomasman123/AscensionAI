@@ -394,6 +394,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           },
           universalSpacers: data.funnel.data?.customization?.universalSpacers || {}
         })
+        console.log('Loaded universalSpacers:', data.funnel.data?.customization?.universalSpacers)
       } else {
         console.error('Failed to load funnel')
         router.push('/funnels')
@@ -443,7 +444,8 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         buttonSizes: customization.buttonSizes,
         media: customization.media,
         themeMode: customization.themeMode,
-        funnelTheme: customization.funnelTheme
+        funnelTheme: customization.funnelTheme,
+        universalSpacers: customization.universalSpacers
       })
 
       const response = await fetch('/api/funnels/save', {
