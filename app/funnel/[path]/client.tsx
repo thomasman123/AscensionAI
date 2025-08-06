@@ -200,7 +200,12 @@ export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl
           guaranteeText: funnel.data?.customization?.guaranteeText || funnel.guarantee_text || '',
           footerText: funnel.data?.customization?.footerText || '© 2024 All rights reserved.'
         },
-        themeStyles
+        themeStyles,
+        textSizes: funnel.data?.customization?.textSizes || customization.textSizes,
+        buttonSizes: funnel.data?.customization?.buttonSizes || customization.buttonSizes,
+        logoSize: funnel.data?.customization?.logoSize || customization.logoSize,
+        sectionSpacing: funnel.data?.customization?.sectionSpacing || customization.sectionSpacing,
+        universalSpacers: funnel.data?.customization?.universalSpacers || customization.universalSpacers || {}
       })}
     </div>
   )
