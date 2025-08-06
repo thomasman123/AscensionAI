@@ -129,6 +129,7 @@ interface PremiumSpinnerProps {
 
 const PremiumSpinner: React.FC<PremiumSpinnerProps> = ({ className, isContentReady = false, logoUrl }) => {
   const [progress, setProgress] = React.useState(0)
+  const [imageError, setImageError] = React.useState(false)
   
   React.useEffect(() => {
     // Super fast initial progress
@@ -155,23 +156,22 @@ const PremiumSpinner: React.FC<PremiumSpinnerProps> = ({ className, isContentRea
       <div className="flex flex-col items-center space-y-6">
         {/* Logo or default branding */}
         <div className="h-24 w-full max-w-xs flex items-center justify-center">
-          {logoUrl ? (
-            <Image
-              src={logoUrl} 
-              alt="Loading..." 
-              width={200}
-              height={96}
-              priority
-              className="object-contain animate-fade-in"
-              style={{ maxHeight: '96px', width: 'auto' }}
-              onError={(e) => {
-                // Fallback to text if image fails to load
-                const target = e.target as HTMLElement
-                target.style.display = 'none'
-                const fallback = target.nextSibling as HTMLElement
-                if (fallback) fallback.style.display = 'block'
-              }}
-            />
+          {logoUrl && !imageError ? (
+            <>
+              <Image
+                src={logoUrl} 
+                alt="Loading..." 
+                width={200}
+                height={96}
+                priority
+                className="object-contain animate-fade-in"
+                style={{ maxHeight: '96px', width: 'auto' }}
+                onError={() => {
+                  console.error('Failed to load logo:', logoUrl)
+                  setImageError(true)
+                }}
+              />
+            </>
           ) : (
             <div className="text-3xl font-bold text-purple-600 animate-fade-in">
               Loading...

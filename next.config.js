@@ -4,6 +4,29 @@ const nextConfig = {
     VERCEL_TOKEN: process.env.VERCEL_TOKEN,
     VERCEL_PROJECT_ID: process.env.VERCEL_PROJECT_ID,
   },
+  images: {
+    domains: [
+      'localhost',
+      'ascension-ai-sm36.vercel.app',
+      // Add common image hosting domains
+      'hhbqnfglxpolmtarajld.supabase.co',
+      'supabase.co',
+      'supabase.com',
+      // Add any other domains you might use for images
+    ],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.supabase.com',
+        pathname: '/storage/v1/object/public/**',
+      },
+    ],
+  },
   // Allow custom domains to work with the app
   async headers() {
     return [
