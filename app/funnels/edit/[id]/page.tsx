@@ -424,10 +424,15 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
 
   const loadAvailableThemes = async () => {
     try {
+      console.log('Loading available themes...')
       const response = await fetch('/api/themes')
+      console.log('Themes API response status:', response.status)
       if (response.ok) {
         const data = await response.json()
+        console.log('Available themes from API:', data.themes)
         setAvailableThemes(data.themes || [])
+      } else {
+        console.error('Failed to fetch themes:', response.status)
       }
     } catch (error) {
       console.error('Error loading themes:', error)
@@ -1258,17 +1263,18 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                 Visual Theme
               </label>
               <select
-                value={funnel.theme_id || ''}
+                value={funnel?.theme_id || ''}
                 onChange={(e) => handleThemeChange(e.target.value)}
                 className="w-full px-3 py-2 bg-tier-700 border border-tier-600 rounded-md text-tier-50 text-sm focus:border-accent-500 focus:outline-none"
               >
                 <option value="">Default (Clean Light)</option>
-                {availableThemes.map(theme => (
+                {availableThemes.map((theme: any) => (
                   <option key={theme.id} value={theme.id}>
                     {theme.name}
                   </option>
                 ))}
               </select>
+              {/* Debug: {availableThemes.length} themes loaded */}
               <p className="text-xs text-tier-400 mt-1">
                 Themes control colors, fonts, and animations
               </p>
