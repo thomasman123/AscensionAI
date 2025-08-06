@@ -193,7 +193,7 @@ export default function FunnelPathPage() {
         )}
       </head>
       
-      <div className="min-h-screen">
+      <div className="min-h-screen animate-fade-in">
         {renderFunnelTemplate(funnel.template_id || 'trigger-template-1', {
           funnelData: funnel,
           themeStyles,
@@ -203,6 +203,21 @@ export default function FunnelPathPage() {
           currentPage
         })}
       </div>
+      
+      <style jsx>{`
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        
+        .animate-fade-in {
+          animation: fade-in 0.5s ease-out;
+        }
+      `}</style>
     </>
   )
 } 

@@ -116,7 +116,7 @@ const PageLoading: React.FC<PageLoadingProps> = ({ text = "Loading..." }) => {
   )
 }
 
-// Premium Spinner for funnel pages - optimized for cold traffic retention
+// Premium Spinner for funnel pages
 interface PremiumSpinnerProps {
   text?: string
   className?: string
@@ -124,50 +124,25 @@ interface PremiumSpinnerProps {
 
 const PremiumSpinner: React.FC<PremiumSpinnerProps> = ({ className }) => {
   return (
-    <div className={cn("flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950", className)}>
-      <div className="relative">
-        {/* Outer pulsing ring */}
-        <div className="absolute inset-0 -m-16">
-          <div className="h-32 w-32 rounded-full bg-blue-400/20 animate-ping" />
-        </div>
+    <div className={cn("flex min-h-screen items-center justify-center bg-background", className)}>
+      <div className="flex flex-col items-center space-y-6">
+        <div className="loader" />
         
-        {/* Middle rotating ring */}
-        <div className="absolute inset-0 -m-8">
-          <div className="h-16 w-16 rounded-full border-4 border-blue-300/30 border-t-blue-500/50 animate-spin" 
-               style={{ animationDuration: '3s' }} />
-        </div>
-        
-        {/* Inner morphing shape */}
-        <div className="relative h-12 w-12">
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-tr from-blue-500 to-blue-600 animate-pulse shadow-lg shadow-blue-500/50" 
-               style={{ 
-                 animationDuration: '2s',
-                 animation: 'morph 8s ease-in-out infinite, pulse 2s ease-in-out infinite'
-               }} />
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 opacity-0 animate-pulse"
-               style={{ 
-                 animationDelay: '1s',
-                 animationDuration: '2s'
-               }} />
-        </div>
-        
-        {/* Progress dots */}
-        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex space-x-2">
-          <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-bounce" 
-               style={{ animationDelay: '0ms' }} />
-          <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-bounce" 
-               style={{ animationDelay: '150ms' }} />
-          <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-bounce" 
-               style={{ animationDelay: '300ms' }} />
+        {/* Progress bar */}
+        <div className="w-48 h-1 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full animate-loading-bar" />
         </div>
       </div>
       
       <style jsx>{`
-        @keyframes morph {
-          0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-          25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
-          50% { border-radius: 50% 60% 60% 50% / 60% 50% 50% 60%; }
-          75% { border-radius: 60% 40% 60% 50% / 70% 50% 40% 60%; }
+        @keyframes loading-bar {
+          0% { width: 0%; }
+          50% { width: 70%; }
+          100% { width: 100%; }
+        }
+        
+        .animate-loading-bar {
+          animation: loading-bar 2s ease-out infinite;
         }
       `}</style>
     </div>
