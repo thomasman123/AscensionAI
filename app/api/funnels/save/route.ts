@@ -230,7 +230,7 @@ export async function POST(request: NextRequest) {
         name: cs.name,
         description: cs.description,
         result: cs.result,
-        metric: cs.metric || null, // Add metric field
+        // metric field removed until migration is run
         media_url: cs.mediaUrl || cs.videoEmbedUrl || cs.media_url || null, // Handle different media URL fields
         media_type: cs.mediaType || cs.media_type || (cs.videoEmbedUrl ? 'video' : null)
       }))

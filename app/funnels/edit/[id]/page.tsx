@@ -791,11 +791,16 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         await loadCaseStudies()
         alert('Case studies saved successfully!')
       } else {
-        alert('Failed to save case studies')
+        const errorData = await response.json()
+        const errorMessage = errorData.details 
+          ? `Failed to save case studies: ${errorData.details}`
+          : 'Failed to save case studies'
+        console.error('Case studies save error:', errorData)
+        alert(errorMessage)
       }
     } catch (error) {
       console.error('Error saving case studies:', error)
-      alert('Failed to save case studies')
+      alert('Failed to save case studies: Network error')
     }
     setIsSavingCaseStudies(false)
   }
