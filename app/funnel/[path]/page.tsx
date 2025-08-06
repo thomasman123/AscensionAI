@@ -180,6 +180,17 @@ export default function FunnelPathPage() {
     window.location.href = currentUrl.toString()
   }
 
+  // Create content object from funnel data
+  const content = {
+    heading: funnel.headline || 'Your Compelling Headline Here',
+    subheading: funnel.subheadline || 'Your powerful subheadline that explains the value',
+    ctaText: funnel.cta_text || 'Get Started Now',
+    caseStudiesHeading: funnel.case_studies_heading || 'Success Stories',
+    caseStudiesSubtext: funnel.case_studies_subtext || 'See what others have achieved',
+    bookingHeading: funnel.booking_heading || 'Book Your Strategy Call',
+    footerText: `© 2024 ${funnel.name || 'Your Business'}. All rights reserved.`
+  }
+
   return (
     <>
       <head>
@@ -202,11 +213,16 @@ export default function FunnelPathPage() {
       <div className="min-h-screen animate-fade-in">
         {renderFunnelTemplate(funnel.template_id || 'trigger-template-1', {
           funnelData: funnel,
+          content,
           themeStyles,
           isEditor: false,
           caseStudies: funnel.case_studies || [],
           goToNextPage,
-          currentPage
+          currentPage,
+          customization: {
+            logoUrl: funnel.logo_url,
+            themeMode: funnel.theme_mode
+          }
         })}
       </div>
       

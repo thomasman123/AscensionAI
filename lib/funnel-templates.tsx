@@ -11,6 +11,7 @@ export interface FunnelTemplateProps {
   goToNextPage?: () => void
   customization?: any
   currentPage?: number
+  content?: any
 }
 
 export const TriggerTemplate1 = ({ 
@@ -22,12 +23,16 @@ export const TriggerTemplate1 = ({
   caseStudies = [],
   goToNextPage,
   customization,
-  currentPage = 1
+  currentPage = 1,
+  content
 }: FunnelTemplateProps) => {
+  // Use content if provided, otherwise fall back to funnelData
+  const templateContent = content || funnelData
+  
   // Use the clean template implementation
   if (currentPage === 2) {
     return <TriggerTemplatePage2
-      content={funnelData}
+      content={templateContent}
       customization={customization}
       funnelData={funnelData}
       isEditor={isEditor}
@@ -44,7 +49,7 @@ export const TriggerTemplate1 = ({
   }
   
   return <TriggerTemplatePage1
-    content={funnelData}
+    content={templateContent}
     customization={customization}
     funnelData={funnelData}
     isEditor={isEditor}

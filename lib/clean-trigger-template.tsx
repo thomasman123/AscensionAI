@@ -3,8 +3,75 @@
  * Exact structure: Heading -> Subheading -> VSL -> CTA 1 -> Case Studies -> CTA 2 -> Footer
  */
 
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { TemplateProps, getFieldValue, TRIGGER_TEMPLATE_1_FIELDS } from './funnel-template-middleware'
+
+// Logo Resizer Component for Editor
+const LogoResizer: React.FC<{
+  src: string
+  onSizeChange?: (size: number) => void
+  initialSize?: number
+}> = ({ src, onSizeChange, initialSize = 48 }) => {
+  const [size, setSize] = useState(initialSize)
+  const [isResizing, setIsResizing] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const startX = useRef(0)
+  const startSize = useRef(size)
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsResizing(true)
+    startX.current = e.clientX
+    startSize.current = size
+  }
+
+  useEffect(() => {
+    if (!isResizing) return
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const delta = e.clientX - startX.current
+      const newSize = Math.max(32, Math.min(120, startSize.current + delta))
+      setSize(newSize)
+      onSizeChange?.(newSize)
+    }
+
+    const handleMouseUp = () => {
+      setIsResizing(false)
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isResizing, onSizeChange])
+
+  return (
+    <div 
+      ref={containerRef}
+      className="relative inline-block"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <img 
+        src={src} 
+        alt="Logo" 
+        className={`object-contain transition-all ${isHovered || isResizing ? 'outline outline-2 outline-blue-400 outline-offset-2' : ''}`}
+        style={{ height: `${size}px` }}
+      />
+      {(isHovered || isResizing) && (
+        <div
+          className="absolute -bottom-1 -right-1 w-3 h-3 bg-blue-500 rounded-full cursor-se-resize hover:bg-blue-600 transition-colors"
+          onMouseDown={handleMouseDown}
+          style={{ cursor: 'se-resize' }}
+        />
+      )}
+    </div>
+  )
+}
 
 // Helper function to render case study card
 const renderCaseStudyCard = (caseStudy: any, index: number, themeStyles: any) => {
@@ -111,11 +178,20 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
         <div className="container mx-auto max-w-4xl">
           <div className="flex justify-center">
             {(customization?.logoUrl || funnelData?.logo_url) ? (
-              <img 
-                src={customization?.logoUrl || funnelData?.logo_url} 
-                alt="Logo" 
-                className="h-12 object-contain"
-              />
+              isEditor ? (
+                <LogoResizer
+                  src={customization?.logoUrl || funnelData?.logo_url}
+                  onSizeChange={(newSize) => {
+                    // Size change handled locally in the component
+                  }}
+                />
+              ) : (
+                <img 
+                  src={customization?.logoUrl || funnelData?.logo_url} 
+                  alt="Logo" 
+                  className="h-12 object-contain"
+                />
+              )
             ) : (
               <div className="h-12 flex items-center">
                 <span className="text-2xl font-bold" style={{ color: themeStyles.textPrimary }}>
@@ -363,11 +439,20 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
         <div className="container mx-auto max-w-4xl">
           <div className="flex justify-center">
             {(customization?.logoUrl || funnelData?.logo_url) ? (
-              <img 
-                src={customization?.logoUrl || funnelData?.logo_url} 
-                alt="Logo" 
-                className="h-12 object-contain"
-              />
+              isEditor ? (
+                <LogoResizer
+                  src={customization?.logoUrl || funnelData?.logo_url}
+                  onSizeChange={(newSize) => {
+                    // Size change handled locally in the component
+                  }}
+                />
+              ) : (
+                <img 
+                  src={customization?.logoUrl || funnelData?.logo_url} 
+                  alt="Logo" 
+                  className="h-12 object-contain"
+                />
+              )
             ) : (
               <div className="h-12 flex items-center">
                 <span className="text-2xl font-bold" style={{ color: themeStyles.textPrimary }}>
