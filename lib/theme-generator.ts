@@ -16,6 +16,52 @@ export function generateThemeCSS(theme: Theme, overrides?: ThemeOverrides): stri
         .join('\n      ')}
     }
     
+    /* Apply background to theme wrapper */
+    [data-theme="${theme.id}"] {
+      background: var(--theme-bg-main);
+      min-height: 100vh;
+      position: relative;
+    }
+    
+    /* Glass morphism cards within theme */
+    [data-theme="${theme.id}"] .glass-card {
+      background: var(--theme-bg-alt);
+      backdrop-filter: blur(var(--theme-effect-blur));
+      -webkit-backdrop-filter: blur(var(--theme-effect-blur));
+      border: var(--theme-border-width) solid var(--theme-border);
+    }
+    
+    /* Theme overlay backgrounds */
+    [data-theme="${theme.id}"] .theme-overlay {
+      background: var(--theme-bg-overlay);
+      backdrop-filter: blur(calc(var(--theme-effect-blur) / 2));
+      -webkit-backdrop-filter: blur(calc(var(--theme-effect-blur) / 2));
+    }
+    
+    /* Apply theme fonts */
+    [data-theme="${theme.id}"] h1,
+    [data-theme="${theme.id}"] h2,
+    [data-theme="${theme.id}"] h3,
+    [data-theme="${theme.id}"] h4,
+    [data-theme="${theme.id}"] h5,
+    [data-theme="${theme.id}"] h6 {
+      font-family: var(--theme-font-heading);
+      color: var(--theme-text-primary);
+    }
+    
+    [data-theme="${theme.id}"] body,
+    [data-theme="${theme.id}"] p,
+    [data-theme="${theme.id}"] div {
+      font-family: var(--theme-font-body);
+      color: var(--theme-text-primary);
+    }
+    
+    [data-theme="${theme.id}"] code,
+    [data-theme="${theme.id}"] pre,
+    [data-theme="${theme.id}"] .accent-font {
+      font-family: var(--theme-font-accent);
+    }
+    
     /* Responsive adjustments */
     @media (max-width: 768px) {
       [data-theme="${theme.id}"] {
