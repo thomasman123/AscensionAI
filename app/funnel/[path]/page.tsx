@@ -75,8 +75,6 @@ async function getFunnelData(path: string | string[]) {
         domain,
         data,
         template_id,
-        heading,
-        subheading,
         case_studies_heading,
         case_studies_subtext,
         booking_heading,
