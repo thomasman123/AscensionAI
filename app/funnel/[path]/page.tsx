@@ -116,7 +116,7 @@ export default function FunnelPathPage() {
   }, [params.path])
 
   if (loading) {
-    return <PremiumSpinner isContentReady={isContentReady} />
+    return <PremiumSpinner isContentReady={isContentReady} logoUrl={funnel?.logo_url || funnel?.data?.customization?.logoUrl} />
   }
 
   if (error || !funnel) {

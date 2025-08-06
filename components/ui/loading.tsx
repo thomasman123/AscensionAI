@@ -121,21 +121,26 @@ interface PremiumSpinnerProps {
   text?: string
   className?: string
   isContentReady?: boolean
+  logoUrl?: string
 }
 
-const PremiumSpinner: React.FC<PremiumSpinnerProps> = ({ className, isContentReady = false }) => {
+const PremiumSpinner: React.FC<PremiumSpinnerProps> = ({ className, isContentReady = false, logoUrl }) => {
   const [progress, setProgress] = React.useState(0)
+  const [logoOpacity, setLogoOpacity] = React.useState(0)
   
   React.useEffect(() => {
     // Super fast initial progress
     const timer1 = setTimeout(() => setProgress(75), 50)
     // Quick to near completion
     const timer2 = setTimeout(() => setProgress(90), 200)
+    // Start fading in logo
+    const timer3 = setTimeout(() => setLogoOpacity(1), 100)
     // Hold at 90% until content is ready
     
     return () => {
       clearTimeout(timer1)
       clearTimeout(timer2)
+      clearTimeout(timer3)
     }
   }, [])
   
@@ -149,7 +154,22 @@ const PremiumSpinner: React.FC<PremiumSpinnerProps> = ({ className, isContentRea
   return (
     <div className={cn("flex min-h-screen items-center justify-center bg-background", className)}>
       <div className="flex flex-col items-center space-y-6">
-        <div className="loader" />
+        {/* Logo or loader */}
+        {logoUrl ? (
+          <div 
+            className="h-24 flex items-center justify-center transition-opacity duration-1000"
+            style={{ opacity: logoOpacity }}
+          >
+            <img 
+              src={logoUrl} 
+              alt="Loading..." 
+              className="h-full object-contain"
+              style={{ maxHeight: '96px' }}
+            />
+          </div>
+        ) : (
+          <div className="loader" />
+        )}
         
         {/* Progress bar */}
         <div className="w-48 h-1 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
