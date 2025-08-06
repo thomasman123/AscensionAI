@@ -154,43 +154,37 @@ const PremiumSpinner: React.FC<PremiumSpinnerProps> = ({ className, isContentRea
   return (
     <div className={cn("flex min-h-screen items-center justify-center bg-background", className)}>
       <div className="flex flex-col items-center space-y-6">
-        {/* Logo or default branding */}
-        <div className="h-24 w-full max-w-xs flex items-center justify-center">
-          {logoUrl && !imageError ? (
-            <>
-              {logoUrl.startsWith('data:') ? (
-                <img
-                  src={logoUrl} 
-                  alt="Loading..." 
-                  className="object-contain animate-fade-in"
-                  style={{ maxHeight: '96px', width: 'auto' }}
-                  onError={() => {
-                    console.error('Failed to load logo')
-                    setImageError(true)
-                  }}
-                />
-              ) : (
-                <Image
-                  src={logoUrl} 
-                  alt="Loading..." 
-                  width={200}
-                  height={96}
-                  priority
-                  className="object-contain animate-fade-in"
-                  style={{ maxHeight: '96px', width: 'auto' }}
-                  onError={() => {
-                    console.error('Failed to load logo:', logoUrl)
-                    setImageError(true)
-                  }}
-                />
-              )}
-            </>
-          ) : (
-            <div className="text-3xl font-bold text-purple-600 animate-fade-in">
-              Loading...
-            </div>
-          )}
-        </div>
+        {/* Logo if available */}
+        {logoUrl && !imageError && (
+          <div className="h-24 w-full max-w-xs flex items-center justify-center">
+            {logoUrl.startsWith('data:') ? (
+              <img
+                src={logoUrl} 
+                alt="Logo" 
+                className="object-contain animate-fade-in"
+                style={{ maxHeight: '96px', width: 'auto' }}
+                onError={() => {
+                  console.error('Failed to load logo')
+                  setImageError(true)
+                }}
+              />
+            ) : (
+              <Image
+                src={logoUrl} 
+                alt="Logo" 
+                width={200}
+                height={96}
+                priority
+                className="object-contain animate-fade-in"
+                style={{ maxHeight: '96px', width: 'auto' }}
+                onError={() => {
+                  console.error('Failed to load logo:', logoUrl)
+                  setImageError(true)
+                }}
+              />
+            )}
+          </div>
+        )}
         
         {/* Progress bar */}
         <div className="w-48 h-1 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
