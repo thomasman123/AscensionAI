@@ -29,7 +29,9 @@ import {
   Moon,
   X,
   Trash2,
-  ChevronRight
+  ChevronRight,
+  PlayCircle,
+  Calendar
 } from 'lucide-react'
 
 import { CaseStudyForm, type CaseStudy } from '@/components/case-study-form'
@@ -125,6 +127,14 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       mobile: {
         ctaText: 100
       }
+    },
+    // Media fields for VSL and calendar
+    media: {
+      vslType: 'none' as 'video' | 'canva' | 'none',
+      vslUrl: '',
+      vslTitle: '',
+      calendarEmbedCode: '',
+      calendarTitle: 'Book Your Call'
     }
   })
 
@@ -304,6 +314,14 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             mobile: {
               ctaText: 100
             }
+          },
+          // Media fields for VSL and calendar
+          media: data.funnel.data?.customization?.media || {
+            vslType: data.funnel.vsl_type || 'none',
+            vslUrl: data.funnel.vsl_url || '',
+            vslTitle: data.funnel.vsl_title || '',
+            calendarEmbedCode: data.funnel.calendar_embed_code || '',
+            calendarTitle: data.funnel.calendar_title || 'Book Your Call'
           }
         })
       } else {
@@ -335,13 +353,13 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     try {
       const saveData = {
         userId: user?.id,
-        funnelId: params.id,
+        funnelId: funnel.id,
         name: funnel.name,
         type: funnel.type,
         status: funnel.status,
         offerData: funnel.data?.offerData,
         caseStudies: funnel.data?.caseStudies,
-        media: funnel.data?.media,
+        media: customization.media, // Use media from customization
         templateId: funnel.data?.templateId,
         customization,
         // Ensure logo is included in the save data
@@ -352,7 +370,8 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       console.log('Customization being saved:', {
         textSizes: customization.textSizes,
         logoSize: customization.logoSize,
-        buttonSizes: customization.buttonSizes
+        buttonSizes: customization.buttonSizes,
+        media: customization.media
       })
 
       const response = await fetch('/api/funnels/save', {
@@ -968,6 +987,146 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                 className="bg-tier-700 border-tier-600 text-tier-50 text-sm"
                 rows={2}
               />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* VSL Settings */}
+        <Card className="bg-tier-800 border-tier-700">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-tier-50 text-base">
+              <PlayCircle className="w-4 h-4" />
+              Video Sales Letter (VSL)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium mb-1 text-tier-300">
+                VSL Type
+              </label>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setCustomization(prev => ({ 
+                    ...prev, 
+                    media: { ...prev.media, vslType: 'none' }
+                  }))}
+                  className={`px-3 py-1 rounded text-xs transition-colors ${
+                    customization.media.vslType === 'none'
+                      ? 'bg-accent-500 text-white'
+                      : 'bg-tier-700 text-tier-300 hover:bg-tier-600'
+                  }`}
+                >
+                  None
+                </button>
+                <button
+                  onClick={() => setCustomization(prev => ({ 
+                    ...prev, 
+                    media: { ...prev.media, vslType: 'video' }
+                  }))}
+                  className={`px-3 py-1 rounded text-xs transition-colors ${
+                    customization.media.vslType === 'video'
+                      ? 'bg-accent-500 text-white'
+                      : 'bg-tier-700 text-tier-300 hover:bg-tier-600'
+                  }`}
+                >
+                  Video
+                </button>
+                <button
+                  onClick={() => setCustomization(prev => ({ 
+                    ...prev, 
+                    media: { ...prev.media, vslType: 'canva' }
+                  }))}
+                  className={`px-3 py-1 rounded text-xs transition-colors ${
+                    customization.media.vslType === 'canva'
+                      ? 'bg-accent-500 text-white'
+                      : 'bg-tier-700 text-tier-300 hover:bg-tier-600'
+                  }`}
+                >
+                  Canva
+                </button>
+              </div>
+            </div>
+            
+            {customization.media.vslType !== 'none' && (
+              <>
+                <div>
+                  <label className="block text-xs font-medium mb-1 text-tier-300">
+                    VSL URL
+                  </label>
+                  <Input
+                    value={customization.media.vslUrl}
+                    onChange={(e) => setCustomization(prev => ({ 
+                      ...prev, 
+                      media: { ...prev.media, vslUrl: e.target.value }
+                    }))}
+                    placeholder={customization.media.vslType === 'video' 
+                      ? "YouTube or Vimeo embed URL" 
+                      : "Canva presentation URL"
+                    }
+                    className="bg-tier-700 border-tier-600 text-tier-50 text-sm"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-xs font-medium mb-1 text-tier-300">
+                    VSL Title
+                  </label>
+                  <Input
+                    value={customization.media.vslTitle}
+                    onChange={(e) => setCustomization(prev => ({ 
+                      ...prev, 
+                      media: { ...prev.media, vslTitle: e.target.value }
+                    }))}
+                    placeholder="Title shown above the video"
+                    className="bg-tier-700 border-tier-600 text-tier-50 text-sm"
+                  />
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Calendar Booking */}
+        <Card className="bg-tier-800 border-tier-700">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-tier-50 text-base">
+              <Calendar className="w-4 h-4" />
+              Calendar Booking
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium mb-1 text-tier-300">
+                Calendar Title
+              </label>
+              <Input
+                value={customization.media.calendarTitle}
+                onChange={(e) => setCustomization(prev => ({ 
+                  ...prev, 
+                  media: { ...prev.media, calendarTitle: e.target.value }
+                }))}
+                placeholder="Book Your Strategy Call"
+                className="bg-tier-700 border-tier-600 text-tier-50 text-sm"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-xs font-medium mb-1 text-tier-300">
+                Calendar Embed Code
+              </label>
+              <Textarea
+                value={customization.media.calendarEmbedCode}
+                onChange={(e) => setCustomization(prev => ({ 
+                  ...prev, 
+                  media: { ...prev.media, calendarEmbedCode: e.target.value }
+                }))}
+                placeholder="Paste your Calendly, Cal.com, or other calendar embed code here..."
+                className="bg-tier-700 border-tier-600 text-tier-50 text-sm font-mono"
+                rows={4}
+              />
+              <p className="text-xs text-tier-400 mt-1">
+                Supports Calendly, Cal.com, Google Calendar, and most other calendar embed codes
+              </p>
             </div>
           </CardContent>
         </Card>
