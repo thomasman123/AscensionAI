@@ -310,7 +310,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         })
       
       // Load case studies for this funnel
-      // await loadCaseStudies(data.funnel.id)
+      await loadCaseStudies(data.funnel.id)
         
         setCustomization({
           heading: data.funnel.data?.customization?.heading || data.funnel.headline || '',

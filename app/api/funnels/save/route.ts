@@ -582,21 +582,28 @@ export async function PUT(request: NextRequest) {
     }
 
     if (customization) {
-      // Basic customization fields that definitely exist
-      updates.headline = customization.heading || customization.headline
-      updates.subheadline = customization.subheading || customization.subheadline
-      updates.hero_text = customization.heroText
-      updates.cta_text = customization.ctaText || customization.cta_text
-      updates.case_studies_heading = customization.caseStudiesHeading
-      updates.case_studies_subtext = customization.caseStudiesSubtext
-      updates.booking_heading = customization.bookingHeading
-      updates.offer_description = customization.offerDescription
+      // Basic customization fields that definitely exist - only update if they have values
+      const heading = customization.heading || customization.headline
+      if (heading) updates.headline = heading
+      
+      const subheading = customization.subheading || customization.subheadline
+      if (subheading) updates.subheadline = subheading
+      
+      if (customization.heroText) updates.hero_text = customization.heroText
+      
+      const ctaText = customization.ctaText || customization.cta_text
+      if (ctaText) updates.cta_text = ctaText
+      
+      if (customization.caseStudiesHeading) updates.case_studies_heading = customization.caseStudiesHeading
+      if (customization.caseStudiesSubtext) updates.case_studies_subtext = customization.caseStudiesSubtext
+      if (customization.bookingHeading) updates.booking_heading = customization.bookingHeading
+      if (customization.offerDescription) updates.offer_description = customization.offerDescription
       
       // Logo handling
       if (customization.logoUrl !== undefined) {
         updates.logo_url = customization.logoUrl
       }
-      updates.guarantee_text = customization.guaranteeText
+      if (customization.guaranteeText) updates.guarantee_text = customization.guaranteeText
       // Colors are now hardcoded to defaults
       updates.primary_color = '#3b82f6'
       updates.secondary_color = '#1e40af'

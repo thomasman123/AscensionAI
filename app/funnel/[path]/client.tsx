@@ -139,21 +139,21 @@ export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl
 
   // Prepare customization data
   const customization = {
-    headline: funnel.headline || funnel.heading || 'Welcome',
-    subheadline: funnel.subheadline || funnel.subheading || '',
-    heroText: funnel.hero_text || '',
-    ctaText: funnel.cta_text || 'Get Started',
-    offerDescription: funnel.offer_description || '',
-    guaranteeText: funnel.guarantee_text || '',
+    headline: funnel.data?.customization?.heading || funnel.headline || funnel.heading || 'Welcome',
+    subheadline: funnel.data?.customization?.subheading || funnel.subheadline || funnel.subheading || '',
+    heroText: funnel.data?.customization?.heroText || funnel.hero_text || '',
+    ctaText: funnel.data?.customization?.ctaText || funnel.cta_text || 'Get Started',
+    offerDescription: funnel.data?.customization?.offerDescription || funnel.offer_description || '',
+    guaranteeText: funnel.data?.customization?.guaranteeText || funnel.guarantee_text || '',
     colors: {
       primary: funnel.primary_color || '#3b82f6',
       secondary: funnel.secondary_color || '#1e40af',
       accent: funnel.accent_color || '#059669'
     },
-    caseStudiesHeading: funnel.case_studies_heading || 'Success Stories',
-    caseStudiesSubtext: funnel.case_studies_subtext || 'See what others have achieved',
-    bookingHeading: funnel.booking_heading || 'Schedule Your Call',
-    footerText: funnel.footer_text || '© 2024 All rights reserved',
+    caseStudiesHeading: funnel.data?.customization?.caseStudiesHeading || funnel.case_studies_heading || 'Success Stories',
+    caseStudiesSubtext: funnel.data?.customization?.caseStudiesSubtext || funnel.case_studies_subtext || 'See what others have achieved',
+    bookingHeading: funnel.data?.customization?.bookingHeading || funnel.booking_heading || 'Schedule Your Call',
+    footerText: funnel.data?.customization?.footerText || funnel.footer_text || '© 2024 All rights reserved',
     logoUrl: initialLogoUrl || funnel.logo_url || funnel.data?.customization?.logoUrl,
     ...(funnel.data?.customization || {}),
     universalSpacers: funnel.data?.customization?.universalSpacers || {}
