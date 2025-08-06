@@ -30,7 +30,7 @@ const SpacingEditor: React.FC<SpacingEditorProps> = ({
       if (!isDragging) return
       
       const deltaY = e.clientY - dragStartY
-      const newSpacing = Math.max(0, Math.min(200, dragStartSpacing + deltaY))
+      const newSpacing = Math.max(0, Math.min(300, dragStartSpacing + deltaY))
       onSpacingChange(spacingKey, newSpacing)
     }
 
@@ -41,10 +41,12 @@ const SpacingEditor: React.FC<SpacingEditorProps> = ({
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove)
       document.addEventListener('mouseup', handleMouseUp)
+      document.body.style.cursor = 'ns-resize'
       
       return () => {
         document.removeEventListener('mousemove', handleMouseMove)
         document.removeEventListener('mouseup', handleMouseUp)
+        document.body.style.cursor = 'auto'
       }
     }
   }, [isDragging, dragStartY, dragStartSpacing, spacingKey, onSpacingChange])
@@ -53,14 +55,19 @@ const SpacingEditor: React.FC<SpacingEditorProps> = ({
 
   return (
     <div 
-      className="relative"
+      className="relative group"
       style={{ height: `${currentSpacing}px` }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Always visible spacing indicator lines */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent opacity-50" />
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent opacity-50" />
+      
+      {/* Draggable area */}
       <div 
-        className={`absolute inset-x-0 top-1/2 -translate-y-1/2 h-6 flex items-center justify-center cursor-ns-resize transition-opacity ${
-          isHovered || isDragging ? 'opacity-100' : 'opacity-0'
+        className={`absolute inset-x-0 top-1/2 -translate-y-1/2 h-8 flex items-center justify-center cursor-ns-resize transition-all ${
+          isHovered || isDragging ? 'opacity-100' : 'opacity-40'
         }`}
         onMouseDown={(e) => {
           e.preventDefault()
@@ -69,15 +76,45 @@ const SpacingEditor: React.FC<SpacingEditorProps> = ({
           setDragStartSpacing(currentSpacing)
         }}
       >
-        {/* Horizontal line divider */}
-        <div className="absolute inset-x-8 h-px bg-blue-400">
-          {/* Draggable handle dots in the center */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex gap-1">
-            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
-            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
-            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
+        {/* Main divider line */}
+        <div className={`absolute inset-x-4 h-0.5 transition-all ${
+          isDragging ? 'bg-blue-500' : isHovered ? 'bg-blue-400' : 'bg-gray-300'
+        }`}>
+          {/* Draggable handle */}
+          <div className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 px-3 py-1 rounded-full transition-all ${
+            isDragging ? 'bg-blue-500' : isHovered ? 'bg-blue-400' : 'bg-gray-300'
+          }`}>
+            {/* Handle dots */}
+            <div className="flex gap-0.5">
+              <div className="w-1 h-3 bg-white rounded-full opacity-60" />
+              <div className="w-1 h-3 bg-white rounded-full opacity-60" />
+              <div className="w-1 h-3 bg-white rounded-full opacity-60" />
+            </div>
+            
+            {/* Spacing value display */}
+            {(isHovered || isDragging) && (
+              <div className="text-xs font-medium text-white whitespace-nowrap">
+                {currentSpacing}px
+              </div>
+            )}
           </div>
         </div>
+        
+        {/* Visual feedback arrows */}
+        {isDragging && (
+          <>
+            <div className="absolute left-1/2 -translate-x-1/2 -top-6 text-blue-500 animate-bounce">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a1 1 0 01-.707-.293l-7-7a1 1 0 011.414-1.414L10 15.586l6.293-6.293a1 1 0 011.414 1.414l-7 7A1 1 0 0110 18z" clipRule="evenodd" transform="rotate(180 10 10)" />
+              </svg>
+            </div>
+            <div className="absolute left-1/2 -translate-x-1/2 -bottom-6 text-blue-500 animate-bounce">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a1 1 0 01-.707-.293l-7-7a1 1 0 011.414-1.414L10 15.586l6.293-6.293a1 1 0 011.414 1.414l-7 7A1 1 0 0110 18z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
