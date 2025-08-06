@@ -224,14 +224,16 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
                 <img 
                   src={customization?.logoUrl || funnelData?.logo_url} 
                   alt="Logo" 
-                  className="h-12 object-contain"
+                  className="object-contain"
                   style={{
                     height: `${logoSize?.[currentView] || (currentView === 'mobile' ? 36 : 48)}px`
                   }}
                 />
               )
             ) : (
-              <div className="h-12 flex items-center">
+              <div className="flex items-center" style={{
+                height: `${logoSize?.[currentView] || (currentView === 'mobile' ? 36 : 48)}px`
+              }}>
                 <span className="text-2xl font-bold" style={{ color: themeStyles.textPrimary }}>
                   {customization?.companyName || 'Your Business'}
                 </span>
@@ -498,14 +500,16 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
                 <img 
                   src={customization?.logoUrl || funnelData?.logo_url} 
                   alt="Logo" 
-                  className="h-12 object-contain"
+                  className="object-contain"
                   style={{
                     height: `${logoSize?.[currentView] || (currentView === 'mobile' ? 36 : 48)}px`
                   }}
                 />
               )
             ) : (
-              <div className="h-12 flex items-center">
+              <div className="flex items-center" style={{
+                height: `${logoSize?.[currentView] || (currentView === 'mobile' ? 36 : 48)}px`
+              }}>
                 <span className="text-2xl font-bold" style={{ color: themeStyles.textPrimary }}>
                   {customization?.companyName || 'Your Business'}
                 </span>
