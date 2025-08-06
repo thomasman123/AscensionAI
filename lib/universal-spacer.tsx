@@ -77,38 +77,24 @@ export const UniversalSpacer: React.FC<UniversalSpacerProps> = ({
   return (
     <div
       ref={spacerRef}
-      className="relative group border-2 border-dashed"
+      className="relative group"
       style={{ 
         height: `${currentSpacing}px`,
         minHeight: `${Math.max(20, currentSpacing)}px`, // Ensure minimum clickable area
-        borderColor: isHovered || isDragging ? '#6B7280' : '#E5E7EB',
-        backgroundColor: isHovered || isDragging ? 'rgba(229, 231, 235, 0.5)' : 'transparent',
-        transition: 'all 0.2s'
+        margin: 0, // Ensure no margin
+        padding: 0, // Ensure no padding
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => !isDragging && setIsHovered(false)}
     >
-      {/* Visual indicators at edges to show spacing area */}
-      <div 
-        className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-gray-400 to-transparent"
-        style={{ opacity: 0.5 }}
-      />
-      <div 
-        className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-transparent via-gray-400 to-transparent"
-        style={{ opacity: 0.5 }}
-      />
-      {/* Full-width draggable area */}
+      {/* Full-width draggable area with gray background that fills the entire spacer */}
       <div
-        className="absolute left-0 right-0 top-1/2 -translate-y-1/2 transition-all duration-200 z-50"
+        className="absolute inset-0 transition-all duration-200 z-10"
         style={{
-          height: '24px',
+          backgroundColor: isDragging ? 'rgba(59, 130, 246, 0.1)' : isHovered ? 'rgba(107, 114, 128, 0.1)' : 'transparent',
+          borderTop: isDragging ? '2px solid #3b82f6' : isHovered ? '1px solid #6b7280' : '1px dashed #e5e7eb',
+          borderBottom: isDragging ? '2px solid #3b82f6' : isHovered ? '1px solid #6b7280' : '1px dashed #e5e7eb',
           cursor: 'ns-resize',
-          // Extend beyond container to span full viewport width
-          marginLeft: '-50vw',
-          marginRight: '-50vw',
-          left: '50%',
-          right: '50%',
-          width: '100vw'
         }}
         onMouseDown={(e) => {
           e.preventDefault()
@@ -117,20 +103,24 @@ export const UniversalSpacer: React.FC<UniversalSpacerProps> = ({
           setDragStartSpacing(currentSpacing)
         }}
       >
-        {/* Full-width divider line - always visible in editor */}
-        <div 
-          className={`absolute inset-x-0 top-1/2 -translate-y-1/2 transition-all duration-200 ${
-            isDragging ? 'h-2 bg-blue-500' : isHovered ? 'h-1.5 bg-gray-700' : 'h-1 bg-gray-600'
-          }`}
+        {/* Center divider line - spans full viewport width */}
+        <div
+          className="absolute left-0 right-0 top-1/2 -translate-y-1/2 transition-all duration-200"
           style={{
-            opacity: 1,
+            height: isDragging ? '2px' : '1px',
+            backgroundColor: isDragging ? '#3b82f6' : isHovered ? '#6b7280' : '#e5e7eb',
+            marginLeft: '-50vw',
+            marginRight: '-50vw',
+            left: '50%',
+            right: '50%',
+            width: '100vw',
             boxShadow: isDragging ? '0 0 10px rgba(59, 130, 246, 0.5)' : 'none'
           }}
         />
         
         {/* Center handle */}
         <div 
-          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-200 z-10 ${
+          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-200 z-20 ${
             isDragging ? 'scale-110' : ''
           }`}
           style={{
