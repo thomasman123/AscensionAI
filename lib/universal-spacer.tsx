@@ -40,11 +40,6 @@ export const UniversalSpacer: React.FC<UniversalSpacerProps> = ({
 
   // Get current spacing value
   const currentSpacing = spacerData?.[spacerId]?.[currentView] ?? defaultSpacing[currentView]
-  
-  // Debug log to verify spacer is rendering
-  if (isEditor) {
-    console.log(`Rendering spacer: ${spacerId} with height: ${currentSpacing}px`)
-  }
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -82,7 +77,7 @@ export const UniversalSpacer: React.FC<UniversalSpacerProps> = ({
   return (
     <div
       ref={spacerRef}
-      className="relative group border-2 border-dashed border-purple-300 border-opacity-30"
+      className="relative group"
       style={{ 
         height: `${currentSpacing}px`,
         minHeight: `${Math.max(20, currentSpacing)}px` // Ensure minimum clickable area

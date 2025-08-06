@@ -204,7 +204,9 @@ export async function POST(request: NextRequest) {
             mobile: {
               ctaText: 100
             }
-          }
+          },
+          sectionSpacing: customization?.sectionSpacing || {},
+          universalSpacers: customization?.universalSpacers || {}
         }
       }
     }
@@ -442,7 +444,9 @@ export async function GET(request: NextRequest) {
               mobile: {
                 ctaText: 100
               }
-            }
+            },
+            sectionSpacing: funnel.data?.customization?.sectionSpacing || {},
+            universalSpacers: funnel.data?.customization?.universalSpacers || {}
           }
         }
       }
@@ -653,7 +657,9 @@ export async function PUT(request: NextRequest) {
             mobile: {
               ctaText: 100
             }
-          }
+          },
+          sectionSpacing: customization.sectionSpacing || {},
+          universalSpacers: customization.universalSpacers || {}
         }
       }
     }

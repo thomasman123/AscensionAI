@@ -394,7 +394,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           },
           universalSpacers: data.funnel.data?.customization?.universalSpacers || {}
         })
-        console.log('Loaded universalSpacers:', data.funnel.data?.customization?.universalSpacers)
       } else {
         console.error('Failed to load funnel')
         router.push('/funnels')
@@ -574,21 +573,16 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   }
 
   const handleUniversalSpacerChange = (spacerId: string, value: number) => {
-    console.log('Updating universal spacer:', spacerId, currentView, value)
-    setCustomization(prev => {
-      const newSpacers = {
+    setCustomization(prev => ({
+      ...prev,
+      universalSpacers: {
         ...prev.universalSpacers,
         [spacerId]: {
           ...prev.universalSpacers[spacerId],
           [currentView]: value
         }
       }
-      console.log('New universalSpacers state:', newSpacers)
-      return {
-        ...prev,
-        universalSpacers: newSpacers
-      }
-    })
+    }))
   }
 
   // Removed color editing - using default colors only
