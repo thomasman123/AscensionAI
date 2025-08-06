@@ -59,7 +59,7 @@ const SpacingEditor: React.FC<SpacingEditorProps> = ({
       onMouseLeave={() => setIsHovered(false)}
     >
       <div 
-        className={`absolute inset-x-0 top-1/2 -translate-y-1/2 h-8 flex items-center justify-center cursor-ns-resize transition-opacity ${
+        className={`absolute inset-x-0 top-1/2 -translate-y-1/2 h-6 flex items-center justify-center cursor-ns-resize transition-opacity ${
           isHovered || isDragging ? 'opacity-100' : 'opacity-0'
         }`}
         onMouseDown={(e) => {
@@ -69,12 +69,14 @@ const SpacingEditor: React.FC<SpacingEditorProps> = ({
           setDragStartSpacing(currentSpacing)
         }}
       >
-        <div className="w-full max-w-md mx-auto flex items-center justify-center gap-2">
-          <div className="flex-1 h-1 bg-blue-400 rounded-full" />
-          <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded">
-            {currentSpacing}px
+        {/* Horizontal line divider */}
+        <div className="absolute inset-x-8 h-px bg-blue-400">
+          {/* Draggable handle dots in the center */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex gap-1">
+            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
+            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
+            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
           </div>
-          <div className="flex-1 h-1 bg-blue-400 rounded-full" />
         </div>
       </div>
     </div>
