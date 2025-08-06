@@ -422,19 +422,6 @@ function MediaCollectionContent() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-tier-300 mb-2">
-                        Calendar Title
-                      </label>
-                      <Input
-                        placeholder="Book Your Call"
-                        value={mediaData.calendarTitle}
-                        onChange={(e) => handleInputChange('calendarTitle', e.target.value)}
-                        className="bg-tier-800 border-tier-700 text-tier-100"
-                      />
-                    </div>
-                  </div>
                   <div>
                     <label className="block text-sm font-medium text-tier-300 mb-2">
                       Calendar Embed Code

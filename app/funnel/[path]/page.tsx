@@ -13,6 +13,21 @@ export async function generateMetadata({ params }: { params: { path: string | st
   const logoUrl = funnel?.logo_url || funnel?.data?.customization?.logoUrl
   
   return {
+    title: funnel?.meta_title || funnel?.data?.customization?.metaTitle || funnel?.headline || 'Welcome',
+    description: funnel?.meta_description || funnel?.data?.customization?.metaDescription || funnel?.subheadline || '',
+    keywords: funnel?.meta_keywords || funnel?.data?.customization?.metaKeywords || '',
+    openGraph: {
+      title: funnel?.meta_title || funnel?.data?.customization?.metaTitle || funnel?.headline || 'Welcome',
+      description: funnel?.meta_description || funnel?.data?.customization?.metaDescription || funnel?.subheadline || '',
+      images: logoUrl ? [logoUrl] : undefined,
+      type: 'website'
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: funnel?.meta_title || funnel?.data?.customization?.metaTitle || funnel?.headline || 'Welcome',
+      description: funnel?.meta_description || funnel?.data?.customization?.metaDescription || funnel?.subheadline || '',
+      images: logoUrl ? [logoUrl] : undefined
+    },
     other: logoUrl ? {
       'link': `<link rel="preload" href="${logoUrl}" as="image" />`
     } : {}
@@ -50,6 +65,9 @@ interface FunnelData {
   booking_heading?: string
   footer_text?: string
   status?: string
+  meta_title?: string
+  meta_description?: string
+  meta_keywords?: string
 }
 
 async function getFunnelData(path: string | string[]) {
@@ -95,7 +113,10 @@ async function getFunnelData(path: string | string[]) {
         case_studies_subtext,
         booking_heading,
         footer_text,
-        status
+        status,
+        meta_title,
+        meta_description,
+        meta_keywords
       )
     `)
     .eq('domain', fullDomain.toLowerCase())

@@ -54,8 +54,9 @@ export async function POST(request: NextRequest) {
         name: cs.name,
         description: cs.description,
         result: cs.result,
-        media_url: cs.mediaUrl,
-        media_type: cs.mediaType
+        metric: cs.metric || null, // Add metric field
+        media_url: cs.mediaUrl || cs.videoEmbedUrl || cs.media_url || null, // Handle different media URL fields
+        media_type: cs.mediaType || cs.media_type || (cs.videoEmbedUrl ? 'video' : null)
       }))
       
       const { error } = await supabaseAdmin

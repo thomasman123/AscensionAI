@@ -70,6 +70,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   const [justActivated, setJustActivated] = useState<string | null>(null)
   const [currentEditPage, setCurrentEditPage] = useState<number>(1)
   const [showCaseStudiesModal, setShowCaseStudiesModal] = useState(false)
+  const [showDomainModal, setShowDomainModal] = useState(false)
   const [caseStudies, setCaseStudies] = useState<any[]>([])
   const [isSavingCaseStudies, setIsSavingCaseStudies] = useState(false)
   
@@ -476,12 +477,12 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         const responseData = await response.json()
         console.log('Save successful:', responseData)
         alert('Funnel saved successfully!')
-        router.push('/funnels')
+        // Stay in editor - don't redirect
       } catch (e) {
         // If JSON parsing fails on success, still treat it as success
         console.log('Save completed but response was not JSON')
         alert('Funnel saved successfully!')
-        router.push('/funnels')
+        // Stay in editor - don't redirect
       }
     } catch (error) {
       console.error('Error saving funnel:', error)
@@ -1165,21 +1166,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                     className="bg-tier-700 border-tier-600 text-tier-50 text-sm"
                   />
                 </div>
-                
-                <div>
-                  <label className="block text-xs font-medium mb-1 text-tier-300">
-                    VSL Title
-                  </label>
-                  <Input
-                    value={customization.media.vslTitle}
-                    onChange={(e) => setCustomization(prev => ({ 
-                      ...prev, 
-                      media: { ...prev.media, vslTitle: e.target.value }
-                    }))}
-                    placeholder="Title shown above the video"
-                    className="bg-tier-700 border-tier-600 text-tier-50 text-sm"
-                  />
-                </div>
               </>
             )}
           </CardContent>
@@ -1194,21 +1180,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <label className="block text-xs font-medium mb-1 text-tier-300">
-                Calendar Title
-              </label>
-              <Input
-                value={customization.media.calendarTitle}
-                onChange={(e) => setCustomization(prev => ({ 
-                  ...prev, 
-                  media: { ...prev.media, calendarTitle: e.target.value }
-                }))}
-                placeholder="Book Your Strategy Call"
-                className="bg-tier-700 border-tier-600 text-tier-50 text-sm"
-              />
-            </div>
-            
             <div>
               <label className="block text-xs font-medium mb-1 text-tier-300">
                 Calendar Embed Code
@@ -1323,112 +1294,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           </CardContent>
         </Card>
 
-        {/* Section Spacing */}
-        <Card className="bg-tier-800 border-tier-700">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-tier-50 text-base">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-              </svg>
-              Section Spacing ({currentView === 'mobile' ? 'Mobile' : 'Desktop'})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-xs text-tier-400 mb-3">
-              Adjust spacing between sections. You can also drag the divider lines in the preview.
-            </div>
-            
-            {/* Spacing controls for each section */}
-            {[
-              { key: 'afterHeader', label: 'After Header', min: 0, max: 200 },
-              { key: 'afterHeading', label: 'After Heading', min: 0, max: 200 },
-              { key: 'afterSubheading', label: 'After Subheading', min: 0, max: 200 },
-              { key: 'afterVsl', label: 'After Video', min: 0, max: 200 },
-              { key: 'afterFirstCta', label: 'After First CTA', min: 0, max: 200 },
-              { key: 'afterCaseStudies', label: 'After Case Studies', min: 0, max: 200 },
-              { key: 'beforeFooter', label: 'Before Footer', min: 0, max: 200 }
-            ].map((section) => {
-              const currentSpacing = customization.sectionSpacing[currentView]?.[section.key as keyof typeof customization.sectionSpacing.desktop] || 48
-              
-              return (
-                <div key={section.key}>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs font-medium text-tier-300">
-                      {section.label}
-                    </label>
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="number"
-                        min={section.min}
-                        max={section.max}
-                        value={currentSpacing}
-                        onChange={(e) => {
-                          const value = parseInt(e.target.value)
-                          if (!isNaN(value) && value >= section.min && value <= section.max) {
-                            handleSectionSpacingChange(section.key, value)
-                          }
-                        }}
-                        className="w-14 px-2 py-1 bg-tier-700 border border-tier-600 rounded text-tier-100 text-center text-xs"
-                      />
-                      <span className="text-tier-400 text-xs">px</span>
-                    </div>
-                  </div>
-                  <input
-                    type="range"
-                    min={section.min}
-                    max={section.max}
-                    value={currentSpacing}
-                    onChange={(e) => handleSectionSpacingChange(section.key, parseInt(e.target.value))}
-                    className="w-full h-1 bg-tier-700 rounded-lg appearance-none cursor-pointer"
-                    style={{
-                      background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(currentSpacing / section.max) * 100}%, #374151 ${(currentSpacing / section.max) * 100}%, #374151 100%)`
-                    }}
-                  />
-                </div>
-              )
-            })}
-            
-            <div className="flex gap-2 mt-4">
-              <button
-                onClick={() => {
-                  // Reset to default values
-                  const defaults = {
-                    afterHeader: 48,
-                    afterHeading: 24,
-                    afterSubheading: 48,
-                    afterVsl: 48,
-                    afterFirstCta: 64,
-                    afterCaseStudies: 48,
-                    beforeFooter: 64
-                  }
-                  Object.entries(defaults).forEach(([key, value]) => {
-                    handleSectionSpacingChange(key, value)
-                  })
-                }}
-                className="flex-1 px-3 py-1.5 bg-tier-700 hover:bg-tier-600 text-tier-300 rounded text-xs transition-colors"
-              >
-                Reset to Defaults
-              </button>
-              <button
-                onClick={() => {
-                  // Apply desktop spacing to mobile or vice versa
-                  const sourceView = currentView === 'desktop' ? 'mobile' : 'desktop'
-                  const targetView = currentView
-                  
-                  if (customization.sectionSpacing[sourceView]) {
-                    Object.entries(customization.sectionSpacing[sourceView]).forEach(([key, value]) => {
-                      handleSectionSpacingChange(key, value as number)
-                    })
-                  }
-                }}
-                className="flex-1 px-3 py-1.5 bg-tier-700 hover:bg-tier-600 text-tier-300 rounded text-xs transition-colors"
-              >
-                Copy from {currentView === 'desktop' ? 'Mobile' : 'Desktop'}
-              </button>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Case Studies */}
         <Card className="bg-tier-800 border-tier-700">
           <CardHeader className="pb-4">
@@ -1452,18 +1317,26 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         </Card>
 
         {/* Domain Settings */}
-        <DomainManager 
-          funnelId={funnel?.id || params.id}
-          userId={user?.id}
-          onDomainAdded={(domain) => {
-            console.log('Domain added:', domain)
-            setCustomization(prev => ({ ...prev, domain: domain.domain }))
-          }}
-          onDomainRemoved={(domainId) => {
-            console.log('Domain removed:', domainId)
-            setCustomization(prev => ({ ...prev, domain: '' }))
-          }}
-        />
+        <Card className="bg-tier-800 border-tier-700">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-tier-50 text-base">
+              <Globe className="w-4 h-4" />
+              Custom Domain
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={() => {
+                setShowSettingsTray(false)
+                setShowDomainModal(true)
+              }}
+              className="w-full bg-accent-500 hover:bg-accent-600 text-white text-sm"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Manage Domains
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     )
 
@@ -1525,6 +1398,50 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             >
               {isSavingCaseStudies ? 'Saving...' : 'Save Case Studies'}
             </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderDomainModal = () => {
+    if (!showDomainModal) return null
+
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="bg-tier-900 border border-tier-800 rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+          <div className="p-6 border-b border-tier-800 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-tier-50">Manage Custom Domains</h2>
+            <button
+              onClick={() => setShowDomainModal(false)}
+              className="text-tier-400 hover:text-tier-200"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          
+          <div className="p-6">
+            <DomainManager 
+              funnelId={funnel?.id || params.id}
+              userId={user?.id}
+              onDomainAdded={(domain) => {
+                console.log('Domain added:', domain)
+                setCustomization(prev => ({ ...prev, domain: domain.domain }))
+              }}
+              onDomainRemoved={(domainId) => {
+                console.log('Domain removed:', domainId)
+                setCustomization(prev => ({ ...prev, domain: '' }))
+              }}
+            />
+          </div>
+          
+          <div className="p-6 border-t border-tier-800">
+            <button
+              onClick={() => setShowDomainModal(false)}
+              className="w-full px-4 py-2 bg-tier-800 hover:bg-tier-700 text-tier-200 rounded transition-colors"
+            >
+              Close
+            </button>
           </div>
         </div>
       </div>
@@ -1753,6 +1670,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       
       {/* Case Studies Modal */}
       {renderCaseStudiesModal()}
+      {renderDomainModal()}
       {renderSettingsTray()}
     </DashboardNav>
     </>

@@ -176,16 +176,17 @@ export const TriggerTemplatePage1: React.FC<TemplateProps & {
   universalSpacers,
   onUniversalSpacerChange
 }) => {
-  // Get theme styles from the parent funnel template
-  const themeStyles = funnelData?.themeStyles || {
-    background: '#ffffff',
-    textPrimary: '#1e293b',
-    textSecondary: '#475569',
-    accent: '#3b82f6',
-    ctaGradient: 'linear-gradient(135deg, #3b82f6, #1e40af)',
-    sectionBg: 'rgba(248, 250, 252, 0.5)',
-    cardBg: 'rgba(255, 255, 255, 0.9)',
-    borderColor: 'rgba(148, 163, 184, 0.3)'
+  // Get theme styles based on theme mode
+  const isDark = customization?.funnelTheme === 'dark' || customization?.themeMode === 'dark'
+  const themeStyles = {
+    background: isDark ? '#0f172a' : '#ffffff',
+    textPrimary: isDark ? '#f8fafc' : '#1e293b',
+    textSecondary: isDark ? '#cbd5e1' : '#475569',
+    accent: customization?.colors?.primary || '#3b82f6',
+    ctaGradient: `linear-gradient(135deg, ${customization?.colors?.primary || '#3b82f6'}, ${customization?.colors?.secondary || '#1e40af'})`,
+    sectionBg: isDark ? 'rgba(30, 41, 59, 0.5)' : 'rgba(248, 250, 252, 0.5)',
+    cardBg: isDark ? 'rgba(51, 65, 85, 0.8)' : 'rgba(255, 255, 255, 0.9)',
+    borderColor: isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.3)'
   }
 
   // Get current spacing values
@@ -569,7 +570,7 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
   onUniversalSpacerChange
 }) => {
   // Get theme styles
-  const isDark = customization?.themeMode === 'dark'
+  const isDark = customization?.funnelTheme === 'dark' || customization?.themeMode === 'dark'
   const themeStyles = {
     background: isDark ? '#0f172a' : '#ffffff',
     textPrimary: isDark ? '#f8fafc' : '#1e293b',
