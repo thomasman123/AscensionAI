@@ -61,22 +61,46 @@ export function MediaUpload({
 
     setIsLoading(true)
     try {
-      // Convert to base64 data URL for persistence
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result as string
-        onChange(dataUrl, file)
+      // Check if this is a logo upload (for images only)
+      const isImageUpload = file.type.startsWith('image/')
+      
+      if (isImageUpload && placeholder?.toLowerCase().includes('logo')) {
+        // Upload to Supabase Storage for logos
+        const formData = new FormData()
+        formData.append('file', file)
+        
+        const response = await fetch('/api/upload/logo', {
+          method: 'POST',
+          body: formData
+        })
+        
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Upload failed')
+        }
+        
+        const data = await response.json()
+        onChange(data.url, file)
         setIsLoading(false)
+      } else {
+        // For non-logo files or videos, still use base64 for now
+        // TODO: Extend Supabase Storage for other media types
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          const dataUrl = e.target?.result as string
+          onChange(dataUrl, file)
+          setIsLoading(false)
+        }
+        reader.onerror = (e) => {
+          setError('Failed to process file')
+          console.error('File processing error:', e)
+          setIsLoading(false)
+        }
+        reader.readAsDataURL(file)
       }
-      reader.onerror = (e) => {
-        setError('Failed to process file')
-        console.error('File processing error:', e)
-        setIsLoading(false)
-      }
-      reader.readAsDataURL(file)
     } catch (err) {
-      setError('Failed to process file')
-      console.error('File processing error:', err)
+      setError(err instanceof Error ? err.message : 'Failed to upload file')
+      console.error('File upload error:', err)
       setIsLoading(false)
     }
 
