@@ -31,6 +31,7 @@ export const UniversalSpacer: React.FC<UniversalSpacerProps> = ({
   minHeight = 0,
   maxHeight = 300
 }) => {
+  console.log(`UniversalSpacer rendering: ${spacerId}, isEditor: ${isEditor}`)
   const [isHovered, setIsHovered] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [dragStartY, setDragStartY] = useState(0)
@@ -98,7 +99,7 @@ export const UniversalSpacer: React.FC<UniversalSpacerProps> = ({
       />
       {/* Full-width draggable area */}
       <div
-        className="absolute left-0 right-0 top-1/2 -translate-y-1/2 transition-all duration-200"
+        className="absolute left-0 right-0 top-1/2 -translate-y-1/2 transition-all duration-200 z-50"
         style={{
           height: '24px',
           cursor: 'ns-resize',
