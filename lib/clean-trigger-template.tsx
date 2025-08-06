@@ -176,17 +176,16 @@ export const TriggerTemplatePage1: React.FC<TemplateProps & {
   universalSpacers,
   onUniversalSpacerChange
 }) => {
-  // Get theme styles based on theme mode
-  const isDark = customization?.funnelTheme === 'dark' || customization?.themeMode === 'dark'
+  // Theme styles now come from CSS variables
   const themeStyles = {
-    background: isDark ? '#0f172a' : '#ffffff',
-    textPrimary: isDark ? '#f8fafc' : '#1e293b',
-    textSecondary: isDark ? '#cbd5e1' : '#475569',
-    accent: customization?.colors?.primary || '#3b82f6',
-    ctaGradient: `linear-gradient(135deg, ${customization?.colors?.primary || '#3b82f6'}, ${customization?.colors?.secondary || '#1e40af'})`,
-    sectionBg: isDark ? 'rgba(30, 41, 59, 0.5)' : 'rgba(248, 250, 252, 0.5)',
-    cardBg: isDark ? 'rgba(51, 65, 85, 0.8)' : 'rgba(255, 255, 255, 0.9)',
-    borderColor: isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.3)'
+    background: 'var(--theme-bg-main, #ffffff)',
+    textPrimary: 'var(--theme-text-primary, #1e293b)',
+    textSecondary: 'var(--theme-text-secondary, #475569)',
+    accent: 'var(--theme-color-primary, #3b82f6)',
+    ctaGradient: `linear-gradient(135deg, var(--theme-color-primary, #3b82f6), var(--theme-color-secondary, #1e40af))`,
+    sectionBg: 'var(--theme-bg-alt, rgba(248, 250, 252, 0.5))',
+    cardBg: 'var(--theme-bg-overlay, rgba(255, 255, 255, 0.9))',
+    borderColor: 'var(--theme-border, rgba(148, 163, 184, 0.3))'
   }
 
   // Get current spacing values
@@ -217,6 +216,8 @@ export const TriggerTemplatePage1: React.FC<TemplateProps & {
     const lineHeight = textSize * 1.5 // 1.5x the font size for proper spacing
     
     const finalStyle = {
+      fontFamily: 'var(--theme-font-body)',
+      transition: 'var(--theme-transition-normal) var(--theme-transition-easing)',
       ...style,
       fontSize: `${textSize}px`,
       lineHeight: `${lineHeight}px`,

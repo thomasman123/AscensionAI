@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { CheckCircle, Star, Clock, Users, ArrowRight, Play, ArrowLeft, Sun, Moon, Shield, Zap, Target } from 'lucide-react'
 import Head from 'next/head'
 import { renderFunnelTemplate } from '@/lib/funnel-templates'
+import ThemeProvider, { useTheme } from '@/components/theme-provider'
 // Font styling removed - will rebuild design system from scratch
 
 // Force dynamic rendering
@@ -38,6 +39,8 @@ interface FunnelData {
   google_analytics_id?: string
   theme_mode?: 'light' | 'dark'
   template_id?: string
+  theme_id?: string
+  theme_overrides?: any
   // Metadata fields
   meta_title?: string
   meta_description?: string
@@ -104,6 +107,9 @@ function FunnelViewerContent() {
   const [error, setError] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
   const [caseStudies, setCaseStudies] = useState<any[]>([])
+  
+  // Load theme based on funnel's theme_id
+  const { theme, loading: themeLoading } = useTheme(funnelData?.theme_id)
 
   useEffect(() => {
     // Wait for component to mount and search params to be available
@@ -243,7 +249,7 @@ function FunnelViewerContent() {
   // Theme mode is now controlled by funnel creator settings, not user interaction
 
   // Remove loading animation - load normally
-  if (loading) {
+  if (loading || themeLoading) {
     return null
   }
 
@@ -409,20 +415,22 @@ function FunnelViewerContent() {
           </header>
 
           {/* Render Template Content */}
-          {renderFunnelTemplate(funnelData.template_id || 'trigger-template-1', {
-            funnelData,
-            themeStyles,
-            isEditor: false,
-            caseStudies,
-            goToNextPage,
-            currentPage,
-            customization: {
-              themeMode: (funnelData as any).theme_mode || 'light',
-              ...(funnelData as any).data?.customization
-            },
-            universalSpacers: (funnelData as any).data?.customization?.universalSpacers || {},
-            currentView: typeof window !== 'undefined' && window.innerWidth < 768 ? 'mobile' : 'desktop'
-          })}
+          <ThemeProvider theme={theme} overrides={funnelData.theme_overrides}>
+            {renderFunnelTemplate(funnelData.template_id || 'trigger-template-1', {
+              funnelData,
+              themeStyles,
+              isEditor: false,
+              caseStudies,
+              goToNextPage,
+              currentPage,
+              customization: {
+                themeMode: (funnelData as any).theme_mode || 'light',
+                ...(funnelData as any).data?.customization
+              },
+              universalSpacers: (funnelData as any).data?.customization?.universalSpacers || {},
+              currentView: typeof window !== 'undefined' && window.innerWidth < 768 ? 'mobile' : 'desktop'
+            })}
+          </ThemeProvider>
         </div>
       </div>
     )
