@@ -1,83 +1,38 @@
--- Storage Policies for Logos Bucket
--- Run these in Supabase SQL Editor after creating the 'logos' bucket
+-- Storage Policies Setup
+-- IMPORTANT: Storage policies cannot be created via SQL!
+-- They must be configured through the Supabase Dashboard.
 
--- 1. Allow public read access to logos
-INSERT INTO storage.policies (bucket_id, name, mode, definition)
-VALUES (
-  'logos',
-  'Public Access',
-  'SELECT',
-  '{"roles": ["anon", "authenticated"], "check": "true"}'::jsonb
-);
+-- This file serves as documentation for the required storage setup.
 
--- 2. Allow authenticated users to upload logos
-INSERT INTO storage.policies (bucket_id, name, mode, definition)
-VALUES (
-  'logos',
-  'Authenticated users can upload',
-  'INSERT',
-  '{"roles": ["authenticated"], "check": "(auth.uid() IS NOT NULL)"}'::jsonb
-);
+-- Required Buckets:
+-- 1. 'logos' - Public bucket for company logos
+-- 2. 'case-studies' - Public bucket for case study images
 
--- 3. Allow authenticated users to update their uploads
-INSERT INTO storage.policies (bucket_id, name, mode, definition)
-VALUES (
-  'logos',
-  'Authenticated users can update',
-  'UPDATE',
-  '{"roles": ["authenticated"], "using": "(auth.uid() IS NOT NULL)", "check": "(auth.uid() IS NOT NULL)"}'::jsonb
-);
+-- For each bucket, create these policies in the Dashboard:
 
--- 4. Allow authenticated users to delete their uploads
-INSERT INTO storage.policies (bucket_id, name, mode, definition)
-VALUES (
-  'logos',
-  'Authenticated users can delete',
-  'DELETE',
-  '{"roles": ["authenticated"], "using": "(auth.uid() IS NOT NULL)"}'::jsonb
-);
+-- SELECT Policy (Public Read Access):
+-- - Policy name: Public Read Access
+-- - Operation: SELECT
+-- - Target roles: anon, authenticated
+-- - Policy definition: true
 
--- Storage Policies for Case Studies Bucket
--- First create the bucket in dashboard with:
--- Name: case-studies
--- Public: ON
--- MIME types: image/png, image/jpeg, image/gif, image/webp
--- Max size: 10MB
+-- INSERT Policy (Authenticated Upload):
+-- - Policy name: Authenticated Upload
+-- - Operation: INSERT
+-- - Target roles: authenticated  
+-- - Policy definition: (auth.uid() IS NOT NULL)
 
--- Then run these policies:
+-- UPDATE Policy (Authenticated Update):
+-- - Policy name: Authenticated Update
+-- - Operation: UPDATE
+-- - Target roles: authenticated
+-- - USING expression: (auth.uid() IS NOT NULL)
+-- - WITH CHECK expression: (auth.uid() IS NOT NULL)
 
--- 1. Allow public read access to case study images
-INSERT INTO storage.policies (bucket_id, name, mode, definition)
-VALUES (
-  'case-studies',
-  'Public Access',
-  'SELECT',
-  '{"roles": ["anon", "authenticated"], "check": "true"}'::jsonb
-);
+-- DELETE Policy (Authenticated Delete):
+-- - Policy name: Authenticated Delete
+-- - Operation: DELETE
+-- - Target roles: authenticated
+-- - USING expression: (auth.uid() IS NOT NULL)
 
--- 2. Allow authenticated users to upload case study images
-INSERT INTO storage.policies (bucket_id, name, mode, definition)
-VALUES (
-  'case-studies',
-  'Authenticated users can upload',
-  'INSERT',
-  '{"roles": ["authenticated"], "check": "(auth.uid() IS NOT NULL)"}'::jsonb
-);
-
--- 3. Allow authenticated users to update their uploads
-INSERT INTO storage.policies (bucket_id, name, mode, definition)
-VALUES (
-  'case-studies',
-  'Authenticated users can update',
-  'UPDATE',
-  '{"roles": ["authenticated"], "using": "(auth.uid() IS NOT NULL)", "check": "(auth.uid() IS NOT NULL)"}'::jsonb
-);
-
--- 4. Allow authenticated users to delete their uploads
-INSERT INTO storage.policies (bucket_id, name, mode, definition)
-VALUES (
-  'case-studies',
-  'Authenticated users can delete',
-  'DELETE',
-  '{"roles": ["authenticated"], "using": "(auth.uid() IS NOT NULL)"}'::jsonb
-); 
+-- See STORAGE_BUCKET_SETUP.md for detailed dashboard instructions. 
