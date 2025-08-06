@@ -32,7 +32,8 @@ import {
   Trash2,
   ChevronRight,
   PlayCircle,
-  Calendar
+  Calendar,
+  RefreshCw
 } from 'lucide-react'
 
 import { CaseStudyForm, type CaseStudy } from '@/components/case-study-form'
@@ -1334,6 +1335,53 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             >
               <Plus className="w-4 h-4 mr-2" />
               Manage Domains
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Data Recovery */}
+        <Card className="bg-tier-800 border-tier-700">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-tier-50 text-base">
+              <Settings className="w-4 h-4" />
+              Data Recovery
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-xs text-tier-400">
+              If your funnel text has been reset to defaults, use this to restore it from the database.
+            </p>
+            <Button
+              onClick={async () => {
+                if (!confirm('This will restore your funnel text from the database. Continue?')) return
+                
+                try {
+                  const response = await fetch('/api/funnels/fix-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      funnelId: funnel?.id,
+                      userId: user?.id
+                    })
+                  })
+                  
+                  if (response.ok) {
+                    alert('Funnel data restored successfully! Refreshing...')
+                    window.location.reload()
+                  } else {
+                    const error = await response.json()
+                    alert(`Failed to restore data: ${error.error}`)
+                  }
+                } catch (error) {
+                  console.error('Error restoring funnel:', error)
+                  alert('Failed to restore funnel data')
+                }
+              }}
+              variant="outline"
+              className="w-full border-tier-600 text-tier-300 hover:border-tier-500 text-sm"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Restore Funnel Data
             </Button>
           </CardContent>
         </Card>
