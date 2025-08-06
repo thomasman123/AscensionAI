@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
         offerDescription: funnel.offer_description || '',
         guaranteeText: funnel.guarantee_text || '',
         logoUrl: funnel.logo_url || '',
-        footerText: funnel.footer_text || '© 2024 Your Business. All rights reserved.',
+        footerText: '© 2024 Your Business. All rights reserved.',
         metaTitle: funnel.meta_title || '',
         metaDescription: funnel.meta_description || '',
         metaKeywords: funnel.meta_keywords || '',

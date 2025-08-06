@@ -14,7 +14,7 @@ SET data = jsonb_build_object(
     'offerDescription', COALESCE(offer_description, ''),
     'guaranteeText', COALESCE(guarantee_text, ''),
     'logoUrl', COALESCE(logo_url, ''),
-    'footerText', COALESCE(footer_text, '© 2024 Your Business. All rights reserved.'),
+    'footerText', '© 2024 Your Business. All rights reserved.',
     'metaTitle', COALESCE(meta_title, ''),
     'metaDescription', COALESCE(meta_description, ''),
     'metaKeywords', COALESCE(meta_keywords, ''),
