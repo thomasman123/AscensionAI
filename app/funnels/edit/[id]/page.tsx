@@ -574,16 +574,21 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   }
 
   const handleUniversalSpacerChange = (spacerId: string, value: number) => {
-    setCustomization(prev => ({
-      ...prev,
-      universalSpacers: {
+    console.log('Updating universal spacer:', spacerId, currentView, value)
+    setCustomization(prev => {
+      const newSpacers = {
         ...prev.universalSpacers,
         [spacerId]: {
           ...prev.universalSpacers[spacerId],
           [currentView]: value
         }
       }
-    }))
+      console.log('New universalSpacers state:', newSpacers)
+      return {
+        ...prev,
+        universalSpacers: newSpacers
+      }
+    })
   }
 
   // Removed color editing - using default colors only
