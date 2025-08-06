@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { renderFunnelTemplate } from '@/lib/funnel-templates'
+import ThemeProvider, { useTheme } from '@/components/theme-provider'
 
 interface FunnelData {
   id: string
@@ -28,6 +29,8 @@ interface FunnelData {
   domain?: string
   data?: any
   template_id?: string
+  theme_id?: string
+  theme_overrides?: any
   heading?: string
   subheading?: string
   case_studies_heading?: string
@@ -51,6 +54,9 @@ export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [isMobileView, setIsMobileView] = useState(false)
+  
+  // Load theme for the funnel
+  const { theme, loading: themeLoading } = useTheme(funnel?.theme_id)
 
   useEffect(() => {
     // Get page from URL params
@@ -181,33 +187,35 @@ export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl
   // Render the funnel template
   return (
     <div>
-      {renderFunnelTemplate(funnel.template_id || 'trigger-template-1', {
-        funnelData: funnel,
-        customization,
-        caseStudies,
-        currentPage,
-        isEditor: false,
-        goToNextPage,
-        currentView: isMobileView ? 'mobile' : 'desktop',
-        content: {
-          heading: funnel.data?.customization?.heading || funnel.headline || '',
-          subheading: funnel.data?.customization?.subheading || funnel.subheadline || '',
-          ctaText: funnel.data?.customization?.ctaText || funnel.cta_text || 'Get Started',
-          caseStudiesHeading: funnel.data?.customization?.caseStudiesHeading || funnel.case_studies_heading || 'Success Stories',
-          caseStudiesSubtext: funnel.data?.customization?.caseStudiesSubtext || funnel.case_studies_subtext || 'See what others have achieved',
-          bookingHeading: funnel.data?.customization?.bookingHeading || funnel.booking_heading || 'Book Your Strategy Call',
-          heroText: funnel.data?.customization?.heroText || funnel.hero_text || '',
-          offerDescription: funnel.data?.customization?.offerDescription || funnel.offer_description || '',
-          guaranteeText: funnel.data?.customization?.guaranteeText || funnel.guarantee_text || '',
-          footerText: funnel.data?.customization?.footerText || '© 2024 All rights reserved.'
-        },
-        themeStyles,
-        textSizes: funnel.data?.customization?.textSizes || customization.textSizes,
-        buttonSizes: funnel.data?.customization?.buttonSizes || customization.buttonSizes,
-        logoSize: funnel.data?.customization?.logoSize || customization.logoSize,
-        sectionSpacing: funnel.data?.customization?.sectionSpacing || customization.sectionSpacing,
-        universalSpacers: funnel.data?.customization?.universalSpacers || customization.universalSpacers || {}
-      })}
+      <ThemeProvider theme={theme} overrides={funnel.theme_overrides}>
+        {renderFunnelTemplate(funnel.template_id || 'trigger-template-1', {
+          funnelData: funnel,
+          customization,
+          caseStudies,
+          currentPage,
+          isEditor: false,
+          goToNextPage,
+          currentView: isMobileView ? 'mobile' : 'desktop',
+          content: {
+            heading: funnel.data?.customization?.heading || funnel.headline || '',
+            subheading: funnel.data?.customization?.subheading || funnel.subheadline || '',
+            ctaText: funnel.data?.customization?.ctaText || funnel.cta_text || 'Get Started',
+            caseStudiesHeading: funnel.data?.customization?.caseStudiesHeading || funnel.case_studies_heading || 'Success Stories',
+            caseStudiesSubtext: funnel.data?.customization?.caseStudiesSubtext || funnel.case_studies_subtext || 'See what others have achieved',
+            bookingHeading: funnel.data?.customization?.bookingHeading || funnel.booking_heading || 'Book Your Strategy Call',
+            heroText: funnel.data?.customization?.heroText || funnel.hero_text || '',
+            offerDescription: funnel.data?.customization?.offerDescription || funnel.offer_description || '',
+            guaranteeText: funnel.data?.customization?.guaranteeText || funnel.guarantee_text || '',
+            footerText: funnel.data?.customization?.footerText || '© 2024 All rights reserved.'
+          },
+          themeStyles,
+          textSizes: funnel.data?.customization?.textSizes || customization.textSizes,
+          buttonSizes: funnel.data?.customization?.buttonSizes || customization.buttonSizes,
+          logoSize: funnel.data?.customization?.logoSize || customization.logoSize,
+          sectionSpacing: funnel.data?.customization?.sectionSpacing || customization.sectionSpacing,
+          universalSpacers: funnel.data?.customization?.universalSpacers || customization.universalSpacers || {}
+        })}
+      </ThemeProvider>
     </div>
   )
 } 

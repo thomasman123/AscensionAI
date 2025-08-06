@@ -49,7 +49,7 @@ export default function ThemeProvider({ theme, overrides, children }: ThemeProvi
       </div>
       
       {/* Global theme animations and utilities */}
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .theme-wrapper {
           /* Ensure theme CSS variables are inherited */
           position: relative;
@@ -119,7 +119,7 @@ export default function ThemeProvider({ theme, overrides, children }: ThemeProvi
             display: none;
           }
         }
-      `}</style>
+      ` }} />
     </>
   )
 }

@@ -10,6 +10,7 @@ import { DashboardNav } from '@/components/dashboard-nav'
 import { useAuth } from '@/lib/auth-context'
 import { renderFunnelTemplate } from '@/lib/funnel-templates'
 import { SpacerData } from '@/lib/universal-spacer'
+import ThemeProvider, { useTheme } from '@/components/theme-provider'
 import { 
   ArrowLeft, 
   Save, 
@@ -81,6 +82,9 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   const [showSettingsTray, setShowSettingsTray] = useState(false)
   const [elementClicks, setElementClicks] = useState<Record<string, number>>({})
   const [drawerPage, setDrawerPage] = useState<'element-settings' | 'edit-text' | 'general-settings'>('element-settings')
+  
+  // Load theme for preview
+  const { theme, loading: themeLoading } = useTheme(funnel?.theme_id)
 
   const [customization, setCustomization] = useState({
     heading: '',
@@ -1587,42 +1591,44 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           }}
         >
           {/* Render Template Content - Logo is handled by the template itself */}
-          {renderFunnelTemplate(funnel?.template_id || 'trigger-template-1', {
-            funnelData: {
-              heading: customization.heading,
-              subheading: customization.subheading,
-              ctaText: customization.ctaText,
-              caseStudiesHeading: customization.caseStudiesHeading,
-              caseStudiesSubtext: customization.caseStudiesSubtext,
-              bookingHeading: customization.bookingHeading,
-              footerText: customization.footerText, // Add footer text
-              vsl_url: null, // No VSL in editor preview
-              vsl_title: null,
-              template_id: funnel?.template_id || 'trigger-template-1',
-              name: funnel?.name || 'Your Business',
-              calendar_embed_code: funnel?.calendar_embed_code
-            },
-            themeStyles,
-            isEditor: true,
-            renderEditableText,
-            editableFields,
-            caseStudies: [], // TODO: Load case studies for preview
-            goToNextPage: () => {}, // Provide empty function to prevent scrolling in editor
-            currentPage: currentEditPage, // Pass the current edit page
-            customization: customization, // Pass customization settings for font styling
-            textSizes: customization.textSizes, // Pass text sizes to the template
-            onTextSizeChange: handleTextSizeChange, // Pass text size handler to the template
-            currentView: currentView, // Pass current view (desktop/mobile)
-            logoSize: customization.logoSize, // Pass logo sizes
-            onLogoSizeChange: handleLogoSizeChange, // Pass logo size handler to the template
-            onElementClick: handleElementClick, // Pass element click handler to the template
-            buttonSizes: customization.buttonSizes, // Pass button sizes to the template
-            onFieldEdit: handleFieldUpdate, // Pass field update handler for text editing
-            sectionSpacing: customization.sectionSpacing, // Pass section spacing
-            onSectionSpacingChange: handleSectionSpacingChange, // Pass spacing change handler
-            universalSpacers: customization.universalSpacers, // Pass universal spacers
-            onUniversalSpacerChange: handleUniversalSpacerChange // Pass universal spacer handler
-          })}
+          <ThemeProvider theme={theme} overrides={funnel?.theme_overrides}>
+            {renderFunnelTemplate(funnel?.template_id || 'trigger-template-1', {
+              funnelData: {
+                heading: customization.heading,
+                subheading: customization.subheading,
+                ctaText: customization.ctaText,
+                caseStudiesHeading: customization.caseStudiesHeading,
+                caseStudiesSubtext: customization.caseStudiesSubtext,
+                bookingHeading: customization.bookingHeading,
+                footerText: customization.footerText, // Add footer text
+                vsl_url: null, // No VSL in editor preview
+                vsl_title: null,
+                template_id: funnel?.template_id || 'trigger-template-1',
+                name: funnel?.name || 'Your Business',
+                calendar_embed_code: funnel?.calendar_embed_code
+              },
+              themeStyles,
+              isEditor: true,
+              renderEditableText,
+              editableFields,
+              caseStudies: [], // TODO: Load case studies for preview
+              goToNextPage: () => {}, // Provide empty function to prevent scrolling in editor
+              currentPage: currentEditPage, // Pass the current edit page
+              customization: customization, // Pass customization settings for font styling
+              textSizes: customization.textSizes, // Pass text sizes to the template
+              onTextSizeChange: handleTextSizeChange, // Pass text size handler to the template
+              currentView: currentView, // Pass current view (desktop/mobile)
+              logoSize: customization.logoSize, // Pass logo sizes
+              onLogoSizeChange: handleLogoSizeChange, // Pass logo size handler to the template
+              onElementClick: handleElementClick, // Pass element click handler to the template
+              buttonSizes: customization.buttonSizes, // Pass button sizes to the template
+              onFieldEdit: handleFieldUpdate, // Pass field update handler for text editing
+              sectionSpacing: customization.sectionSpacing, // Pass section spacing
+              onSectionSpacingChange: handleSectionSpacingChange, // Pass spacing change handler
+              universalSpacers: customization.universalSpacers, // Pass universal spacers
+              onUniversalSpacerChange: handleUniversalSpacerChange // Pass universal spacer handler
+            })}
+          </ThemeProvider>
         </div>
       </div>
     )
