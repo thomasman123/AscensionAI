@@ -187,12 +187,12 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
     isButton?: boolean
   }> = ({ fieldId, children, className, style, isButton = false }) => {
     // Get text size for current view
-    const textSize = textSizes?.[currentView]?.[fieldId] || 100
+    const textSize = textSizes?.[currentView]?.[fieldId] || 24
     const buttonSize = isButton ? (buttonSizes?.[currentView]?.ctaText || 100) : 100
     
     const finalStyle = {
       ...style,
-      fontSize: `${textSize}%`,
+      fontSize: `${textSize}px`,
       ...(isButton ? { transform: `scale(${buttonSize / 100})` } : {})
     }
     
@@ -487,12 +487,12 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
     isButton?: boolean
   }> = ({ fieldId, children, className, style, isButton = false }) => {
     // Get text size for current view
-    const textSize = textSizes?.[currentView]?.[fieldId] || 100
+    const textSize = textSizes?.[currentView]?.[fieldId] || 24
     const buttonSize = isButton ? (buttonSizes?.[currentView]?.ctaText || 100) : 100
     
     const finalStyle = {
       ...style,
-      fontSize: `${textSize}%`,
+      fontSize: `${textSize}px`,
       ...(isButton ? { transform: `scale(${buttonSize / 100})` } : {})
     }
     

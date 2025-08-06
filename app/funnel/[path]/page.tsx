@@ -42,6 +42,7 @@ interface FunnelData {
   custom_tracking_code?: string
   template_id?: string
   case_studies?: any[]
+  data?: any // Add data field to interface
 }
 
 export default function FunnelPathPage() {
@@ -53,12 +54,25 @@ export default function FunnelPathPage() {
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [isContentReady, setIsContentReady] = useState(false)
+  const [isMobileView, setIsMobileView] = useState(false)
 
   useEffect(() => {
     // Get page from URL params
     const pageParam = parseInt(searchParams.get('page') || '1')
     setCurrentPage(pageParam)
   }, [searchParams])
+
+  useEffect(() => {
+    // Detect mobile view
+    const checkMobile = () => {
+      setIsMobileView(window.innerWidth < 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     const loadFunnel = async () => {
@@ -221,8 +235,36 @@ export default function FunnelPathPage() {
           currentPage,
           customization: {
             logoUrl: funnel.logo_url,
-            themeMode: funnel.theme_mode
-          }
+            themeMode: funnel.theme_mode,
+            ...funnel.data?.customization // Include all customization data from the data field
+          },
+          textSizes: funnel.data?.customization?.textSizes || {
+            desktop: {
+              heading: 48,
+              subheading: 24,
+              caseStudiesHeading: 36,
+              bookingHeading: 48
+            },
+            mobile: {
+              heading: 36,
+              subheading: 20,
+              caseStudiesHeading: 28,
+              bookingHeading: 36
+            }
+          },
+          buttonSizes: funnel.data?.customization?.buttonSizes || {
+            desktop: {
+              ctaText: 100
+            },
+            mobile: {
+              ctaText: 100
+            }
+          },
+          logoSize: funnel.data?.customization?.logoSize || {
+            desktop: 48,
+            mobile: 36
+          },
+          currentView: isMobileView ? 'mobile' : 'desktop' // Use detected device type
         })}
       </div>
       

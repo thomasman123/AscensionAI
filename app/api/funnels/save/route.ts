@@ -181,16 +181,16 @@ export async function POST(request: NextRequest) {
           ...customization,
           textSizes: customization?.textSizes || {
             desktop: {
-              heading: 100,
-              subheading: 100,
-              caseStudiesHeading: 100,
-              bookingHeading: 100
+              heading: 48,
+              subheading: 24,
+              caseStudiesHeading: 36,
+              bookingHeading: 48
             },
             mobile: {
-              heading: 100,
-              subheading: 100,
-              caseStudiesHeading: 100,
-              bookingHeading: 100
+              heading: 36,
+              subheading: 20,
+              caseStudiesHeading: 28,
+              bookingHeading: 36
             }
           },
           logoSize: customization?.logoSize || {
@@ -418,10 +418,18 @@ export async function GET(request: NextRequest) {
             },
             // Load text sizes from data column
             textSizes: funnel.data?.customization?.textSizes || {
-              heading: 100,
-              subheading: 100,
-              caseStudiesHeading: 100,
-              bookingHeading: 100
+              desktop: {
+                heading: 48,
+                subheading: 24,
+                caseStudiesHeading: 36,
+                bookingHeading: 48
+              },
+              mobile: {
+                heading: 36,
+                subheading: 20,
+                caseStudiesHeading: 28,
+                bookingHeading: 36
+              }
             },
             logoSize: funnel.data?.customization?.logoSize || {
               desktop: 48,

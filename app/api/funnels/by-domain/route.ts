@@ -55,7 +55,9 @@ export async function GET(request: NextRequest) {
         theme_style: funnel.theme_style || 'clean',
         facebook_pixel_code: funnel.facebook_pixel_code,
         google_analytics_code: funnel.google_analytics_code,
-        custom_tracking_code: funnel.custom_tracking_code
+        custom_tracking_code: funnel.custom_tracking_code,
+        // Include the data field with customization
+        data: funnel.data
       }
       
       return NextResponse.json({ 
@@ -98,7 +100,9 @@ export async function GET(request: NextRequest) {
         theme_style: funnel.theme_style || 'clean',
         facebook_pixel_code: funnel.facebook_pixel_code,
         google_analytics_code: funnel.google_analytics_code,
-        custom_tracking_code: funnel.custom_tracking_code
+        custom_tracking_code: funnel.custom_tracking_code,
+        // Include the data field with customization
+        data: funnel.data
       }
       
       return NextResponse.json({ 

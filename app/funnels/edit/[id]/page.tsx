@@ -100,16 +100,16 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     // Responsive text sizes for resizable elements
     textSizes: {
       desktop: {
-        heading: 100,
-        subheading: 100,
-        caseStudiesHeading: 100,
-        bookingHeading: 100
+        heading: 48,
+        subheading: 24,
+        caseStudiesHeading: 36,
+        bookingHeading: 48
       },
       mobile: {
-        heading: 100,
-        subheading: 100,
-        caseStudiesHeading: 100,
-        bookingHeading: 100
+        heading: 36,
+        subheading: 20,
+        caseStudiesHeading: 28,
+        bookingHeading: 36
       }
     },
     // Logo sizes for desktop and mobile
@@ -275,16 +275,16 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           // Text sizes for resizable elements
           textSizes: data.funnel.data?.customization?.textSizes || {
             desktop: {
-              heading: 100,
-              subheading: 100,
-              caseStudiesHeading: 100,
-              bookingHeading: 100
+              heading: 48,
+              subheading: 24,
+              caseStudiesHeading: 36,
+              bookingHeading: 48
             },
             mobile: {
-              heading: 100,
-              subheading: 100,
-              caseStudiesHeading: 100,
-              bookingHeading: 100
+              heading: 36,
+              subheading: 20,
+              caseStudiesHeading: 28,
+              bookingHeading: 36
             }
           },
           // Logo sizes for desktop and mobile
@@ -689,7 +689,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
 
     const isButton = selectedElement.type === 'button'
     const fieldId = selectedElement.fieldId
-    const currentTextSize = customization.textSizes[currentView]?.[fieldId as keyof typeof customization.textSizes[typeof currentView]] || 100
+    const currentTextSize = customization.textSizes[currentView]?.[fieldId as keyof typeof customization.textSizes[typeof currentView]] || 24
     const currentButtonSize = isButton ? (customization.buttonSizes?.[currentView]?.ctaText || 100) : 100
 
     return (
@@ -719,38 +719,53 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             <div className="flex items-center gap-2">
               <input
                 type="range"
-                min="50"
-                max="200"
+                min="12"
+                max="72"
                 value={currentTextSize}
                 onChange={(e) => handleTextSizeChange(fieldId, parseInt(e.target.value))}
                 className="flex-1"
               />
-              <span className="text-tier-400 w-12 text-right">{currentTextSize}%</span>
+              <div className="flex items-center gap-1">
+                <input
+                  type="number"
+                  min="12"
+                  max="72"
+                  value={currentTextSize}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value)
+                    if (!isNaN(value) && value >= 12 && value <= 72) {
+                      handleTextSizeChange(fieldId, value)
+                    }
+                  }}
+                  className="w-16 px-2 py-1 bg-tier-800 border border-tier-700 rounded text-tier-100 text-center"
+                />
+                <span className="text-tier-400 text-sm">px</span>
+              </div>
             </div>
             <div className="flex justify-between mt-2">
               <button
-                onClick={() => handleTextSizeChange(fieldId, 50)}
+                onClick={() => handleTextSizeChange(fieldId, 16)}
                 className="text-xs text-tier-500 hover:text-tier-300"
               >
-                50%
+                Small
               </button>
               <button
-                onClick={() => handleTextSizeChange(fieldId, 100)}
+                onClick={() => handleTextSizeChange(fieldId, 24)}
                 className="text-xs text-tier-500 hover:text-tier-300"
               >
-                100%
+                Normal
               </button>
               <button
-                onClick={() => handleTextSizeChange(fieldId, 150)}
+                onClick={() => handleTextSizeChange(fieldId, 36)}
                 className="text-xs text-tier-500 hover:text-tier-300"
               >
-                150%
+                Large
               </button>
               <button
-                onClick={() => handleTextSizeChange(fieldId, 200)}
+                onClick={() => handleTextSizeChange(fieldId, 48)}
                 className="text-xs text-tier-500 hover:text-tier-300"
               >
-                200%
+                XL
               </button>
             </div>
           </div>
