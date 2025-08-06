@@ -31,7 +31,8 @@ export const UniversalSpacer: React.FC<UniversalSpacerProps> = ({
   minHeight = 0,
   maxHeight = 300
 }) => {
-
+  console.log(`🟣 UniversalSpacer rendering: ${spacerId}, isEditor: ${isEditor}, currentView: ${currentView}`)
+  
   const [isHovered, setIsHovered] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [dragStartY, setDragStartY] = useState(0)
@@ -78,12 +79,12 @@ export const UniversalSpacer: React.FC<UniversalSpacerProps> = ({
   return (
     <div
       ref={spacerRef}
-      className="relative group border-2 border-dashed border-gray-300"
+      className="relative group border-4 border-dashed"
       style={{ 
         height: `${currentSpacing}px`,
         minHeight: `${Math.max(20, currentSpacing)}px`, // Ensure minimum clickable area
-        borderColor: isHovered || isDragging ? '#4B5563' : '#D1D5DB',
-        backgroundColor: isHovered || isDragging ? 'rgba(229, 231, 235, 0.3)' : 'rgba(243, 244, 246, 0.2)',
+        borderColor: '#FF00FF', // Bright purple for debugging
+        backgroundColor: 'rgba(255, 0, 255, 0.1)', // Light purple background
         transition: 'all 0.2s'
       }}
       onMouseEnter={() => setIsHovered(true)}
