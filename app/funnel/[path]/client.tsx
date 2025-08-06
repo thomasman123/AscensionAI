@@ -48,10 +48,10 @@ export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl
   const router = useRouter()
   const searchParams = useSearchParams()
   const [funnel, setFunnel] = useState<FunnelData | null>(initialFunnel)
-  const [loading, setLoading] = useState(!initialFunnel)
+  const [loading, setLoading] = useState(true) // Always start with loading true
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const [isContentReady, setIsContentReady] = useState(!!initialFunnel)
+  const [isContentReady, setIsContentReady] = useState(false) // Start false
   const [isMobileView, setIsMobileView] = useState(false)
   const [logoUrl] = useState<string | null>(initialLogoUrl) // Don't need to update this since we have it from server
 
@@ -74,9 +74,20 @@ export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl
   }, [])
 
   useEffect(() => {
-    // Only load if we don't have initial data
-    if (initialFunnel) return
+    // Show loading animation even with server-side data
+    if (initialFunnel) {
+      // Simulate loading for smooth animation
+      setTimeout(() => {
+        setIsContentReady(true)
+      }, 100)
+      
+      setTimeout(() => {
+        setLoading(false)
+      }, 500) // Show loading for at least 500ms
+      return
+    }
 
+    // Only load if we don't have initial data
     const loadFunnel = async () => {
       try {
         if (!params.path) {
