@@ -52,6 +52,7 @@ export default function FunnelPathPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState<number>(1)
+  const [isContentReady, setIsContentReady] = useState(false)
 
   useEffect(() => {
     // Get page from URL params
@@ -80,23 +81,28 @@ export default function FunnelPathPage() {
           const data = await response.json()
           setFunnel(data.funnel)
           console.log('✅ Funnel loaded successfully:', data.funnel?.name)
+          // Immediate content ready signal
+          setIsContentReady(true)
+          // Complete animation after progress bar reaches 100%
+          setTimeout(() => setLoading(false), 150)
         } else {
           const errorData = await response.json()
           console.error('❌ Failed to load funnel:', errorData)
           setError(errorData.error || 'Funnel not found')
+          setLoading(false)
         }
       } catch (err) {
         console.error('❌ Error loading funnel:', err)
         setError('Failed to load funnel')
+        setLoading(false)
       }
-      setLoading(false)
     }
 
     loadFunnel()
   }, [params.path])
 
   if (loading) {
-    return <PremiumSpinner />
+    return <PremiumSpinner isContentReady={isContentReady} />
   }
 
   if (error || !funnel) {
@@ -215,7 +221,7 @@ export default function FunnelPathPage() {
         }
         
         .animate-fade-in {
-          animation: fade-in 0.5s ease-out;
+          animation: fade-in 0.2s ease-out;
         }
       `}</style>
     </>

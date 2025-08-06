@@ -120,9 +120,32 @@ const PageLoading: React.FC<PageLoadingProps> = ({ text = "Loading..." }) => {
 interface PremiumSpinnerProps {
   text?: string
   className?: string
+  isContentReady?: boolean
 }
 
-const PremiumSpinner: React.FC<PremiumSpinnerProps> = ({ className }) => {
+const PremiumSpinner: React.FC<PremiumSpinnerProps> = ({ className, isContentReady = false }) => {
+  const [progress, setProgress] = React.useState(0)
+  
+  React.useEffect(() => {
+    // Super fast initial progress
+    const timer1 = setTimeout(() => setProgress(75), 50)
+    // Quick to near completion
+    const timer2 = setTimeout(() => setProgress(90), 200)
+    // Hold at 90% until content is ready
+    
+    return () => {
+      clearTimeout(timer1)
+      clearTimeout(timer2)
+    }
+  }, [])
+  
+  // Complete to 100% when content is ready
+  React.useEffect(() => {
+    if (isContentReady) {
+      setProgress(100)
+    }
+  }, [isContentReady])
+  
   return (
     <div className={cn("flex min-h-screen items-center justify-center bg-background", className)}>
       <div className="flex flex-col items-center space-y-6">
@@ -130,21 +153,16 @@ const PremiumSpinner: React.FC<PremiumSpinnerProps> = ({ className }) => {
         
         {/* Progress bar */}
         <div className="w-48 h-1 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full animate-loading-bar" />
+          <div 
+            className="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full transition-all"
+            style={{ 
+              width: `${progress}%`,
+              transitionDuration: progress === 100 ? '150ms' : progress > 80 ? '400ms' : '200ms',
+              transitionTimingFunction: progress === 100 ? 'ease-out' : progress > 80 ? 'cubic-bezier(0.8, 0.0, 0.2, 1)' : 'cubic-bezier(0.0, 0.0, 0.2, 1)'
+            }}
+          />
         </div>
       </div>
-      
-      <style jsx>{`
-        @keyframes loading-bar {
-          0% { width: 0%; }
-          50% { width: 70%; }
-          100% { width: 100%; }
-        }
-        
-        .animate-loading-bar {
-          animation: loading-bar 2s ease-out infinite;
-        }
-      `}</style>
     </div>
   )
 }

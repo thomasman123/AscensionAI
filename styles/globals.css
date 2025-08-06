@@ -767,7 +767,7 @@ html {
   background: var(--c), var(--c);
   background-size: 23px 23px;
   background-position: 0 0, 12px 12px;
-  animation: l4 1s infinite;
+  animation: l4 0.6s infinite;
 }
 
 @keyframes l4 {
