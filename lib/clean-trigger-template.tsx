@@ -581,17 +581,7 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
     borderColor: isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.3)'
   }
 
-  // Get current spacing values
-  const getSpacing = (key: string) => {
-    return sectionSpacing?.[currentView]?.[key] || 48
-  }
-
-  // Handle spacing change
-  const handleSpacingChange = (key: string, value: number) => {
-    if (onSectionSpacingChange) {
-      onSectionSpacingChange(key, value)
-    }
-  }
+  // Old spacing system removed - now using UniversalSpacer
 
   const EditableText: React.FC<{
     fieldId: string
