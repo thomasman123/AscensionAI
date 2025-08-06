@@ -42,9 +42,13 @@ interface FunnelData {
 
 async function getFunnelData(path: string | string[]) {
   const funnelPath = Array.isArray(path) ? path.join('/') : path
-  const fullDomain = `ascension-ai-sm36.vercel.app/funnel/${funnelPath}`
+  
+  // Clean the path - remove the domain suffix if present
+  const cleanPath = funnelPath.replace('.ascension-ai-sm36.vercel.app', '')
+  const fullDomain = `ascension-ai-sm36.vercel.app/funnel/${cleanPath}`
   
   console.log('🔍 Server: Loading funnel for path:', funnelPath)
+  console.log('🔍 Server: Clean path:', cleanPath)
   console.log('🔍 Server: Full domain lookup:', fullDomain)
   
   // First try custom domain
@@ -112,6 +116,28 @@ async function getFunnelData(path: string | string[]) {
 export default async function FunnelPage({ params }: { params: { path: string | string[] } }) {
   const funnel = await getFunnelData(params.path)
   const logoUrl = funnel?.logo_url || funnel?.data?.customization?.logoUrl || null
+  
+  // If no funnel found, show error immediately
+  if (!funnel) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center max-w-md mx-auto p-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            Funnel not found
+          </h1>
+          <p className="text-gray-600 mb-6">
+            The funnel you're looking for doesn't exist or has been removed.
+          </p>
+          <a
+            href="/"
+            className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Go to Homepage
+          </a>
+        </div>
+      </div>
+    )
+  }
   
   return (
     <Suspense fallback={<PremiumSpinner logoUrl={logoUrl || undefined} />}>
