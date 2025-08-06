@@ -91,6 +91,140 @@ const LogoResizer: React.FC<{
   )
 }
 
+// Text Resizer Component for Editor
+const TextResizer: React.FC<{
+  fieldId: string
+  children: React.ReactNode
+  onSizeChange?: (fieldId: string, size: number) => void
+  initialSize?: number
+  className?: string
+  style?: React.CSSProperties
+  isEditor?: boolean
+  onFieldEdit?: (fieldId: string, value: string) => void
+}> = ({ fieldId, children, onSizeChange, initialSize = 100, className, style, isEditor, onFieldEdit }) => {
+  const [size, setSize] = useState(initialSize)
+  const [isResizing, setIsResizing] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editValue, setEditValue] = useState(typeof children === 'string' ? children : '')
+  const containerRef = useRef<HTMLDivElement>(null)
+  const startX = useRef(0)
+  const startSize = useRef(size)
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsResizing(true)
+    startX.current = e.clientX
+    startSize.current = size
+  }
+
+  useEffect(() => {
+    if (!isResizing) return
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const delta = e.clientX - startX.current
+      const newSize = Math.max(50, Math.min(200, startSize.current + delta * 0.5)) // 50% to 200% range
+      setSize(newSize)
+      onSizeChange?.(fieldId, newSize)
+    }
+
+    const handleMouseUp = () => {
+      setIsResizing(false)
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isResizing, onSizeChange, fieldId])
+
+  const handleTextClick = (e: React.MouseEvent) => {
+    if (!isEditor || !onFieldEdit) return
+    e.preventDefault()
+    e.stopPropagation()
+    setIsEditing(true)
+  }
+
+  const handleEditComplete = () => {
+    if (onFieldEdit) {
+      onFieldEdit(fieldId, editValue)
+    }
+    setIsEditing(false)
+  }
+
+  if (!isEditor) {
+    return <div className={className} style={style}>{children}</div>
+  }
+
+  return (
+    <div 
+      ref={containerRef}
+      className="relative inline-block w-full"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {isEditing ? (
+        <input
+          type="text"
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          onBlur={handleEditComplete}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleEditComplete()
+            if (e.key === 'Escape') {
+              setEditValue(typeof children === 'string' ? children : '')
+              setIsEditing(false)
+            }
+          }}
+          className={`${className} bg-white dark:bg-gray-800 border-2 border-blue-500 rounded px-2`}
+          style={{
+            ...style,
+            fontSize: `${size}%`,
+            width: '100%'
+          }}
+          autoFocus
+        />
+      ) : (
+        <div
+          onClick={handleTextClick}
+          className={`${className} cursor-pointer transition-all relative`}
+          style={{
+            ...style,
+            fontSize: `${size}%`,
+            outline: (isHovered || isResizing) ? '2px solid #3b82f6' : 'none',
+            outlineOffset: '4px'
+          }}
+        >
+          {children}
+          {(isHovered || isResizing) && (
+            <>
+              <div
+                className="absolute w-5 h-5 bg-blue-500 rounded-sm cursor-se-resize hover:bg-blue-600 transition-colors shadow-lg border-2 border-white"
+                onMouseDown={handleMouseDown}
+                style={{ 
+                  bottom: '-12px',
+                  right: '-12px',
+                  cursor: 'se-resize',
+                  zIndex: 50
+                }}
+              />
+              {isHovered && !isResizing && (
+                <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none z-50">
+                  Click to edit • Drag corner to resize
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // Helper function to render case study card
 const renderCaseStudyCard = (caseStudy: any, index: number, themeStyles: any) => {
   return (
@@ -151,7 +285,9 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
   caseStudies = [],
   vslData,
   onFieldEdit,
-  onCtaClick
+  onCtaClick,
+  textSizes,
+  onTextSizeChange
 }) => {
   // Simple theme styles - no font customization
   const isDark = customization?.themeMode === 'dark'
@@ -172,19 +308,45 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
     className?: string
     style?: React.CSSProperties
   }> = ({ fieldId, children, className, style }) => {
+    // Determine if this field should be resizable
+    const resizableFields = ['heading', 'subheading', 'caseStudiesHeading', 'bookingHeading']
+    const isResizable = resizableFields.includes(fieldId)
+
     if (isEditor && onFieldEdit) {
-      return (
-        <div
-          className={`${className} cursor-pointer hover:bg-blue-50 hover:outline hover:outline-2 hover:outline-blue-300 rounded p-1 transition-all`}
-          style={style}
-          onClick={() => {
-            const newValue = prompt(`Edit ${fieldId}:`, getFieldValue(fieldId, content, TRIGGER_TEMPLATE_1_FIELDS))
-            if (newValue !== null) onFieldEdit(fieldId, newValue)
-          }}
-        >
-          {children}
-        </div>
-      )
+      if (isResizable) {
+        // Use TextResizer for headings
+        return (
+          <TextResizer
+            fieldId={fieldId}
+            className={className}
+            style={style}
+            isEditor={true}
+            onFieldEdit={onFieldEdit}
+            initialSize={textSizes?.[fieldId] || 100}
+            onSizeChange={(id, size) => {
+              // Size changes can be handled here if needed
+              // For now, size is managed locally in the component
+              onTextSizeChange?.(id, size)
+            }}
+          >
+            {children}
+          </TextResizer>
+        )
+      } else {
+        // Regular editable text for non-headings
+        return (
+          <div
+            className={`${className} cursor-pointer hover:bg-blue-50 hover:outline hover:outline-2 hover:outline-blue-300 rounded p-1 transition-all`}
+            style={style}
+            onClick={() => {
+              const newValue = prompt(`Edit ${fieldId}:`, getFieldValue(fieldId, content, TRIGGER_TEMPLATE_1_FIELDS))
+              if (newValue !== null) onFieldEdit(fieldId, newValue)
+            }}
+          >
+            {children}
+          </div>
+        )
+      }
     }
     return <div className={className} style={style}>{children}</div>
   }
@@ -413,7 +575,9 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
   funnelData,
   isEditor = false,
   caseStudies = [],
-  onFieldEdit
+  onFieldEdit,
+  textSizes,
+  onTextSizeChange
 }) => {
   // Simple theme styles - no font customization
   const isDark = customization?.themeMode === 'dark'
@@ -433,19 +597,43 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
     className?: string
     style?: React.CSSProperties
   }> = ({ fieldId, children, className, style }) => {
+    // Determine if this field should be resizable
+    const resizableFields = ['heading', 'subheading', 'caseStudiesHeading', 'bookingHeading']
+    const isResizable = resizableFields.includes(fieldId)
+
     if (isEditor && onFieldEdit) {
-      return (
-        <div
-          className={`${className} cursor-pointer hover:bg-blue-50 hover:outline hover:outline-2 hover:outline-blue-300 rounded p-1 transition-all`}
-          style={style}
-          onClick={() => {
-            const newValue = prompt(`Edit ${fieldId}:`, getFieldValue(fieldId, content, TRIGGER_TEMPLATE_1_FIELDS))
-            if (newValue !== null) onFieldEdit(fieldId, newValue)
-          }}
-        >
-          {children}
-        </div>
-      )
+      if (isResizable) {
+        // Use TextResizer for headings
+        return (
+          <TextResizer
+            fieldId={fieldId}
+            className={className}
+            style={style}
+            isEditor={true}
+            onFieldEdit={onFieldEdit}
+            initialSize={textSizes?.[fieldId] || 100}
+            onSizeChange={(id, size) => {
+              onTextSizeChange?.(id, size)
+            }}
+          >
+            {children}
+          </TextResizer>
+        )
+      } else {
+        // Regular editable text for non-headings
+        return (
+          <div
+            className={`${className} cursor-pointer hover:bg-blue-50 hover:outline hover:outline-2 hover:outline-blue-300 rounded p-1 transition-all`}
+            style={style}
+            onClick={() => {
+              const newValue = prompt(`Edit ${fieldId}:`, getFieldValue(fieldId, content, TRIGGER_TEMPLATE_1_FIELDS))
+              if (newValue !== null) onFieldEdit(fieldId, newValue)
+            }}
+          >
+            {children}
+          </div>
+        )
+      }
     }
     return <div className={className} style={style}>{children}</div>
   }

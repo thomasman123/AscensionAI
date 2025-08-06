@@ -12,6 +12,10 @@ export interface FunnelTemplateProps {
   customization?: any
   currentPage?: number
   content?: any
+  textSizes?: {
+    [key: string]: number
+  }
+  onTextSizeChange?: (fieldId: string, size: number) => void
 }
 
 export const TriggerTemplate1 = ({ 
@@ -24,7 +28,9 @@ export const TriggerTemplate1 = ({
   goToNextPage,
   customization,
   currentPage = 1,
-  content
+  content,
+  textSizes,
+  onTextSizeChange
 }: FunnelTemplateProps) => {
   // Use content if provided, otherwise fall back to funnelData
   const templateContent = content || funnelData
@@ -37,6 +43,8 @@ export const TriggerTemplate1 = ({
       funnelData={funnelData}
       isEditor={isEditor}
       caseStudies={caseStudies}
+      textSizes={textSizes}
+      onTextSizeChange={onTextSizeChange}
       onFieldEdit={(fieldId, value) => {
         if (isEditor && renderEditableText) {
           const field = editableFields.find((f: any) => f.id === fieldId)
@@ -54,6 +62,8 @@ export const TriggerTemplate1 = ({
     funnelData={funnelData}
     isEditor={isEditor}
     caseStudies={caseStudies}
+    textSizes={textSizes}
+    onTextSizeChange={onTextSizeChange}
     vslData={{
       url: funnelData.vsl_url,
       type: funnelData.vsl_type

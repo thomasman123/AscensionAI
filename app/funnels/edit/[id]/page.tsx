@@ -33,6 +33,7 @@ import {
 
 import { CaseStudyForm, type CaseStudy } from '@/components/case-study-form'
 import { MediaUpload } from '@/components/media-upload'
+import { DomainManager } from '@/components/domain-manager'
 
 interface FunnelEditPageProps {
   params: {
@@ -83,7 +84,14 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     metaTitle: '',
     metaDescription: '',
     metaKeywords: '',
-    themeMode: 'light' // This controls the live funnel theme
+    themeMode: 'light', // This controls the live funnel theme
+    // Text sizes for resizable elements
+    textSizes: {
+      heading: 100,
+      subheading: 100,
+      caseStudiesHeading: 100,
+      bookingHeading: 100
+    }
   })
 
   // Get page count based on template type
@@ -214,7 +222,14 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           metaTitle: data.funnel.meta_title || '',
           metaDescription: data.funnel.meta_description || '',
           metaKeywords: data.funnel.meta_keywords || '',
-          themeMode: data.funnel.theme_mode || 'light'
+          themeMode: data.funnel.theme_mode || 'light',
+          // Text sizes for resizable elements
+          textSizes: data.funnel.data?.customization?.textSizes || {
+            heading: 100,
+            subheading: 100,
+            caseStudiesHeading: 100,
+            bookingHeading: 100
+          }
         })
       } else {
         console.error('Failed to load funnel')
@@ -268,15 +283,33 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
 
       console.log('Save response status:', response.status)
       
-      if (response.ok) {
+      // First check if response is ok before trying to parse
+      if (!response.ok) {
+        let errorMessage = 'Failed to save changes'
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.error || errorMessage
+        } catch (e) {
+          // If JSON parsing fails, try to get text
+          const errorText = await response.text()
+          console.error('Response was not JSON:', errorText)
+          errorMessage = `Server error: ${response.status}`
+        }
+        alert(errorMessage)
+        return
+      }
+
+      // Try to parse the successful response
+      try {
         const responseData = await response.json()
         console.log('Save successful:', responseData)
         alert('Funnel saved successfully!')
         router.push('/funnels')
-      } else {
-        const errorData = await response.json()
-        console.error('Save failed:', errorData)
-        alert(errorData.error || 'Failed to save changes')
+      } catch (e) {
+        // If JSON parsing fails on success, still treat it as success
+        console.log('Save completed but response was not JSON')
+        alert('Funnel saved successfully!')
+        router.push('/funnels')
       }
     } catch (error) {
       console.error('Error saving funnel:', error)
@@ -296,6 +329,16 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     if (fieldIndex !== -1) {
       editableFields[fieldIndex].value = value
     }
+  }
+
+  const handleTextSizeChange = (fieldId: string, size: number) => {
+    setCustomization(prev => ({
+      ...prev,
+      textSizes: {
+        ...prev.textSizes,
+        [fieldId]: size
+      }
+    }))
   }
 
   // Removed color editing - using default colors only
@@ -632,7 +675,9 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             caseStudies: [], // TODO: Load case studies for preview
             goToNextPage: () => {}, // Provide empty function to prevent scrolling in editor
             currentPage: currentEditPage, // Pass the current edit page
-            customization: customization // Pass customization settings for font styling
+            customization: customization, // Pass customization settings for font styling
+            textSizes: customization.textSizes, // Pass text sizes to the template
+            onTextSizeChange: handleTextSizeChange // Pass text size handler to the template
           })}
         </div>
       </div>
@@ -1086,30 +1131,20 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
                 </Card>
 
                 {/* Domain Settings */}
-                <Card className={`bg-tier-900 border-tier-800`}>
-                  <CardHeader>
-                    <CardTitle className={`flex items-center gap-2 text-tier-50`}>
-                      <Globe className="w-5 h-5" />
-                      Domain Settings
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div>
-                      <label className={`block text-sm font-medium mb-2 text-tier-300`}>
-                        Custom Domain
-                      </label>
-                      <Input
-                        value={customization.domain}
-                        onChange={(e) => setCustomization(prev => ({ ...prev, domain: e.target.value }))}
-                        placeholder="yourdomain.com"
-                        className={`bg-tier-800 border-tier-700 text-tier-50`}
-                      />
-                      <p className={`text-sm mt-2 text-tier-400`}>
-                        Configure your custom domain to make your funnel accessible at your own URL.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
+                <DomainManager 
+                  funnelId={funnel?.id || params.id}
+                  userId={user?.id}
+                  onDomainAdded={(domain) => {
+                    console.log('Domain added:', domain)
+                    // Update the funnel's custom domain
+                    setCustomization(prev => ({ ...prev, domain: domain.domain }))
+                  }}
+                  onDomainRemoved={(domainId) => {
+                    console.log('Domain removed:', domainId)
+                    // Clear the custom domain
+                    setCustomization(prev => ({ ...prev, domain: '' }))
+                  }}
+                />
               </div>
             )}
           </div>

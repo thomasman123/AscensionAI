@@ -98,4 +98,8 @@ export interface TemplateProps {
   }
   onFieldEdit?: (fieldId: string, value: string) => void
   onCtaClick?: () => void
+  textSizes?: {
+    [key: string]: number
+  }
+  onTextSizeChange?: (fieldId: string, size: number) => void
 } 

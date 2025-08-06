@@ -163,7 +163,30 @@ export async function POST(request: NextRequest) {
       // Metadata fields
       meta_title: customization?.metaTitle || null,
       meta_description: customization?.metaDescription || null,
-      meta_keywords: customization?.metaKeywords || null
+      meta_keywords: customization?.metaKeywords || null,
+      
+      // Store text sizes and other customization data in JSON
+      data: {
+        offerData,
+        caseStudies: caseStudies || [],
+        media: media || {
+          vslType: 'none',
+          vslUrl: '',
+          vslTitle: '',
+          calendarEmbedCode: '',
+          calendarTitle: 'Book Your Call'
+        },
+        templateId,
+        customization: {
+          ...customization,
+          textSizes: customization?.textSizes || {
+            heading: 100,
+            subheading: 100,
+            caseStudiesHeading: 100,
+            bookingHeading: 100
+          }
+        }
+      }
     }
 
     const { data: funnel, error } = await supabaseAdmin
@@ -372,6 +395,13 @@ export async function GET(request: NextRequest) {
               facebook: funnel.facebook_pixel_code || '',
               google: funnel.google_analytics_code || '',
               custom: funnel.custom_tracking_code || ''
+            },
+            // Load text sizes from data column
+            textSizes: funnel.data?.customization?.textSizes || {
+              heading: 100,
+              subheading: 100,
+              caseStudiesHeading: 100,
+              bookingHeading: 100
             }
           }
         }
