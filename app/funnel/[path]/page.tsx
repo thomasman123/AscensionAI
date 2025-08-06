@@ -55,7 +55,16 @@ export default function FunnelPathPage() {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [isContentReady, setIsContentReady] = useState(false)
   const [isMobileView, setIsMobileView] = useState(false)
-  const [logoUrl, setLogoUrl] = useState<string | null>(null)
+  
+  // Try to get cached logo immediately
+  const funnelPath = Array.isArray(params.path) ? params.path.join('/') : params.path
+  const cachedLogoKey = `funnel_logo_${funnelPath}`
+  const [logoUrl, setLogoUrl] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(cachedLogoKey)
+    }
+    return null
+  })
 
   useEffect(() => {
     // Get page from URL params
@@ -75,6 +84,8 @@ export default function FunnelPathPage() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+
+
   useEffect(() => {
     const loadFunnel = async () => {
       try {
@@ -85,6 +96,7 @@ export default function FunnelPathPage() {
         }
 
         const funnelPath = Array.isArray(params.path) ? params.path.join('/') : params.path
+        const cachedLogoKey = `funnel_logo_${funnelPath}`
         const fullDomain = `ascension-ai-sm36.vercel.app/funnel/${funnelPath}`
         
         console.log('🔍 Loading funnel for path:', funnelPath)
@@ -96,9 +108,14 @@ export default function FunnelPathPage() {
           const data = await response.json()
           setFunnel(data.funnel)
           console.log('✅ Funnel loaded successfully:', data.funnel?.name)
-          // Set logo URL if available
-          if (data.funnel?.logo_url || data.funnel?.data?.customization?.logoUrl) {
-            setLogoUrl(data.funnel.logo_url || data.funnel.data?.customization?.logoUrl)
+          // Update logo URL if available and cache it
+          const newLogoUrl = data.funnel?.logo_url || data.funnel?.data?.customization?.logoUrl
+          if (newLogoUrl) {
+            setLogoUrl(newLogoUrl)
+            // Cache the logo URL for instant loading next time
+            if (typeof window !== 'undefined') {
+              localStorage.setItem(cachedLogoKey, newLogoUrl)
+            }
           }
           // Immediate content ready signal
           setIsContentReady(true)
