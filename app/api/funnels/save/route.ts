@@ -571,6 +571,7 @@ export async function PUT(request: NextRequest) {
       domain,
       customization,
       media,
+      theme_id,
       ...updateData
     } = await request.json()
 
@@ -583,6 +584,7 @@ export async function PUT(request: NextRequest) {
     if (name) updates.name = name
     if (status) updates.status = status
     if (domain) updates.domain = domain
+    if (theme_id !== undefined) updates.theme_id = theme_id
 
     if (media) {
       updates.vsl_type = media.vslType

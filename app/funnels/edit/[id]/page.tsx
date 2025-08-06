@@ -74,6 +74,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   const [showDomainModal, setShowDomainModal] = useState(false)
   const [caseStudies, setCaseStudies] = useState<any[]>([])
   const [isSavingCaseStudies, setIsSavingCaseStudies] = useState(false)
+  const [availableThemes, setAvailableThemes] = useState<any[]>([])
   
   // New states for settings tray
   const [selectedElement, setSelectedElement] = useState<SelectedElement | null>(null)
@@ -255,6 +256,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       return
     }
     loadFunnel()
+    loadAvailableThemes()
   }, [user, params.id])
 
   // Debug: Track activeEdit state changes
@@ -420,6 +422,23 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     }
   }
 
+  const loadAvailableThemes = async () => {
+    try {
+      const response = await fetch('/api/themes')
+      if (response.ok) {
+        const data = await response.json()
+        setAvailableThemes(data.themes || [])
+      }
+    } catch (error) {
+      console.error('Error loading themes:', error)
+    }
+  }
+
+  const handleThemeChange = async (themeId: string) => {
+    setFunnel((prev: any) => ({ ...prev, theme_id: themeId || null }))
+    // The theme will be saved when user clicks the Save button
+  }
+
   const handleSave = async () => {
     setIsSaving(true)
     try {
@@ -435,7 +454,9 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         templateId: funnel.data?.templateId,
         customization,
         // Ensure logo is included in the save data
-        logoUrl: customization.logoUrl
+        logoUrl: customization.logoUrl,
+        // Include theme selection
+        theme_id: funnel.theme_id
       }
 
       console.log('Saving funnel with data:', saveData)
@@ -1231,10 +1252,32 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
               </p>
             </div>
 
-            {/* Theme Settings */}
+            {/* Theme Selection */}
             <div>
               <label className="block text-xs font-medium mb-2 text-tier-300">
-                Live Funnel Theme
+                Visual Theme
+              </label>
+              <select
+                value={funnel.theme_id || ''}
+                onChange={(e) => handleThemeChange(e.target.value)}
+                className="w-full px-3 py-2 bg-tier-700 border border-tier-600 rounded-md text-tier-50 text-sm focus:border-accent-500 focus:outline-none"
+              >
+                <option value="">Default (Clean Light)</option>
+                {availableThemes.map(theme => (
+                  <option key={theme.id} value={theme.id}>
+                    {theme.name}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-tier-400 mt-1">
+                Themes control colors, fonts, and animations
+              </p>
+            </div>
+
+            {/* Theme Mode Settings */}
+            <div>
+              <label className="block text-xs font-medium mb-2 text-tier-300">
+                Live Funnel Theme Mode
               </label>
               <div className="flex items-center gap-2">
                 <button
