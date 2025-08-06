@@ -38,7 +38,6 @@ const LogoResizer: React.FC<{
     const handleMouseMove = (e: MouseEvent) => {
       const delta = e.clientX - startX.current
       const newSize = Math.max(20, startSize.current + delta) // Minimum 20px, no maximum
-      console.log('LogoResizer: Setting size to', newSize)
       setSize(newSize)
       onSizeChange?.(newSize)
     }
@@ -185,22 +184,44 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
     children: React.ReactNode
     className?: string
     style?: React.CSSProperties
-  }> = ({ fieldId, children, className, style }) => {
-    if (isEditor && onFieldEdit) {
+    isButton?: boolean
+  }> = ({ fieldId, children, className, style, isButton = false }) => {
+    // Get text size for current view
+    const textSize = textSizes?.[currentView]?.[fieldId] || 100
+    const buttonSize = isButton ? (buttonSizes?.[currentView]?.ctaText || 100) : 100
+    
+    const finalStyle = {
+      ...style,
+      fontSize: `${textSize}%`,
+      ...(isButton ? { transform: `scale(${buttonSize / 100})` } : {})
+    }
+    
+    if (isEditor && (onFieldEdit || onElementClick)) {
       return (
         <div
-          className={`${className} cursor-pointer hover:bg-blue-50 hover:outline hover:outline-2 hover:outline-blue-300 rounded p-1 transition-all`}
-          style={style}
+          className={`${className} cursor-pointer hover:bg-blue-50 hover:outline hover:outline-2 hover:outline-blue-300 rounded p-1 transition-all relative group`}
+          style={finalStyle}
           onClick={() => {
-            const newValue = prompt(`Edit ${fieldId}:`, getFieldValue(fieldId, content, TRIGGER_TEMPLATE_1_FIELDS))
-            if (newValue !== null) onFieldEdit(fieldId, newValue)
+            if (onElementClick) {
+              // Use the new click-based system
+              onElementClick(fieldId, isButton ? 'button' : 'text', isButton)
+            } else if (onFieldEdit) {
+              // Fallback to old system
+              const newValue = prompt(`Edit ${fieldId}:`, getFieldValue(fieldId, content, TRIGGER_TEMPLATE_1_FIELDS))
+              if (newValue !== null) onFieldEdit(fieldId, newValue)
+            }
           }}
         >
           {children}
+          <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <svg className="w-5 h-5 text-blue-500 bg-white rounded-full p-1 shadow-lg" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+            </svg>
+          </div>
         </div>
       )
     }
-    return <div className={className} style={style}>{children}</div>
+    return <div className={className} style={finalStyle}>{children}</div>
   }
 
   return (
@@ -314,6 +335,7 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
                 border: 'none',
                 color: '#ffffff'
               }}
+              isButton={true}
             >
               {getFieldValue('ctaText', content, TRIGGER_TEMPLATE_1_FIELDS)}
             </EditableText>
@@ -388,6 +410,7 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
                 border: 'none',
                 color: '#ffffff'
               }}
+              isButton={true}
             >
               {getFieldValue('ctaText', content, TRIGGER_TEMPLATE_1_FIELDS)}
             </EditableText>
@@ -461,22 +484,44 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
     children: React.ReactNode
     className?: string
     style?: React.CSSProperties
-  }> = ({ fieldId, children, className, style }) => {
-    if (isEditor && onFieldEdit) {
+    isButton?: boolean
+  }> = ({ fieldId, children, className, style, isButton = false }) => {
+    // Get text size for current view
+    const textSize = textSizes?.[currentView]?.[fieldId] || 100
+    const buttonSize = isButton ? (buttonSizes?.[currentView]?.ctaText || 100) : 100
+    
+    const finalStyle = {
+      ...style,
+      fontSize: `${textSize}%`,
+      ...(isButton ? { transform: `scale(${buttonSize / 100})` } : {})
+    }
+    
+    if (isEditor && (onFieldEdit || onElementClick)) {
       return (
         <div
-          className={`${className} cursor-pointer hover:bg-blue-50 hover:outline hover:outline-2 hover:outline-blue-300 rounded p-1 transition-all`}
-          style={style}
+          className={`${className} cursor-pointer hover:bg-blue-50 hover:outline hover:outline-2 hover:outline-blue-300 rounded p-1 transition-all relative group`}
+          style={finalStyle}
           onClick={() => {
-            const newValue = prompt(`Edit ${fieldId}:`, getFieldValue(fieldId, content, TRIGGER_TEMPLATE_1_FIELDS))
-            if (newValue !== null) onFieldEdit(fieldId, newValue)
+            if (onElementClick) {
+              // Use the new click-based system
+              onElementClick(fieldId, isButton ? 'button' : 'text', isButton)
+            } else if (onFieldEdit) {
+              // Fallback to old system
+              const newValue = prompt(`Edit ${fieldId}:`, getFieldValue(fieldId, content, TRIGGER_TEMPLATE_1_FIELDS))
+              if (newValue !== null) onFieldEdit(fieldId, newValue)
+            }
           }}
         >
           {children}
+          <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <svg className="w-5 h-5 text-blue-500 bg-white rounded-full p-1 shadow-lg" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+            </svg>
+          </div>
         </div>
       )
     }
-    return <div className={className} style={style}>{children}</div>
+    return <div className={className} style={finalStyle}>{children}</div>
   }
 
   return (

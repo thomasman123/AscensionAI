@@ -36,6 +36,7 @@ export interface FunnelTemplateProps {
       [key: string]: number
     }
   }
+  onFieldEdit?: (fieldId: string, value: string) => void
 }
 
 export const TriggerTemplate1 = ({ 
@@ -55,7 +56,8 @@ export const TriggerTemplate1 = ({
   logoSize,
   onLogoSizeChange,
   onElementClick,
-  buttonSizes
+  buttonSizes,
+  onFieldEdit
 }: FunnelTemplateProps) => {
   // Use content if provided, otherwise fall back to funnelData
   const templateContent = content || funnelData
@@ -75,14 +77,14 @@ export const TriggerTemplate1 = ({
       onLogoSizeChange={onLogoSizeChange}
       onElementClick={onElementClick}
       buttonSizes={buttonSizes}
-      onFieldEdit={(fieldId, value) => {
+      onFieldEdit={onFieldEdit || ((fieldId, value) => {
         if (isEditor && renderEditableText) {
           const field = editableFields.find((f: any) => f.id === fieldId)
           if (field) {
             field.value = value
           }
         }
-      }}
+      })}
     />
   }
   
@@ -103,14 +105,14 @@ export const TriggerTemplate1 = ({
       url: funnelData.vsl_url,
       type: funnelData.vsl_type
     }}
-    onFieldEdit={(fieldId, value) => {
+    onFieldEdit={onFieldEdit || ((fieldId, value) => {
       if (isEditor && renderEditableText) {
         const field = editableFields.find((f: any) => f.id === fieldId)
         if (field) {
           field.value = value
         }
       }
-    }}
+    })}
     onCtaClick={goToNextPage}
   />
 }

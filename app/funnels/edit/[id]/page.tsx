@@ -227,6 +227,21 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     setJustActivated(null)
   }, [currentEditPage])
 
+  // Close settings tray when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (showSettingsTray) {
+        const tray = document.querySelector('.settings-tray')
+        if (tray && !tray.contains(e.target as Node)) {
+          setShowSettingsTray(false)
+        }
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showSettingsTray])
+
   const loadFunnel = async () => {
     try {
       const response = await fetch(`/api/funnels/save?userId=${user?.id}&funnelId=${params.id}`)
@@ -330,8 +345,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       }
 
       console.log('Saving funnel with data:', saveData)
-      console.log('Customization object:', customization)
-      console.log('Logo size:', customization.logoSize)
 
       const response = await fetch('/api/funnels/save', {
         method: 'PUT',
@@ -449,7 +462,6 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
   }
 
   const handleLogoSizeChange = (size: number) => {
-    console.log('handleLogoSizeChange called with size:', size, 'for view:', currentView)
     setCustomization(prev => ({
       ...prev,
       logoSize: {
@@ -681,7 +693,7 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     const currentButtonSize = isButton ? (customization.buttonSizes?.[currentView]?.ctaText || 100) : 100
 
     return (
-      <div className="fixed right-0 top-0 h-full w-80 bg-tier-900 border-l border-tier-800 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out"
+      <div className="settings-tray fixed right-0 top-0 h-full w-80 bg-tier-900 border-l border-tier-800 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out"
         style={{ transform: showSettingsTray ? 'translateX(0)' : 'translateX(100%)' }}
       >
         {/* Header */}
@@ -919,7 +931,8 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             logoSize: customization.logoSize, // Pass logo sizes
             onLogoSizeChange: handleLogoSizeChange, // Pass logo size handler to the template
             onElementClick: handleElementClick, // Pass element click handler to the template
-            buttonSizes: customization.buttonSizes // Pass button sizes to the template
+            buttonSizes: customization.buttonSizes, // Pass button sizes to the template
+            onFieldEdit: handleFieldUpdate // Pass field update handler for text editing
           })}
         </div>
       </div>
