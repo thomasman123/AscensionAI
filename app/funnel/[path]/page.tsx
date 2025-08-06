@@ -84,6 +84,37 @@ export default function FunnelPathPage() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  // Load logo immediately on mount
+  useEffect(() => {
+    const loadLogoFast = async () => {
+      if (!params.path) return
+      
+      const funnelPath = Array.isArray(params.path) ? params.path.join('/') : params.path
+      const fullDomain = `ascension-ai-sm36.vercel.app/funnel/${funnelPath}`
+      
+      try {
+        const response = await fetch(`/api/funnels/logo?domain=${encodeURIComponent(fullDomain)}`)
+        if (response.ok) {
+          const data = await response.json()
+          if (data.logoUrl) {
+            setLogoUrl(data.logoUrl)
+            // Also cache it
+            if (typeof window !== 'undefined') {
+              localStorage.setItem(`funnel_logo_${funnelPath}`, data.logoUrl)
+            }
+          }
+        }
+      } catch (err) {
+        // Silent fail - logo will be loaded with full data
+      }
+    }
+    
+    // Only load from API if we don't have a cached logo
+    if (!logoUrl) {
+      loadLogoFast()
+    }
+  }, [params.path, logoUrl])
+
 
 
   useEffect(() => {
