@@ -31,7 +31,7 @@ export const UniversalSpacer: React.FC<UniversalSpacerProps> = ({
   minHeight = 0,
   maxHeight = 300
 }) => {
-  console.log(`UniversalSpacer rendering: ${spacerId}, isEditor: ${isEditor}`)
+
   const [isHovered, setIsHovered] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [dragStartY, setDragStartY] = useState(0)
@@ -82,8 +82,9 @@ export const UniversalSpacer: React.FC<UniversalSpacerProps> = ({
       style={{ 
         height: `${currentSpacing}px`,
         minHeight: `${Math.max(20, currentSpacing)}px`, // Ensure minimum clickable area
-        borderColor: isHovered || isDragging ? '#9CA3AF' : '#E5E7EB',
-        transition: 'border-color 0.2s'
+        borderColor: isHovered || isDragging ? '#4B5563' : '#D1D5DB',
+        backgroundColor: isHovered || isDragging ? 'rgba(229, 231, 235, 0.3)' : 'rgba(243, 244, 246, 0.2)',
+        transition: 'all 0.2s'
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => !isDragging && setIsHovered(false)}
@@ -120,10 +121,11 @@ export const UniversalSpacer: React.FC<UniversalSpacerProps> = ({
         {/* Full-width divider line - always visible in editor */}
         <div 
           className={`absolute inset-x-0 top-1/2 -translate-y-1/2 transition-all duration-200 ${
-            isDragging ? 'h-1 bg-blue-500' : isHovered ? 'h-1 bg-gray-600' : 'h-0.5 bg-gray-500'
+            isDragging ? 'h-2 bg-blue-500' : isHovered ? 'h-1.5 bg-gray-700' : 'h-1 bg-gray-600'
           }`}
           style={{
-            opacity: isDragging ? 1 : isHovered ? 1 : 0.8
+            opacity: 1,
+            boxShadow: isDragging ? '0 0 10px rgba(59, 130, 246, 0.5)' : 'none'
           }}
         />
         
