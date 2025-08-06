@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { renderFunnelTemplate } from '@/lib/funnel-templates'
-import { PremiumSpinner } from '@/components/ui/loading'
 
 interface FunnelData {
   id: string
@@ -48,23 +47,9 @@ export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl
   const router = useRouter()
   const searchParams = useSearchParams()
   const [funnel, setFunnel] = useState<FunnelData | null>(initialFunnel)
-  const [loading, setLoading] = useState(true) // Always start with loading true
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const [isContentReady, setIsContentReady] = useState(false) // Start false
   const [isMobileView, setIsMobileView] = useState(false)
-  
-  // Log the logo URL to debug
-  console.log('🎨 Client: Initial logo URL:', initialLogoUrl)
-
-  // Preload logo immediately
-  useEffect(() => {
-    if (initialLogoUrl && !initialLogoUrl.startsWith('data:')) {
-      const img = new Image()
-      img.src = initialLogoUrl
-      console.log('🖼️ Preloading logo:', initialLogoUrl)
-    }
-  }, [initialLogoUrl])
 
   useEffect(() => {
     // Get page from URL params
@@ -85,25 +70,13 @@ export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl
   }, [])
 
   useEffect(() => {
-    // Show loading animation even with server-side data
-    if (initialFunnel) {
-      // Simulate loading for smooth animation
-      setTimeout(() => {
-        setIsContentReady(true)
-      }, 100)
-      
-      setTimeout(() => {
-        setLoading(false)
-      }, 500) // Show loading for at least 500ms
-      return
-    }
-
     // Only load if we don't have initial data
+    if (initialFunnel) return
+
     const loadFunnel = async () => {
       try {
         if (!params.path) {
           setError('No funnel path provided')
-          setLoading(false)
           return
         }
 
@@ -119,30 +92,19 @@ export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl
           const data = await response.json()
           setFunnel(data.funnel)
           console.log('✅ Funnel loaded successfully:', data.funnel?.name)
-          // Logo is already loaded from server, no need to update
-          // Immediate content ready signal
-          setIsContentReady(true)
-          // Complete animation after progress bar reaches 100%
-          setTimeout(() => setLoading(false), 150)
         } else {
           const errorData = await response.json()
           console.error('❌ Failed to load funnel:', errorData)
           setError(errorData.error || 'Funnel not found')
-          setLoading(false)
         }
       } catch (err) {
         console.error('❌ Error loading funnel:', err)
         setError('Failed to load funnel')
-        setLoading(false)
       }
     }
 
     loadFunnel()
   }, [params.path, initialFunnel])
-
-  if (loading) {
-    return <PremiumSpinner isContentReady={isContentReady} logoUrl={initialLogoUrl || undefined} />
-  }
 
   if (error || !funnel) {
     return (
@@ -165,9 +127,45 @@ export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl
     )
   }
 
+  const goToNextPage = () => {
+    const nextPage = currentPage + 1
+    router.push(`${window.location.pathname}?page=${nextPage}`)
+  }
+
+  const goToPreviousPage = () => {
+    const prevPage = Math.max(1, currentPage - 1)
+    router.push(`${window.location.pathname}?page=${prevPage}`)
+  }
+
+  // Prepare customization data
+  const customization = {
+    headline: funnel.headline || funnel.heading || 'Welcome',
+    subheadline: funnel.subheadline || funnel.subheading || '',
+    heroText: funnel.hero_text || '',
+    ctaText: funnel.cta_text || 'Get Started',
+    offerDescription: funnel.offer_description || '',
+    guaranteeText: funnel.guarantee_text || '',
+    colors: {
+      primary: funnel.primary_color || '#3b82f6',
+      secondary: funnel.secondary_color || '#1e40af',
+      accent: funnel.accent_color || '#059669'
+    },
+    caseStudiesHeading: funnel.case_studies_heading || 'Success Stories',
+    caseStudiesSubtext: funnel.case_studies_subtext || 'See what others have achieved',
+    bookingHeading: funnel.booking_heading || 'Schedule Your Call',
+    footerText: funnel.footer_text || '© 2024 All rights reserved',
+    logoUrl: initialLogoUrl || funnel.logo_url || funnel.data?.customization?.logoUrl,
+    ...(funnel.data?.customization || {}),
+    universalSpacers: funnel.data?.customization?.universalSpacers || {}
+  }
+
+  // Get case studies
+  const caseStudies = funnel.data?.caseStudies || []
+
+  // Theme styles
   const themeMode = funnel.data?.customization?.funnelTheme || 'light'
   const isDarkTheme = themeMode === 'dark'
-
+  
   const themeStyles = {
     background: isDarkTheme ? '#0f172a' : '#ffffff',
     textPrimary: isDarkTheme ? '#f8fafc' : '#1e293b',
@@ -179,94 +177,20 @@ export default function FunnelPageClient({ params, initialFunnel, initialLogoUrl
     borderColor: isDarkTheme ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.3)'
   }
 
-  const customization = {
-    themeMode,
-    heading: funnel.heading || funnel.headline || 'Transform Your Business',
-    subheading: funnel.subheading || funnel.subheadline || 'Discover the proven system',
-    ctaText: funnel.cta_text || 'Get Started Now',
-    caseStudiesHeading: funnel.case_studies_heading || 'Success Stories',
-    caseStudiesSubtext: funnel.case_studies_subtext || 'See what our clients have achieved',
-    bookingHeading: funnel.booking_heading || 'Schedule Your Call',
-    footerText: funnel.footer_text || '© 2024 All rights reserved',
-    logoUrl: initialLogoUrl || funnel.logo_url || funnel.data?.customization?.logoUrl,
-    ...(funnel.data?.customization || {}),
-    universalSpacers: funnel.data?.customization?.universalSpacers || {}
-  }
-
-  const handleGoToNextPage = () => {
-    const nextPage = currentPage + 1
-    const newUrl = new URL(window.location.href)
-    newUrl.searchParams.set('page', nextPage.toString())
-    router.push(newUrl.pathname + newUrl.search)
-  }
-
+  // Render the funnel template
   return (
-    <div style={{ backgroundColor: themeStyles.background }} className="min-h-screen">
-      {/* Render Template Content */}
+    <div>
       {renderFunnelTemplate(funnel.template_id || 'trigger-template-1', {
-        funnelData: {
-          heading: customization.heading,
-          subheading: customization.subheading,
-          ctaText: customization.ctaText,
-          caseStudiesHeading: customization.caseStudiesHeading,
-          caseStudiesSubtext: customization.caseStudiesSubtext,
-          bookingHeading: customization.bookingHeading,
-          footerText: customization.footerText,
-          vsl_url: funnel.vsl_url,
-          vsl_title: funnel.vsl_title || 'Watch This Important Message',
-          template_id: funnel.template_id || 'trigger-template-1',
-          name: funnel.name || 'Your Business',
-          calendar_embed_code: funnel.calendar_embed_code
-        },
-        themeStyles,
-        isEditor: false,
-        caseStudies: funnel.data?.caseStudies || [],
-        goToNextPage: handleGoToNextPage,
-        currentPage,
+        funnelData: funnel,
         customization,
+        caseStudies,
+        currentPage,
+        isEditor: false,
+        goToNextPage,
         currentView: isMobileView ? 'mobile' : 'desktop',
-        universalSpacers: funnel.data?.customization?.universalSpacers || {}
+        content: funnel.data?.content || {},
+        themeStyles
       })}
-      
-      {/* Facebook Pixel */}
-      {funnel.facebook_pixel_id && (
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              !function(f,b,e,v,n,t,s)
-              {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-              if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-              n.queue=[];t=b.createElement(e);t.async=!0;
-              t.src=v;s=b.getElementsByTagName(e)[0];
-              s.parentNode.insertBefore(t,s)}(window,document,'script',
-              'https://connect.facebook.net/en_US/fbevents.js');
-              fbq('init', '${funnel.facebook_pixel_id}');
-              fbq('track', 'PageView');
-            `
-          }}
-        />
-      )}
-      
-      {/* Google Analytics */}
-      {funnel.google_analytics_id && (
-        <>
-          <script
-            async
-            src={`https://www.googletagmanager.com/gtag/js?id=${funnel.google_analytics_id}`}
-          />
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${funnel.google_analytics_id}');
-              `
-            }}
-          />
-        </>
-      )}
     </div>
   )
 } 
