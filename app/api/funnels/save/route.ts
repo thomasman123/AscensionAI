@@ -378,8 +378,10 @@ export async function GET(request: NextRequest) {
         updatedAt: funnel.updated_at,
         domain: funnel.domain,
         data: {
-          offerData: {}, // This would need to be reconstructed or stored separately
-          caseStudies: funnel.case_studies || [],
+          // Merge the stored data with reconstructed data
+          ...(funnel.data || {}),
+          offerData: funnel.data?.offerData || {}, 
+          caseStudies: funnel.case_studies || funnel.data?.caseStudies || [],
           media: {
             vslType: funnel.vsl_type,
             vslUrl: funnel.vsl_url,
@@ -389,15 +391,18 @@ export async function GET(request: NextRequest) {
           },
           templateId: funnel.template_id,
           customization: {
-            heading: funnel.headline,
-            subheadline: funnel.subheadline,
-            heroText: funnel.hero_text,
-            ctaText: funnel.cta_text,
-            caseStudiesHeading: funnel.case_studies_heading,
-            caseStudiesSubtext: funnel.case_studies_subtext,
-            bookingHeading: funnel.booking_heading,
-            offerDescription: funnel.offer_description,
-            guaranteeText: funnel.guarantee_text,
+            // Start with stored customization if it exists
+            ...(funnel.data?.customization || {}),
+            // Then apply database fields (only if they have values)
+            heading: funnel.data?.customization?.heading || funnel.headline || '',
+            subheading: funnel.data?.customization?.subheading || funnel.subheadline || '',
+            heroText: funnel.data?.customization?.heroText || funnel.hero_text || '',
+            ctaText: funnel.data?.customization?.ctaText || funnel.cta_text || '',
+            caseStudiesHeading: funnel.data?.customization?.caseStudiesHeading || funnel.case_studies_heading || '',
+            caseStudiesSubtext: funnel.data?.customization?.caseStudiesSubtext || funnel.case_studies_subtext || '',
+            bookingHeading: funnel.data?.customization?.bookingHeading || funnel.booking_heading || '',
+            offerDescription: funnel.data?.customization?.offerDescription || funnel.offer_description || '',
+            guaranteeText: funnel.data?.customization?.guaranteeText || funnel.guarantee_text || '',
             colors: {
               primary: funnel.primary_color,
               secondary: funnel.secondary_color,
@@ -447,7 +452,13 @@ export async function GET(request: NextRequest) {
               }
             },
             sectionSpacing: funnel.data?.customization?.sectionSpacing || {},
-            universalSpacers: funnel.data?.customization?.universalSpacers || {}
+            universalSpacers: funnel.data?.customization?.universalSpacers || {},
+            // Add metadata fields
+            metaTitle: funnel.meta_title || '',
+            metaDescription: funnel.meta_description || '',
+            metaKeywords: funnel.meta_keywords || '',
+            // Add footer text
+            footerText: funnel.data?.customization?.footerText || funnel.footer_text || '© 2024 Your Business. All rights reserved.'
           }
         }
       }
