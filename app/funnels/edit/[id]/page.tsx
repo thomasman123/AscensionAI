@@ -278,6 +278,11 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         console.log('Loaded funnel data:', data.funnel)
         console.log('Funnel data.data:', data.funnel.data)
         console.log('Customization from data:', data.funnel.data?.customization)
+        console.log('Theme mode loading:', {
+          fromCustomization: data.funnel.data?.customization?.themeMode,
+          fromFunnel: data.funnel.theme_mode,
+          final: data.funnel.data?.customization?.themeMode || data.funnel.theme_mode || 'light'
+        })
       
       // Load case studies for this funnel
       await loadCaseStudies(data.funnel.id)
@@ -296,12 +301,13 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             google: '',
             custom: ''
           },
-          funnelTheme: data.funnel.data?.customization?.funnelTheme || 'light',
+          // Load themeMode first, then use it for funnelTheme if not explicitly set
+          themeMode: data.funnel.data?.customization?.themeMode || data.funnel.theme_mode || 'light',
+          funnelTheme: data.funnel.data?.customization?.funnelTheme || data.funnel.data?.customization?.themeMode || data.funnel.theme_mode || 'light',
           // Metadata fields
           metaTitle: data.funnel.meta_title || '',
           metaDescription: data.funnel.meta_description || '',
           metaKeywords: data.funnel.meta_keywords || '',
-          themeMode: data.funnel.theme_mode || 'light',
           // Text sizes for resizable elements
           textSizes: data.funnel.data?.customization?.textSizes || {
             desktop: {
@@ -389,7 +395,9 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
         textSizes: customization.textSizes,
         logoSize: customization.logoSize,
         buttonSizes: customization.buttonSizes,
-        media: customization.media
+        media: customization.media,
+        themeMode: customization.themeMode,
+        funnelTheme: customization.funnelTheme
       })
 
       const response = await fetch('/api/funnels/save', {
