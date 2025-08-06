@@ -99,7 +99,18 @@ export interface TemplateProps {
   onFieldEdit?: (fieldId: string, value: string) => void
   onCtaClick?: () => void
   textSizes?: {
-    [key: string]: number
+    desktop?: {
+      [key: string]: number
+    }
+    mobile?: {
+      [key: string]: number
+    }
   }
   onTextSizeChange?: (fieldId: string, size: number) => void
+  currentView?: 'desktop' | 'mobile'
+  logoSize?: {
+    desktop: number
+    mobile: number
+  }
+  onLogoSizeChange?: (size: number) => void
 } 

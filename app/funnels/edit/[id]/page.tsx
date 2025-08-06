@@ -85,12 +85,25 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
     metaDescription: '',
     metaKeywords: '',
     themeMode: 'light', // This controls the live funnel theme
-    // Text sizes for resizable elements
+    // Responsive text sizes for resizable elements
     textSizes: {
-      heading: 100,
-      subheading: 100,
-      caseStudiesHeading: 100,
-      bookingHeading: 100
+      desktop: {
+        heading: 100,
+        subheading: 100,
+        caseStudiesHeading: 100,
+        bookingHeading: 100
+      },
+      mobile: {
+        heading: 100,
+        subheading: 100,
+        caseStudiesHeading: 100,
+        bookingHeading: 100
+      }
+    },
+    // Logo sizes for desktop and mobile
+    logoSize: {
+      desktop: 48,
+      mobile: 36
     }
   })
 
@@ -225,10 +238,23 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
           themeMode: data.funnel.theme_mode || 'light',
           // Text sizes for resizable elements
           textSizes: data.funnel.data?.customization?.textSizes || {
-            heading: 100,
-            subheading: 100,
-            caseStudiesHeading: 100,
-            bookingHeading: 100
+            desktop: {
+              heading: 100,
+              subheading: 100,
+              caseStudiesHeading: 100,
+              bookingHeading: 100
+            },
+            mobile: {
+              heading: 100,
+              subheading: 100,
+              caseStudiesHeading: 100,
+              bookingHeading: 100
+            }
+          },
+          // Logo sizes for desktop and mobile
+          logoSize: data.funnel.data?.customization?.logoSize || {
+            desktop: 48,
+            mobile: 36
           }
         })
       } else {
@@ -336,7 +362,20 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
       ...prev,
       textSizes: {
         ...prev.textSizes,
-        [fieldId]: size
+        [currentView]: {
+          ...prev.textSizes[currentView],
+          [fieldId]: size
+        }
+      }
+    }))
+  }
+
+  const handleLogoSizeChange = (size: number) => {
+    setCustomization(prev => ({
+      ...prev,
+      logoSize: {
+        ...prev.logoSize,
+        [currentView]: size
       }
     }))
   }
@@ -677,7 +716,10 @@ export default function FunnelEditPage({ params }: FunnelEditPageProps) {
             currentPage: currentEditPage, // Pass the current edit page
             customization: customization, // Pass customization settings for font styling
             textSizes: customization.textSizes, // Pass text sizes to the template
-            onTextSizeChange: handleTextSizeChange // Pass text size handler to the template
+            onTextSizeChange: handleTextSizeChange, // Pass text size handler to the template
+            currentView: currentView, // Pass current view (desktop/mobile)
+            logoSize: customization.logoSize, // Pass logo sizes
+            onLogoSizeChange: handleLogoSizeChange // Pass logo size handler to the template
           })}
         </div>
       </div>

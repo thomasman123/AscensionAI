@@ -11,13 +11,19 @@ const LogoResizer: React.FC<{
   src: string
   onSizeChange?: (size: number) => void
   initialSize?: number
-}> = ({ src, onSizeChange, initialSize = 48 }) => {
+  currentView?: 'desktop' | 'mobile'
+}> = ({ src, onSizeChange, initialSize = 48, currentView = 'desktop' }) => {
   const [size, setSize] = useState(initialSize)
   const [isResizing, setIsResizing] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const startX = useRef(0)
   const startSize = useRef(size)
+
+  // Update size when initialSize or currentView changes
+  useEffect(() => {
+    setSize(initialSize)
+  }, [initialSize, currentView])
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -287,7 +293,10 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
   onFieldEdit,
   onCtaClick,
   textSizes,
-  onTextSizeChange
+  onTextSizeChange,
+  currentView = 'desktop',
+  logoSize,
+  onLogoSizeChange
 }) => {
   // Simple theme styles - no font customization
   const isDark = customization?.themeMode === 'dark'
@@ -322,7 +331,7 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
             style={style}
             isEditor={true}
             onFieldEdit={onFieldEdit}
-            initialSize={textSizes?.[fieldId] || 100}
+            initialSize={textSizes?.[currentView]?.[fieldId] || 100}
             onSizeChange={(id, size) => {
               // Size changes can be handled here if needed
               // For now, size is managed locally in the component
@@ -361,8 +370,11 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
               isEditor ? (
                 <LogoResizer
                   src={customization?.logoUrl || funnelData?.logo_url}
+                  initialSize={logoSize?.[currentView] || (currentView === 'mobile' ? 36 : 48)}
+                  currentView={currentView}
                   onSizeChange={(newSize) => {
                     // Size change handled locally in the component
+                    onLogoSizeChange?.(newSize)
                   }}
                 />
               ) : (
@@ -370,6 +382,9 @@ export const TriggerTemplatePage1: React.FC<TemplateProps> = ({
                   src={customization?.logoUrl || funnelData?.logo_url} 
                   alt="Logo" 
                   className="h-12 object-contain"
+                  style={{
+                    height: `${logoSize?.[currentView] || (currentView === 'mobile' ? 36 : 48)}px`
+                  }}
                 />
               )
             ) : (
@@ -577,7 +592,10 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
   caseStudies = [],
   onFieldEdit,
   textSizes,
-  onTextSizeChange
+  onTextSizeChange,
+  currentView = 'desktop',
+  logoSize,
+  onLogoSizeChange
 }) => {
   // Simple theme styles - no font customization
   const isDark = customization?.themeMode === 'dark'
@@ -611,7 +629,7 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
             style={style}
             isEditor={true}
             onFieldEdit={onFieldEdit}
-            initialSize={textSizes?.[fieldId] || 100}
+            initialSize={textSizes?.[currentView]?.[fieldId] || 100}
             onSizeChange={(id, size) => {
               onTextSizeChange?.(id, size)
             }}
@@ -648,8 +666,11 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
               isEditor ? (
                 <LogoResizer
                   src={customization?.logoUrl || funnelData?.logo_url}
+                  initialSize={logoSize?.[currentView] || (currentView === 'mobile' ? 36 : 48)}
+                  currentView={currentView}
                   onSizeChange={(newSize) => {
                     // Size change handled locally in the component
+                    onLogoSizeChange?.(newSize)
                   }}
                 />
               ) : (
@@ -657,6 +678,9 @@ export const TriggerTemplatePage2: React.FC<TemplateProps> = ({
                   src={customization?.logoUrl || funnelData?.logo_url} 
                   alt="Logo" 
                   className="h-12 object-contain"
+                  style={{
+                    height: `${logoSize?.[currentView] || (currentView === 'mobile' ? 36 : 48)}px`
+                  }}
                 />
               )
             ) : (

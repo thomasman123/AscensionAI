@@ -180,10 +180,22 @@ export async function POST(request: NextRequest) {
         customization: {
           ...customization,
           textSizes: customization?.textSizes || {
-            heading: 100,
-            subheading: 100,
-            caseStudiesHeading: 100,
-            bookingHeading: 100
+            desktop: {
+              heading: 100,
+              subheading: 100,
+              caseStudiesHeading: 100,
+              bookingHeading: 100
+            },
+            mobile: {
+              heading: 100,
+              subheading: 100,
+              caseStudiesHeading: 100,
+              bookingHeading: 100
+            }
+          },
+          logoSize: customization?.logoSize || {
+            desktop: 48,
+            mobile: 36
           }
         }
       }
@@ -402,6 +414,10 @@ export async function GET(request: NextRequest) {
               subheading: 100,
               caseStudiesHeading: 100,
               bookingHeading: 100
+            },
+            logoSize: funnel.data?.customization?.logoSize || {
+              desktop: 48,
+              mobile: 36
             }
           }
         }

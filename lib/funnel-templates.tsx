@@ -13,9 +13,20 @@ export interface FunnelTemplateProps {
   currentPage?: number
   content?: any
   textSizes?: {
-    [key: string]: number
+    desktop?: {
+      [key: string]: number
+    }
+    mobile?: {
+      [key: string]: number
+    }
   }
   onTextSizeChange?: (fieldId: string, size: number) => void
+  currentView?: 'desktop' | 'mobile'
+  logoSize?: {
+    desktop: number
+    mobile: number
+  }
+  onLogoSizeChange?: (size: number) => void
 }
 
 export const TriggerTemplate1 = ({ 
@@ -30,7 +41,10 @@ export const TriggerTemplate1 = ({
   currentPage = 1,
   content,
   textSizes,
-  onTextSizeChange
+  onTextSizeChange,
+  currentView = 'desktop',
+  logoSize,
+  onLogoSizeChange
 }: FunnelTemplateProps) => {
   // Use content if provided, otherwise fall back to funnelData
   const templateContent = content || funnelData
@@ -45,6 +59,9 @@ export const TriggerTemplate1 = ({
       caseStudies={caseStudies}
       textSizes={textSizes}
       onTextSizeChange={onTextSizeChange}
+      currentView={currentView}
+      logoSize={logoSize}
+      onLogoSizeChange={onLogoSizeChange}
       onFieldEdit={(fieldId, value) => {
         if (isEditor && renderEditableText) {
           const field = editableFields.find((f: any) => f.id === fieldId)
@@ -64,6 +81,9 @@ export const TriggerTemplate1 = ({
     caseStudies={caseStudies}
     textSizes={textSizes}
     onTextSizeChange={onTextSizeChange}
+    currentView={currentView}
+    logoSize={logoSize}
+    onLogoSizeChange={onLogoSizeChange}
     vslData={{
       url: funnelData.vsl_url,
       type: funnelData.vsl_type
